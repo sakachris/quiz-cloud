@@ -13,15 +13,9 @@ from django.db.models.query_utils import Q
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required
 from .tokens import account_activation_token
-from .models import CustomUser, Subject
-
-# views.py
-# from django.shortcuts import render, redirect
-from .models import Quiz, Question, Option
+from .models import CustomUser, Subject, Quiz, Question, Option
 from .forms import QuizForm, QuestionForm, OptionForm
-from django.forms import formset_factory
 
-#OptionFormSet = formset_factory(OptionForm, extra=2)
 
 def create_quiz(request):
     if request.method == 'POST':
@@ -29,9 +23,7 @@ def create_quiz(request):
         form = QuizForm(request.POST)
         if form.is_valid():
             quiz = form.save()
-            #return render(request, 'partials/created_quiz.html', {'quiz': quiz})
-            #return redirect('add_question', quiz_id=quiz.id)
-            return redirect('add_que', quiz_id=quiz.id)
+            return redirect('add_question', quiz_id=quiz.id)
     else:
         form = QuizForm()
     return render(request, 'quiz/create_quiz.html', {'form': form})
@@ -39,26 +31,6 @@ def create_quiz(request):
 def created_quiz(request):
     quizzes = Quiz.objects.all()
     return render(request, 'quiz/created_quiz.html', {'quizzes': quizzes})
-
-def add_que(request, quiz_id):
-    if request.method == 'GET':
-        return render(request, 'partials/que.html', {'form': QuestionForm()})
-    
-    quiz = Quiz.objects.get(id=quiz_id)
-    questions = Question.objects.filter(quiz=quiz)
-    form = QuestionForm(request.POST or None)
-
-    if request.method == 'POST':
-        pass
-    else:
-        form = QuestionForm()
-    
-    context = {
-        "quiz": quiz,
-        "questions": questions,
-        "form": form
-    }
-    return render(request, 'quiz/add_que.html', context)
 
 def add_question_form(request):
     form = QuestionForm()
@@ -68,12 +40,9 @@ def add_question_form(request):
     return render(request, "partials/question_form.html", context)
 
 def add_option_form(request):
-    #question_id = request.GET.get('question_id')
     form = OptionForm()
-    #form = OptionForm(question_id=question_id)
     context = {
-        "form": form
-        #"question_id": question_id
+        "form": form       
     }
     return render(request, "partials/option_form.html", context)
 
@@ -84,21 +53,11 @@ def add_question(request, quiz_id):
     print('one1')
     if request.method == 'POST':
         print('three 3')
-        #form = QuestionForm(request.POST or None)
         if form.is_valid():
             print('two2')
             question = form.save(commit=False)
             question.quiz = quiz
             question.save()
-            #option_forms = [OptionForm(prefix=str(i)) for i in range(2)]  # Two option forms
-            # form = OptionFormSet()
-            # contexts = {
-            #     "question": question,
-            #     #"option_forms": option_forms,
-            #     "form": form
-            # }
-            # return render(request, 'quiz/add_multiple_options3.html', contexts)
-            # return redirect('question_detail', question_id=question.id)
             return redirect('add_option', question_id=question.id)
         # else:
         #     return render(request, "partials/question_form.html", context={
@@ -113,7 +72,6 @@ def add_question(request, quiz_id):
         "form": form
     }
     return render(request, 'quiz/add_question.html', context)
-    #return render(request, 'partials/question_form.html', {'form': QuestionForm()})
 
 def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
@@ -139,7 +97,6 @@ def add_option(request, question_id):
     print('option one')
     if request.method == 'POST':
         print('option two')
-        #form = OptionForm(request.POST)
         if form.is_valid():
             print('option 3')
             option = form.save(commit=False)
@@ -156,198 +113,14 @@ def add_option(request, question_id):
     else:
         #print('option 5')
         form = OptionForm()
-        #form = OptionForm(initial={'question': question_id})
-        #form = OptionForm(question_id=question_id)
+
     context = {
         "question": question,
         "options": options,
         "form": form
     }
-    # return render(request, 'quiz/add_option.html', context)
+
     return render(request, 'quiz/add_option.html', context)
-
-'''def add_option(request):
-    if request.method == 'POST':
-        form = OptionForm(request.POST)
-        if form.is_valid():
-            question_id = request.POST.get('question_id')
-            question = Question.objects.get(id=question_id)
-            option = form.save(commit=False)
-            option.question = question
-            option.save()
-            return redirect('add_option')  # Redirect to itself for adding more options
-    else:
-        option_forms = [OptionForm(prefix=str(x)) for x in range(2)]  # Generate two option forms
-    context = {
-        "option_forms": option_forms,
-        "question": question
-    }
-    return render(request, 'quiz/add_multiple_options.html', context)'''
-
-'''def add_option(request, question_id):
-    question = Question.objects.get(id=question_id)
-    options = Option.objects.filter(question=question)
-    formset = OptionFormSet()
-    print('option one')
-    if request.method == 'POST':
-        print('option two')
-        #form = OptionForm(request.POST)
-        formset = OptionFormSet(request.POST)
-        if formset.is_valid():
-            print('now')
-            for form in formset:
-                print('option 3')
-                option = form.save(commit=False)
-                #option.question = question
-                option.instance = question
-                option.save()
-                return redirect('add_option', question_id=question.id)  # Redirect to itself for adding more options
-        else:
-            print('option 4')
-            # return render(request, "partials/option_form.html", context={
-            #     "form": form
-            # })
-    else:
-        print('option 5')
-        #form = OptionForm()
-    context = {
-        "question": question,
-        "options": options,
-        "formset": formset
-    }
-    # return render(request, 'quiz/add_option.html', context)
-    return render(request, 'quiz/add_multiple_options3.html', context)'''
-
-'''def add_option(request):
-    # Initialize option_forms and question at the top to ensure they are always defined
-    #option_forms = None  # Initialize to None or an appropriate default value
-    #question = None  # Initialize to avoid reference before assignment for 'question'
-    #option_forms = [OptionForm(prefix=str(i)) for i in range(2)]
-    form = OptionFormSet()
-    print('12')
-    if request.method == 'POST':
-        print('123')
-        formset = OptionFormSet(request.POST)
-        if formset.is_valid():
-            for form in formset:
-                #option = form.save(commit=False)
-                # Set the question or any other necessary fields here
-                #option.save()
-        # Fetch the prefix of the submitted form
-        #submitted_prefix = request.POST.get('form_prefix')
-
-        # Instantiate only the submitted form with the POST data and prefix
-        #submitted_form = OptionForm(request.POST, prefix=submitted_prefix)
-
-        #if submitted_form.is_valid():
-        #form = OptionForm(request.POST)
-        #if form.is_valid():
-                print('1234')
-                question_id = request.POST.get('question_id')
-                question = Question.objects.get(id=question_id)
-                option = form.save(commit=False)
-                #option = submitted_form.save(commit=False)
-                option.question = question
-                option.save()
-            # It might be a good idea to regenerate option_forms here for the redirect
-            #option_forms = [OptionForm(prefix=str(x)) for x in range(2)]
-            #return redirect('add_option')  # Redirect to itself for adding more options
-    else:
-        print('12345')
-        #option_forms = [OptionForm(prefix=str(x)) for x in range(2)]  # Generate two option forms
-
-    context = {
-        "option_forms": option_forms,
-        "question": question
-    }
-    return render(request, 'quiz/add_multiple_options.html', context)'''
-
-
-'''def create_question(request, pk):
-    author = Author.objects.get(id=pk)
-    books = Book.objects.filter(author=author)
-    form = BookForm(request.POST or None)
-
-    if request.method == "POST":
-        if form.is_valid():
-            book = form.save(commit=False)
-            book.author = author
-            book.save()
-            return redirect("detail-book", pk=book.id)
-        else:
-            return render(request, "partials/book_form.html", context={
-                "form": form
-            })
-
-    context = {
-        "form": form,
-        "author": author,
-        "books": books
-    }
-
-    return render(request, "create_book.html", context)
-
-def create_question_form(request):
-    form = QuestionForm()
-    context = {
-        "form": form
-    }
-    return render(request, "quiz/question_form.html", context)'''
-
-'''def index(request):
-    context = {'form': QuestionForm(), 'questions': Question.objects.all()}
-    return render(request, 'quiz/index.html', context)'''
-
-'''def create_question(request, quiz_id):
-    #quiz = get_object_or_404(Quiz, id=quiz_id)
-    if request.method == 'POST':
-        form = QuestionForm(request.POST or None)
-        if form.is_valid():
-            question = form.save()
-            context = {'question': question}
-            return render(request, 'quiz/question.html', context)
-    return render(request, 'quiz/form.html', {'form': QuestionForm()})'''
-
-'''def create_question(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = Question.objects.filter(quiz=quiz)
-    form = QuestionForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.quiz = quiz
-            question.save()
-            context = {'question': question}
-            return render(request, 'quiz/question.html', context)
-    return render(request, 'quiz/form.html', {'form': QuestionForm(), 'quiz_id': quiz_id})'''
-
-
-'''def create_quiz(request):
-    if request.method == 'POST':
-        quiz_form = QuizForm(request.POST)
-        if quiz_form.is_valid():
-            quiz = quiz_form.save()
-            #return redirect('add_questions', quiz_id=quiz.id)
-            return redirect('create-question', quiz_id=quiz.id)
-    else:
-        quiz_form = QuizForm()
-    return render(request, 'quiz/create_quiz.html', {'quiz_form': quiz_form})'''
-
-'''def add_questions(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    # QuestionFormSet = inlineformset_factory(Quiz, Question, fields=('text',), extra=1, can_delete=True)
-    if request.method == 'POST':
-        formset = QuestionFormSet(request.POST, instance=quiz)
-        if formset.is_valid():
-            formset.save()
-            return redirect('quiz_list')  # Assume you have a view to list quizzes or show quiz detail
-    else:
-        formset = QuestionFormSet(instance=quiz)
-    return render(request, 'quiz/add_questions.html', {'quiz': quiz, 'formset': formset})'''
-
-'''def quiz_list(request):
-    quizzes = Quiz.objects.prefetch_related('questions__options').all()
-    return render(request, 'quiz/quiz_list.html', {'quizzes': quizzes})'''
 
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")
