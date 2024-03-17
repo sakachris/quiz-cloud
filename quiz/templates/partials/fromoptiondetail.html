@@ -1,0 +1,20 @@
+
+<!-- The 'Add Option' link is now outside the `#qop` div -->
+<!-- <a href="{% url 'add_option' associated_question.id %}" 
+   hx-get="{% url 'add_option' associated_question.id %}" 
+   hx-trigger="click" 
+   hx-target="#qop" 
+   hx-swap="beforeend">
+    Add Option
+</a> -->
+
+<ul>
+    {% for option in question.options.all %}
+    <div hx-target="this" hx-swap="outerHTML" id="qop">
+        <li>               
+            {{ option.text }}{% if option.is_correct %} (Correct){% endif %}
+            <button hx-post="{% url 'delete_option' option.id %}">Delete</button>               
+        </li>
+    </div>
+    {% endfor %}
+</ul>
