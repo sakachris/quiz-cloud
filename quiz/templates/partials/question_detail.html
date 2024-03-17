@@ -1,5 +1,7 @@
-<ul>
-    <li>
-        {{ question.text }}: {{ question.marks }}
-    </li>
-</ul>
+<div hx-target="this" hx-swap="outerHTML">
+    <h3>
+        {{ question.text }}: {{ question.marks }}marks
+        <button hx-post="{% url 'delete_question' question.id %}" class="btn btn-danger">Delete</button>
+        <button hx-post="{% url 'update_question' question.id %}" class="btn btn-success">Update</button>
+    </h3>
+</div>

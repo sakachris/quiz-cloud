@@ -10,9 +10,17 @@
                 <label for="{{ form.marks.id_for_label }}">{{ form.marks.label}}</label>
                 {{ form.marks}}
             </div>
+            {% if question %}
+            <div class="class col-3 align-self-end">
+                <button type="submit" hx-post="{% url 'update_question' question.id %}" class="btn btn-primary">
+                    Submit
+                </button>
+            </div>
+            {% else %}
             <div class="class col-3 align-self-end">
                 <button class="btn btn-primary" type="submit">Submit</button>
             </div>
+            {% endif %}
         </div>
     </form>
 </div>

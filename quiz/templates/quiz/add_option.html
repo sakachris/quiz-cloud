@@ -7,25 +7,11 @@
     <div id="option-form">
         {% for option in options %}
         <div>
-            <ul>
-                <li>{{ option.text }}{% if option.is_correct %} (Correct){% endif %}</li>
-            </ul>
+            {% include 'partials/option_detail.html' %}
         </div>
-        {% endfor %}
-        
+        {% endfor %}       
     </div>
-    <!-- <button
-        hx-get="{% url 'add_question' question.id %}"
-        hx-trigger="click">
-        Add Question
-    </button> -->
     <a href="{% url 'add_question' question.quiz.id %}" class="btn btn-primary">
         Finish
-    </a>
-    <!-- <button hx-get="{% url 'question_form' %}" hx-trigger="click" hx-target="{% url 'add_question' question.quiz.id %}">
-        Add Question
-    </button> -->
-    
+    </a>   
 {% endblock %}
-<!-- hx-get="{% url 'add_question' question.id %}" -->
-<!-- hx-trigger="click" -->

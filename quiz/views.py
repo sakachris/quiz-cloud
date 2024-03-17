@@ -9,6 +9,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.db.models.query_utils import Q
+from django.http.response import HttpResponse, HttpResponseNotAllowed
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required
@@ -50,11 +51,8 @@ def add_question(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
     questions = Question.objects.filter(quiz=quiz)
     form = QuestionForm(request.POST or None)
-    print('one1')
     if request.method == 'POST':
-        print('three 3')
         if form.is_valid():
-            print('two2')
             question = form.save(commit=False)
             question.quiz = quiz
             question.save()
@@ -73,6 +71,13 @@ def add_question(request, quiz_id):
     }
     return render(request, 'quiz/add_question.html', context)
 
+def quiz_detail(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    context = {
+        "quiz": quiz
+    }
+    return render(request, "partials/quiz_detail.html", context)
+
 def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     context = {
@@ -90,28 +95,58 @@ def option_detail(request, option_id):
     }
     return render(request, "partials/option_detail.html", context)
 
+def delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    if request.method == 'POST':
+        quiz.delete()
+        return HttpResponse("")
+    
+    return HttpResponseNotAllowed(
+        [
+            "POST",
+        ]
+    )
+
+def delete_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    if request.method == 'POST':
+        question.delete()
+        return HttpResponse("")
+    
+    return HttpResponseNotAllowed(
+        [
+            "POST",
+        ]
+    )
+
+def delete_option(request, option_id):
+    option = get_object_or_404(Option, id=option_id)
+    if request.method == 'POST':
+        option.delete()
+        return HttpResponse("")
+    
+    return HttpResponseNotAllowed(
+        [
+            "POST",
+        ]
+    )
+
 def add_option(request, question_id):
     question = Question.objects.get(id=question_id)
     options = Option.objects.filter(question=question)
     form = OptionForm(request.POST or None)
-    print('option one')
     if request.method == 'POST':
-        print('option two')
         if form.is_valid():
-            print('option 3')
             option = form.save(commit=False)
             option.question = question
             option.save()
-            #return redirect('add_option', question_id=question.id)  # Redirect to itself for adding more options
             return redirect('option_detail', option_id=option.id)
         #else:
             #redirect('add_option', question_id=question.id)
-        #     print('option 4')
         #     return render(request, "partials/option_form.html", context={
         #         "form": form
         #     })
     else:
-        #print('option 5')
         form = OptionForm()
 
     context = {
@@ -121,6 +156,57 @@ def add_option(request, question_id):
     }
 
     return render(request, 'quiz/add_option.html', context)
+
+def update_quiz(request, quiz_id):
+    quiz = Quiz.objects.get(id=quiz_id)
+    form = QuizForm(request.POST or None, instance=quiz)
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            print(request.path)
+            return redirect("quiz_detail", quiz_id=quiz.id)
+
+    context = {
+        "form": form,
+        "quiz": quiz
+    }
+
+    return render(request, "partials/quiz_form.html", context)
+
+def update_question(request, question_id):
+    question = Question.objects.get(id=question_id)
+    form = QuestionForm(request.POST or None, instance=question)
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            print(request.path)
+            return redirect("question_detail", question_id=question.id)
+
+    context = {
+        "form": form,
+        "question": question
+    }
+
+    return render(request, "partials/question_form.html", context)
+
+def update_option(request, option_id):
+    option = Option.objects.get(id=option_id)
+    form = OptionForm(request.POST or None, instance=option)
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            print(request.path)
+            return redirect("option_detail", option_id=option.id)
+
+    context = {
+        "form": form,
+        "option": option
+    }
+
+    return render(request, "partials/option_form.html", context)
 
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")

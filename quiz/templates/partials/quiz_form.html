@@ -21,7 +21,15 @@
             {{ form.subject}}
         </div> 
     </div>
+    {% if quiz %}
+        <div class="class col-3 align-self-end">
+            <button type="submit" hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">
+                Submit
+            </button>
+        </div>
+    {% else %}
     <div>
         <button class="btn btn-primary" type="submit">Submit</button>
     </div>
+    {% endif %}
 </form>

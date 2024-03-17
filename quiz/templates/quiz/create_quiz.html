@@ -3,13 +3,4 @@
     <div id="quiz-form">
         {% include 'partials/quiz_form.html' %}
     </div>
-    <div id="created-quiz">
-        {#{% include 'partials/created_quiz.html' %}#}
-    </div>
-    <!-- <form method="post" hx-post="{% url 'create_quiz' %}" hx-target="#response" hx-swap="outerHTML">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create Quiz</button>
-    </form>
-    <div id="response"></div> -->
 {% endblock %}

@@ -1,16 +1,7 @@
 {% extends 'quiz/header.html' %}
 {% block content %}
+    <a href="{% url 'create_quiz' %}" class="btn btn-success">New Quiz</a>
     {% for quiz in quizzes %}
-        <div class="class row">
-            <div class="class col-4 col-md-3">
-                {{ quiz.title }}
-            </div>
-            <div class="class col-4 col-md-3">
-                {{ quiz.time_limit }}
-            </div>
-            <div class="class col-3 align-self-end">
-                <a href="{% url 'add_question' quiz.id %}" class="">Edit</a>
-            </div>
-        </div>
-    {% endfor %}   
+        {% include 'partials/quiz_detail.html' %}   
+    {% endfor %} 
 {% endblock %}
