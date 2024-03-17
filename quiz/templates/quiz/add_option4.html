@@ -1,9 +1,0 @@
-{% block content %}
-    <h2>Question: {{ question.text }}</h2>
-    <form method="post" hx-post="{% url 'add_option' question.id %}" hx-target="#response" hx-swap="outerHTML">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add Option</button>
-    </form>
-    <div id="response"></div>
-{% endblock %}
