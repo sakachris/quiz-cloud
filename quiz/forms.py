@@ -1,9 +1,64 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
 from django.contrib.auth import get_user_model
-from .models import Subject
+from .models import Subject, Quiz, Question, Option
 #from captcha.fields import ReCaptchaField
 #from captcha.widgets import ReCaptchaV2Checkbox
+# forms.py
+#from django import forms
+from django.forms import inlineformset_factory
+
+class QuizForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ['title', 'description', 'time_limit', 'subject']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            'time_limit': forms.NumberInput(attrs={'marks': 'form-control'}),
+            'subject': forms.Select(attrs={'class': 'form-control'})
+        }
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['text', 'marks']
+
+        widgets = {
+            'text': forms.TextInput(attrs={'class': 'form-control'}),
+            'marks': forms.NumberInput(attrs={'marks': 'form-control'})
+        }
+
+class OptionForm(forms.ModelForm):
+    class Meta:
+        model = Option
+        fields = ['text', 'is_correct']
+
+    # def __init__(self, *args, **kwargs):
+    #     question_id = kwargs.pop('question_id', None)
+    #     super(OptionForm, self).__init__(*args, **kwargs)
+    #     if question_id:
+    #         self.fields['question'].initial = question_id
+
+# Creating an inline formset for options related to questions
+'''OptionFormSet = inlineformset_factory(
+    Question, Option, form=OptionForm,
+    fields=['text', 'is_correct'], extra=1, can_delete=True
+)'''
+
+'''QuestionFormSet = inlineformset_factory(
+    Quiz, Question,
+    fields=('text', 'marks'),
+    extra=1, can_delete=True
+)
+
+OptionFormSet = inlineformset_factory(
+    Question, Option,
+    fields=('text', 'is_correct'),
+    extra=4, can_delete=True
+)'''
+
 
 
 class UserRegistrationForm(UserCreationForm):

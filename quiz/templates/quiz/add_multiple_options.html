@@ -1,0 +1,24 @@
+{% block content %}
+    <h2>QuestionNew: {{ question.text }}</h2>
+    {% for form in option_forms %}
+    <form method="post" hx-post="{% url 'add_option' %}" hx-target="this" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="form_prefix" value="{{ form.prefix }}">
+        <input type="hidden" name="question_id" value="{{ question.id }}">
+        <div class="class row">
+            <div class="class col-4 col-md-3">
+                <label for="{{ form.text.id_for_label }}">{{ form.text.label}}</label>
+                {{ form.text}}
+            </div>
+            <div class="class col-4 col-md-3 align-self-end">
+                <label for="{{ form.is_correct.id_for_label }}">{{ form.is_correct.label}}</label>
+                {{ form.is_correct}}
+            </div>
+            <div class="class col-3 align-self-end">
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </div>
+        </div>
+    </form>
+    <div id="response"></div>
+    {% endfor %}
+{% endblock %}

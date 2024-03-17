@@ -1,0 +1,26 @@
+{% block content %}
+    <h2>Question: {{ question.text }}</h2>
+    {% for form in formset %}
+    <form method="post" hx-post="{% url 'add_option' question.id %}" hx-target="this" hx-swap="outerHTML" hx-trigger="click from:#submit-all">
+        {% csrf_token %}
+        <input type="hidden" name="question_id" value="{{ question.id }}">
+        <div class="class row">
+            <div class="class col-4 col-md-3">
+                <label for="{{ form.text.id_for_label }}">{{ form.text.label}}</label>
+                {{ form.text}}
+            </div>
+            <div class="class col-4 col-md-3 align-self-end">
+                <label for="{{ form.is_correct.id_for_label }}">{{ form.is_correct.label}}</label>
+                {{ form.is_correct}}
+            </div>
+            <!-- <div class="class col-3 align-self-end">
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </div> -->
+        </div>
+    </form>
+    {% endfor %}
+    <div class="">
+        <button class="btn btn-primary" id="submit-all" type="submit">Submit All</button>
+    </div>
+    <div id="response"></div>
+{% endblock %}

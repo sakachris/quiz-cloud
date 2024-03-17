@@ -1,0 +1,22 @@
+<div id="qop">
+    <ul>
+        <li>
+            <!-- <a href="{% url 'add_option' associated_question.id %}"
+                hx-get="{% url 'add_option' associated_question.id %}"
+                hx-swap="beforeend" hx-target="#qop">
+            Add Option
+            </a> -->
+            {{ option.text }}: {{ option.is_correct }}
+        </li>
+        <!-- The rest of your options will be inserted here -->
+    </ul>
+</div>
+
+<!-- The 'Add Option' link is now outside the `#qop` div -->
+<!-- <a href="{% url 'add_option' associated_question.id %}" 
+   hx-get="{% url 'add_option' associated_question.id %}" 
+   hx-trigger="click" 
+   hx-target="#qop" 
+   hx-swap="beforeend">
+    Add Option
+</a> -->

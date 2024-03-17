@@ -1,0 +1,16 @@
+{% extends 'quiz/header.html' %}
+{% block content %}
+    {% for quiz in quizzes %}
+        <div class="class row">
+            <div class="class col-4 col-md-3">
+                {{ quiz.title }}
+            </div>
+            <div class="class col-4 col-md-3">
+                {{ quiz.time_limit }}
+            </div>
+            <div class="class col-3 align-self-end">
+                <a href="{% url 'add_question' quiz.id %}" class="">Edit</a>
+            </div>
+        </div>
+    {% endfor %}   
+{% endblock %}

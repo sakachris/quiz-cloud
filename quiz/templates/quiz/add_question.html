@@ -1,0 +1,22 @@
+{% extends 'quiz/header.html' %}
+{% block content %}
+    <h2>Quiz is: {{ quiz.title }}</h2>
+    <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form">
+        Add Question
+    </button>
+    <div id="question-form">
+        {% for question in questions %}
+        <div>
+            <h3>{{ question.text }}: {{ question.marks }}marks</h3>
+            <ul>
+                {% for option in question.options.all %}
+                    <li>{{ option.text }}{% if option.is_correct %} (Correct){% endif %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+        
+    </div>
+    
+    
+{% endblock %}

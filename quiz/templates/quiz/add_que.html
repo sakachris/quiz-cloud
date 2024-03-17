@@ -1,0 +1,13 @@
+{% extends 'quiz/header.html' %}
+{% block content %}
+    <h2>Quiz is: {{ quiz.title }}</h2>
+    <div id="que-form">
+        {% include 'partials/que.html' %}
+    </div>
+    <div class="my-4">
+        <button type="button" class="btn btn-success me-2"
+        hx-get="{% url 'add_que' quiz.id  %}"
+        hx-target="#que-form"
+        hx-swap="beforeend"> Add Question</button>
+    </div>
+{% endblock %}

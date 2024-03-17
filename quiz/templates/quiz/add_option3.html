@@ -1,0 +1,9 @@
+{% block content %}
+    <h2>Question: {{ question.text }}</h2>
+    <div id="option-form">        
+    </div>
+    <button hx-get="{% url 'option_form' %}" hx-swap="beforeend" hx-target="#option-form">
+        Add Option
+    </button>
+    
+{% endblock %}

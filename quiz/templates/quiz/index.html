@@ -1,0 +1,21 @@
+{% extends "quiz/header.html" %}
+{% block content %}
+    <h1 class="mb-4 text-primary"> Add Questions to {{ quiz.title }} </h1>
+
+    <div id="question-forms">
+        {% include 'quiz/form.html' %}
+    </div>
+
+    <div class="my-4">
+        <button type="button" class="btn btn-success me-2"
+            hx-get="{% url 'create-question' %}"
+            hx-target="#question-forms"
+            hx-swap="beforeend"> + Add Question</button>
+    </div>
+
+    <div id="question-list">
+        {% for question in questions %}
+            {% include 'quiz/question.html' %}
+        {% endfor %}
+    </div>
+{% endblock content %}

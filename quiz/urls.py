@@ -2,6 +2,22 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #path('index/', views.index, name='index'),
+    #path('create-question/<int:quiz_id>/', views.create_question, name='create-question'),
+    #path('create-quiz/', views.create_quiz, name='create_quiz'),
+    #path('add-questions/<int:quiz_id>/', views.add_questions, name='add_questions'),
+    #path('quizzes/', views.quiz_list, name='quiz_list'),
+    #path('create-question-form/', views.create_question_form, name='create-question-form'),
+    path('create_quiz/', views.create_quiz, name='create_quiz'),
+    path('created_quiz/', views.created_quiz, name='created_quiz'),
+    path('add_question/<int:quiz_id>/', views.add_question, name='add_question'),
+    path('add_que/<int:quiz_id>/', views.add_que, name='add_que'),
+    path('question_detail/<int:question_id>/', views.question_detail, name='question_detail'),
+    path('option_detail/<int:option_id>/', views.option_detail, name='option_detail'),
+    path('question_form/', views.add_question_form, name='question_form'),
+    path('option_form/', views.add_option_form, name='option_form'),
+    path('add_option/<int:question_id>/', views.add_option, name='add_option'),
+    #path('add_option/', views.add_option, name='add_option'),
     path("", views.homepage, name="homepage"),
     path("teacher", views.teacher, name="teacher"),
     path("student", views.student, name="student"),

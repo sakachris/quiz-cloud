@@ -1,0 +1,62 @@
+{% extends "quiz/header.html" %}  <!-- or your base template -->
+{% load static %}  <!-- if you're using static files -->
+
+{% block content %}
+<h1>Add Questions to {{ quiz.title }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <div class="question">
+            {{ form.as_p }}
+            <div class="options">
+                <!-- Placeholder where new option forms will be added -->
+            </div>
+            <button type="button" onclick="addOption({{ forloop.counter0 }})">Add Option</button>
+        </div>
+    {% endfor %}
+    <button type="button" onclick="addQuestion()">Add Another Question</button>
+    <button type="submit">Save Questions</button>
+</form>
+
+<!-- Sample Option Form for Cloning (hidden) -->
+<div class="optionFormSample" style="display: none;">
+    <label for="id_option_text">Option Text:</label>
+    <input type="text" name="options-__prefix__-text" id="id_options-__prefix__-text">
+    <label for="id_option_is_correct">Is Correct:</label>
+    <input type="checkbox" name="options-__prefix__-is_correct" id="id_options-__prefix__-is_correct">
+</div>
+
+<script type="text/javascript">
+    function addQuestion() {
+        var totalForms = document.getElementById("id_questions-TOTAL_FORMS");
+        var currentFormCount = parseInt(totalForms.getAttribute('value'), 10);
+        
+        var questionForm = document.querySelector('.question').cloneNode(true);
+        questionForm.style.display = 'block';
+        questionForm.innerHTML = questionForm.innerHTML.replace(/-0-/g, '-' + currentFormCount + '-').replace(/_0_/g, '_' + currentFormCount + '_');
+        
+        totalForms.setAttribute('value', currentFormCount + 1);
+        
+        document.querySelector('.question').parentNode.appendChild(questionForm);
+    }
+
+    function addOption(questionNumber) {
+        var totalOptionForms = document.getElementById('id_questions-' + questionNumber + '-options-TOTAL_FORMS');
+        var currentOptionFormCount = parseInt(totalOptionForms.getAttribute('value'), 10);
+        
+        var optionForm = document.querySelector('.optionFormSample').cloneNode(true);
+        optionForm.style.display = 'block';
+        optionForm.innerHTML = optionForm.innerHTML.replace(/__prefix__/g, currentOptionFormCount);
+        
+        totalOptionForms.setAttribute('value', currentOptionFormCount + 1);
+        
+        var optionsDiv = document.querySelectorAll('.options')[questionNumber];
+        optionsDiv.appendChild(optionForm);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        addQuestion(); // Call this function if you want a question to be added by default on page load
+    });
+</script>
+{% endblock %}

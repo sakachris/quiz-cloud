@@ -9,6 +9,32 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
+class Quiz(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    time_limit = models.PositiveIntegerField(help_text="Time limit in minutes")
+    # for_class = models.CharField(max_length=50, blank=True, help_text="Specify if for a specific class")
+    subject = models.ForeignKey(Subject, related_name='quizzes', on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.title
+
+class Question(models.Model):
+    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.SET_NULL, null=True)
+    text = models.TextField()
+    marks = models.PositiveIntegerField(default=5)
+
+    def __str__(self):
+        return self.text
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, related_name='options', on_delete=models.SET_NULL, null=True)
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text
+
 class CustomUser(AbstractUser):
     def image_upload_to(self, instance=None):
         if instance:
