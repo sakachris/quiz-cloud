@@ -166,23 +166,7 @@ def add_option(request, question_id):
     # return render(request, 'quiz/add_option.html', context)
     return render(request, 'quiz/add_option.html', context)
 
-'''def add_option(request):
-    if request.method == 'POST':
-        form = OptionForm(request.POST)
-        if form.is_valid():
-            question_id = request.POST.get('question_id')
-            question = Question.objects.get(id=question_id)
-            option = form.save(commit=False)
-            option.question = question
-            option.save()
-            return redirect('add_option')  # Redirect to itself for adding more options
-    else:
-        option_forms = [OptionForm(prefix=str(x)) for x in range(2)]  # Generate two option forms
-    context = {
-        "option_forms": option_forms,
-        "question": question
-    }
-    return render(request, 'quiz/add_multiple_options.html', context)'''
+
 
 '''def add_option(request, question_id):
     question = Question.objects.get(id=question_id)
