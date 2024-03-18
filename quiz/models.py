@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.conf import settings
 import os
 
 class Subject(models.Model):
@@ -20,7 +21,7 @@ class Quiz(models.Model):
         return self.title
 
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.SET_NULL, null=True)
+    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.TextField()
     marks = models.PositiveIntegerField(default=5)
 
@@ -28,12 +29,29 @@ class Question(models.Model):
         return self.text
 
 class Option(models.Model):
-    question = models.ForeignKey(Question, related_name='options', on_delete=models.SET_NULL, null=True)
+    question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE, null=True)
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text
+
+class QuizAttempt(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    score = models.PositiveIntegerField(default=0)
+    date_attempted = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user}'s attempt on {self.quiz.title}"
+
+class Answer(models.Model):
+    quiz_attempt = models.ForeignKey(QuizAttempt, related_name='answers', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
 
 class CustomUser(AbstractUser):
     def image_upload_to(self, instance=None):

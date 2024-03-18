@@ -15,5 +15,11 @@
         <div class="class col-1 align-self-end">
             <button hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">Update</button>
         </div>
+        <div class="class col-1 align-self-end">
+            <button hx-post="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take</button>
+        </div>
+        <div class="class col-1 align-self-end">
+            <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
+        </div>
     </div>   
 </div>

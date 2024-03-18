@@ -5,7 +5,11 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <style>
+        #quiz-container {
+            display: none;
+        }
+    </style>
     <!-- Link to page favicon.ico to display in location Bar-->
     <link rel="icon" href="{% static 'images/favicon.png' %}">
 
@@ -25,6 +29,8 @@
     <!-- Jquery JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    {% block scripts %}
+    {% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include 'quiz/includes/navbar.html' %}
