@@ -20,6 +20,10 @@
             <label for="{{ form.subject.id_for_label }}">{{ form.subject.label}}</label>
             {{ form.subject}}
         </div> 
+        <div class="class col-4 col-md-3">
+            <label for="{{ form.max_attempts.id_for_label }}">{{ form.max_attempts.label}}</label>
+            {{ form.max_attempts}}
+        </div> 
     </div>
     {% if quiz %}
         <div class="class col-3 align-self-end">

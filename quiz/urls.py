@@ -18,6 +18,7 @@ urlpatterns = [
     path('option_form/', views.add_option_form, name='option_form'),
     path('add_option/<int:question_id>/', views.add_option, name='add_option'),
     path('get_quiz/<int:quiz_id>/', views.get_quiz, name='get_quiz'),
+    path('start_quiz/<int:quiz_id>/', views.start_quiz, name='start_quiz'),
     path('submit_quiz/<int:quiz_id>/', views.submit_quiz, name='submit_quiz'),
     path('quiz_results/<int:attempt_id>/', views.quiz_results, name='quiz_results'),
     path("", views.homepage, name="homepage"),

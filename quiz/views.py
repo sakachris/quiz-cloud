@@ -5,11 +5,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.db.models.query_utils import Q
+from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
+from django.http import JsonResponse
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required
@@ -213,10 +216,40 @@ def get_quiz(request, quiz_id):
     return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
 
 @login_required
+@require_POST
+def start_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz).count()
+
+    if current_attempts_count >= quiz.max_attempts:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Maximum number of attempts reached.'
+        }, status=400)
+
+    # new attempt if maximum attempts is not reached
+    attempt = QuizAttempt.objects.create(
+        user=request.user,
+        quiz=quiz,
+        start_time=timezone.now()
+    )
+    
+    return JsonResponse({
+        'status': 'success',
+        'message': 'New quiz attempt started',
+        'attempt_id': attempt.id
+    })
+
+@login_required
 def submit_quiz(request, quiz_id):
     if request.method == 'POST':
         quiz = get_object_or_404(Quiz, pk=quiz_id)
-        quiz_attempt = QuizAttempt.objects.create(user=request.user, quiz=quiz)
+        quiz_attempt = QuizAttempt.objects.filter(user=request.user, quiz=quiz).order_by('-start_time').first()
+        if not quiz_attempt:
+            return HttpResponse("No quiz attempt found", status=404)
+        
+        quiz_attempt.end_time = timezone.now()
+        quiz_attempt.save()
         
         total_score = 0
         for key, value in request.POST.items():
@@ -239,7 +272,6 @@ def submit_quiz(request, quiz_id):
         quiz_attempt.score = total_score
         quiz_attempt.save()
 
-        # Redirect to a results page or similar
         return redirect('quiz_results', quiz_attempt.id)
     else:
         return HttpResponse("Invalid request", status=400)
@@ -247,17 +279,25 @@ def submit_quiz(request, quiz_id):
 def quiz_results(request, attempt_id):
     attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
     total_marks = sum(question.marks for question in attempt.quiz.questions.all())
-    # Calculate time taken if needed (assuming `date_attempted` and a finish time are recorded)
+    date_submitted = attempt.end_time.strftime("%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
     
-    # Ensure you have a way to track when the quiz was actually finished
-    # For simplicity, this example does not cover tracking the finish time
-    # You might adjust your QuizAttempt model or logic to capture this
-    
+    if attempt.start_time and attempt.end_time:
+        time_taken = attempt.end_time - attempt.start_time
+        # Formatting time_taken as a string, i.e, "MM minutes, SS seconds"
+        time_taken_str = f"{time_taken.seconds // 60} minutes, {time_taken.seconds % 60} seconds"
+    else:
+        time_taken_str = "N/A"
+
+    number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz).count()
+    max_attempts = attempt.quiz.max_attempts
+
     context = {
         'attempt': attempt,
         'total_marks': total_marks,
-        'date_submitted': attempt.date_attempted.strftime("%Y-%m-%d %H:%M:%S"),
-        # 'time_taken': time_taken,  # Calculate and format time taken if you're tracking it
+        'date_submitted': date_submitted,
+        'time_taken': time_taken_str,
+        'number_of_attempts': number_of_attempts,
+        'max_attempts': max_attempts,
     }
     return render(request, 'quiz/quiz_results.html', context)
 

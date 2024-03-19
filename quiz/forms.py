@@ -11,13 +11,14 @@ from django.forms import inlineformset_factory
 class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title', 'description', 'time_limit', 'subject']
+        fields = ['title', 'description', 'time_limit', 'subject', 'max_attempts']
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.TextInput(attrs={'class': 'form-control'}),
             'time_limit': forms.NumberInput(attrs={'marks': 'form-control'}),
-            'subject': forms.Select(attrs={'class': 'form-control'})
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'max_attempts': forms.NumberInput(attrs={'marks': 'form-control'})
         }
 
 class QuestionForm(forms.ModelForm):
@@ -34,6 +35,11 @@ class OptionForm(forms.ModelForm):
     class Meta:
         model = Option
         fields = ['text', 'is_correct']
+
+        widgets = {
+            'text': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
 
 
 class UserRegistrationForm(UserCreationForm):

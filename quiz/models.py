@@ -16,6 +16,7 @@ class Quiz(models.Model):
     time_limit = models.PositiveIntegerField(help_text="Time limit in minutes")
     # for_class = models.CharField(max_length=50, blank=True, help_text="Specify if for a specific class")
     subject = models.ForeignKey(Subject, related_name='quizzes', on_delete=models.SET_NULL, null=True)
+    max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum number of attempts allowed")
 
     def __str__(self):
         return self.title
@@ -41,6 +42,8 @@ class QuizAttempt(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.PositiveIntegerField(default=0)
     date_attempted = models.DateTimeField(auto_now_add=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user}'s attempt on {self.quiz.title}"
