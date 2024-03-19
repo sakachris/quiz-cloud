@@ -14,7 +14,7 @@ from django.http.response import HttpResponse, HttpResponseNotAllowed
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required
 from .tokens import account_activation_token
-from .models import CustomUser, Subject, Quiz, Question, Option
+from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer
 from .forms import QuizForm, QuestionForm, OptionForm
 
 
@@ -207,6 +207,59 @@ def update_option(request, option_id):
     }
 
     return render(request, "partials/option_form.html", context)
+
+def get_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
+
+@login_required
+def submit_quiz(request, quiz_id):
+    if request.method == 'POST':
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        quiz_attempt = QuizAttempt.objects.create(user=request.user, quiz=quiz)
+        
+        total_score = 0
+        for key, value in request.POST.items():
+            if key.startswith('question_'):
+                question_id = key.split('_')[1]
+                selected_option_id = value
+                
+                question = get_object_or_404(Question, pk=question_id)
+                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                
+                Answer.objects.create(
+                    quiz_attempt=quiz_attempt,
+                    question=question,
+                    selected_option=selected_option
+                )
+                
+                if selected_option.is_correct:
+                    total_score += question.marks
+        
+        quiz_attempt.score = total_score
+        quiz_attempt.save()
+
+        # Redirect to a results page or similar
+        return redirect('quiz_results', quiz_attempt.id)
+    else:
+        return HttpResponse("Invalid request", status=400)
+
+def quiz_results(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
+    total_marks = sum(question.marks for question in attempt.quiz.questions.all())
+    # Calculate time taken if needed (assuming `date_attempted` and a finish time are recorded)
+    
+    # Ensure you have a way to track when the quiz was actually finished
+    # For simplicity, this example does not cover tracking the finish time
+    # You might adjust your QuizAttempt model or logic to capture this
+    
+    context = {
+        'attempt': attempt,
+        'total_marks': total_marks,
+        'date_submitted': attempt.date_attempted.strftime("%Y-%m-%d %H:%M:%S"),
+        # 'time_taken': time_taken,  # Calculate and format time taken if you're tracking it
+    }
+    return render(request, 'quiz/quiz_results.html', context)
 
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")

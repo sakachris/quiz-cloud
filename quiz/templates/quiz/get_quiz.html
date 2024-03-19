@@ -1,0 +1,52 @@
+{% extends "quiz/header.html" %}
+{% load quiz_filters %}
+{% block content %}
+    <button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
+    <div id="timer" style="display:none;">Time left: </div>
+    <div id="quiz-container">
+        <!-- Quiz form here -->
+        <form id="quiz-form" method="post" action="{% url 'submit_quiz' quiz.id %}">
+            {% csrf_token %}
+            {% for question in quiz.questions.all %}
+                <div>
+                    <!-- Number questions using forloop.counter -->
+                    <p>{{ forloop.counter }}. {{ question.text }} ({{ question.marks }} marks)</p>
+                    {% for option in question.options.all %}
+                        <!-- Convert option index to letter (a, b, c, ...) -->
+                        <label>
+                            <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}">
+                            <!-- Display option letter before option text -->
+                            {{ forloop.parentloop.counter|make_letter:forloop.counter }}) {{ option.text }}
+                        </label><br> <!-- Added a line break for better readability -->
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('start-quiz-btn').addEventListener('click', function() {
+            this.style.display = 'none'; // Hide start button
+            document.getElementById('quiz-container').style.display = 'block'; // Show quiz
+            document.getElementById('timer').style.display = 'block'; // Show timer
+
+            // Timer script
+            let timeLimit = {{ quiz.time_limit }} * 60; // Time limit from Django model
+            const timerDisplay = document.getElementById('timer');
+            const countdown = setInterval(function() {
+                let minutes = parseInt(timeLimit / 60, 10);
+                let seconds = parseInt(timeLimit % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.textContent = `Time left: ${minutes}:${seconds}`;
+
+                if (--timeLimit < 0) {
+                    clearInterval(countdown);
+                    document.getElementById('quiz-form').submit(); // Submit the form when time is up
+                }
+            }, 1000);
+        });
+    </script>
+{% endblock content %}
