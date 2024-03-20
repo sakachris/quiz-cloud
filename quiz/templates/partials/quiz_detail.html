@@ -10,17 +10,17 @@
         <div class="class col-1 align-self-end">
             <a href="{% url 'add_question' quiz.id %}" class="btn btn-success">Questions</a>
         </div>
-        <div class="class col-1 align-self-end">
-            <button hx-post="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger">Delete</button>
-        </div>
-        <div class="class col-1 align-self-end">
-            <button hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">Update</button>
-        </div>
-        <div class="class col-1 align-self-end">
-            <button hx-post="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take</button>
-        </div>
-        <div class="class col-1 align-self-end">
-            <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
-        </div>
+        <!-- == quiz.created_by -->
+        {% if request.user == quiz.created_by %}
+            <div class="class col-1 align-self-end">
+                <button hx-post="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger">Delete</button>
+            </div>
+            <div class="class col-1 align-self-end">
+                <button hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">Update</button>
+            </div>
+            <div class="class col-1 align-self-end">
+                <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
+            </div>
+        {% endif %}
     </div>   
 </div>

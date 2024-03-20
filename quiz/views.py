@@ -12,15 +12,16 @@ from django.core.mail import EmailMessage
 from django.db.models.query_utils import Q
 from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
-from .decorators import user_not_authenticated, teacher_required, student_required
+from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
 from .tokens import account_activation_token
 from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer, PlannedQuiz
 from .forms import QuizForm, QuestionForm, OptionForm
 
 
+@teacher_required
 def create_quiz(request):
     teacher = request.user
     if request.method == 'POST':
@@ -35,10 +36,12 @@ def create_quiz(request):
         form = QuizForm()
     return render(request, 'quiz/create_quiz.html', {'form': form})
 
+@teacher_required
 def created_quiz(request):
     quizzes = Quiz.objects.all()
     return render(request, 'quiz/created_quiz.html', {'quizzes': quizzes})
 
+@teacher_required
 def add_question_form(request):
     form = QuestionForm()
     context = {
@@ -46,6 +49,7 @@ def add_question_form(request):
     }
     return render(request, "partials/question_form.html", context)
 
+@teacher_required
 def add_option_form(request):
     form = OptionForm()
     context = {
@@ -53,6 +57,7 @@ def add_option_form(request):
     }
     return render(request, "partials/option_form.html", context)
 
+@teacher_required
 def add_question(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
     questions = Question.objects.filter(quiz=quiz)
@@ -77,6 +82,7 @@ def add_question(request, quiz_id):
     }
     return render(request, 'quiz/add_question.html', context)
 
+@teacher_required
 def quiz_detail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     context = {
@@ -84,6 +90,7 @@ def quiz_detail(request, quiz_id):
     }
     return render(request, "partials/quiz_detail.html", context)
 
+@teacher_required
 def question_detail(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     context = {
@@ -91,6 +98,7 @@ def question_detail(request, question_id):
     }
     return render(request, "partials/question_detail.html", context)
 
+@teacher_required
 def option_detail(request, option_id):
     option = get_object_or_404(Option, id=option_id)
     associated_question = option.question
@@ -101,6 +109,7 @@ def option_detail(request, option_id):
     }
     return render(request, "partials/option_detail.html", context)
 
+@teacher_and_owner_required
 def delete_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     if request.method == 'POST':
@@ -113,6 +122,7 @@ def delete_quiz(request, quiz_id):
         ]
     )
 
+@question_owner_required
 def delete_question(request, question_id):
     question = get_object_or_404(Question, id=question_id)
     if request.method == 'POST':
@@ -125,6 +135,7 @@ def delete_question(request, question_id):
         ]
     )
 
+@option_owner_required
 def delete_option(request, option_id):
     option = get_object_or_404(Option, id=option_id)
     if request.method == 'POST':
@@ -137,6 +148,7 @@ def delete_option(request, option_id):
         ]
     )
 
+@question_owner_required
 def add_option(request, question_id):
     question = Question.objects.get(id=question_id)
     options = Option.objects.filter(question=question)
@@ -163,6 +175,7 @@ def add_option(request, question_id):
 
     return render(request, 'quiz/add_option.html', context)
 
+@teacher_and_owner_required
 def update_quiz(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
     form = QuizForm(request.POST or None, instance=quiz)
@@ -180,6 +193,7 @@ def update_quiz(request, quiz_id):
 
     return render(request, "partials/quiz_form.html", context)
 
+@question_owner_required
 def update_question(request, question_id):
     question = Question.objects.get(id=question_id)
     form = QuestionForm(request.POST or None, instance=question)
@@ -197,6 +211,7 @@ def update_question(request, question_id):
 
     return render(request, "partials/question_form.html", context)
 
+@option_owner_required
 def update_option(request, option_id):
     option = Option.objects.get(id=option_id)
     form = OptionForm(request.POST or None, instance=option)
@@ -214,6 +229,7 @@ def update_option(request, option_id):
 
     return render(request, "partials/option_form.html", context)
 
+@login_required
 def get_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
@@ -285,6 +301,7 @@ def submit_quiz(request, quiz_id):
     else:
         return HttpResponse("Invalid request", status=400)
 
+@login_required
 def quiz_results(request, attempt_id):
     attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
     total_marks = sum(question.marks for question in attempt.quiz.questions.all())
@@ -310,7 +327,7 @@ def quiz_results(request, attempt_id):
     }
     return render(request, 'quiz/quiz_results.html', context)
 
-@login_required
+@student_required
 def view_quizzes(request):
     user = request.user
     if not hasattr(request.user, 'subjects'):
@@ -323,15 +340,72 @@ def view_quizzes(request):
     quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
     planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
     planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
+    #attempts = [attempt for attempt in Quiz.objects.filter(quizattempt__user_id=user.id).distinct()]
+    #attempts = Quiz.objects.filter(quizattempt__user_id=user.id).distinct()
+    attempts = Quiz.objects.filter(quizattempt__user=user).distinct()
+    print(attempts)
+    print(quizzes)
 
     context = {
         'quizzes': quizzes,
         'user': user,
         'planned_quizzes_ids': planned_quizzes_ids,
+        'attempts': attempts,
     }
     return render(request, 'quiz/view_quizzes.html', context)
 
-@login_required
+def user_quizzes(request):
+    user = request.user
+    #user_subjects = user.subjects.all()
+    student_subjects = user.subjects.all()
+    
+    # All quizzes in the user's subjects
+    #quizzes = Quiz.objects.filter(subject__in=user_subjects).distinct()
+    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
+    planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
+    planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
+
+    # Quizzes with at least one attempt by the user
+    attempted_quizzes_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
+    attempted_quizzes = quizzes.filter(id__in=attempted_quizzes_ids)
+
+    context = {
+        'quizzes': quizzes,
+        'attempted_quizzes': attempted_quizzes,
+        'user': user,
+        'planned_quizzes_ids': planned_quizzes_ids,
+    }
+
+    return render(request, 'quiz/user_quizzes.html', context)
+
+# def close_attempts(request):
+#     # Return an empty HTTP response to clear the container
+#     return HttpResponse('')
+
+# def remove_attempts(request, quiz_id):
+#     # Return an empty div with the same ID to replace the content
+#     return HttpResponse(f'<div id="attempts-{quiz_id}"></div>')
+
+# def quiz_attempts(request, quiz_id):
+#     user = request.user
+#     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
+
+#     # Render to a template string and return as HttpResponse
+#     attempts_html = render_to_string('partials/quiz_attempts.html', {'attempts': attempts})
+#     return HttpResponse(attempts_html)
+
+def quiz_attempts(request, quiz_id):
+    user = request.user
+    attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
+    total_attempts = attempts.count()  # Calculate the total number of attempts
+
+    # Render the template with attempts and total_attempts
+    context = {'attempts': attempts, 'total_attempts': total_attempts}
+    attempts_html = render_to_string('partials/quiz_attempts.html', context)
+
+    return HttpResponse(attempts_html)
+
+@student_required
 def view_take_later(request):
     planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
     quizzes = [quiz.quiz for quiz in planned_quizzes]
@@ -341,7 +415,7 @@ def view_take_later(request):
     return render(request, 'quiz/view_take_later.html', context)
 
 
-@login_required
+@student_required
 @require_POST
 def toggle_take_later(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
@@ -363,6 +437,19 @@ def toggle_take_later(request, quiz_id):
     
     return HttpResponse(button_html)
 
+# def display_quiz_attempt(request, attempt_id):
+#     attempt = get_object_or_404(QuizAttempt, id=attempt_id)
+#     user = request.user
+#     if attempt.user != user:
+#         # Make sure the user has attempted this quiz
+#         return HttpResponseForbidden("You don't have permission to view this attempt.")
+    
+#     # Fetch answers made by the user for this attempt
+#     answers = Answer.objects.filter(quiz_attempt=attempt)
+    
+#     return render(request, 'quiz/quiz_attempt_detail5.html', {'attempt': attempt, 'answers': answers})
+
+@login_required
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")
 
