@@ -17,16 +17,19 @@ from django.http import JsonResponse
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required
 from .tokens import account_activation_token
-from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer
+from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer, PlannedQuiz
 from .forms import QuizForm, QuestionForm, OptionForm
 
 
 def create_quiz(request):
+    teacher = request.user
     if request.method == 'POST':
         print('one')
         form = QuizForm(request.POST)
         if form.is_valid():
-            quiz = form.save()
+            quiz = form.save(commit=False)
+            quiz.created_by = teacher
+            quiz.save()
             return redirect('add_question', quiz_id=quiz.id)
     else:
         form = QuizForm()
@@ -272,6 +275,12 @@ def submit_quiz(request, quiz_id):
         quiz_attempt.score = total_score
         quiz_attempt.save()
 
+        planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
+        planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
+        if quiz_id in planned_quizzes_ids:
+            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id)
+            planned.delete()
+
         return redirect('quiz_results', quiz_attempt.id)
     else:
         return HttpResponse("Invalid request", status=400)
@@ -300,6 +309,59 @@ def quiz_results(request, attempt_id):
         'max_attempts': max_attempts,
     }
     return render(request, 'quiz/quiz_results.html', context)
+
+@login_required
+def view_quizzes(request):
+    user = request.user
+    if not hasattr(request.user, 'subjects'):
+        return render(request, 'quiz/no_subjects.html')  # A template to show if the user has no subjects
+
+    # Fetch all subjects the student is taking
+    student_subjects = request.user.subjects.all()
+
+    # Fetch quizzes that are related to any of the student's subjects
+    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
+    planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
+    planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
+
+    context = {
+        'quizzes': quizzes,
+        'user': user,
+        'planned_quizzes_ids': planned_quizzes_ids,
+    }
+    return render(request, 'quiz/view_quizzes.html', context)
+
+@login_required
+def view_take_later(request):
+    planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
+    quizzes = [quiz.quiz for quiz in planned_quizzes]
+
+    context = {'quizzes': quizzes}
+    
+    return render(request, 'quiz/view_take_later.html', context)
+
+
+@login_required
+@require_POST
+def toggle_take_later(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    planned_quiz, created = PlannedQuiz.objects.get_or_create(student=request.user, quiz=quiz)
+
+    # The button's ID must match what HTMX will target with hx-target
+    button_id = f'quiz-button-{quiz_id}'
+
+    # if created or not planned_quiz.taken:
+    if created:
+        # planned_quiz.taken = True
+        planned_quiz.save()
+        # Return button indicating the quiz has been added to the "take later" list
+        button_html = f'<button class="btn btn-secondary" id="{button_id}" hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" hx-target="#{button_id}" class="added">Added</button>'
+    else:
+        planned_quiz.delete()
+        # Return button allowing the user to add the quiz to the "take later" list
+        button_html = f'<button class="btn btn-primary" id="{button_id}" hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" hx-target="#{button_id}" class="take-later">Take Later</button>'
+    
+    return HttpResponse(button_html)
 
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")

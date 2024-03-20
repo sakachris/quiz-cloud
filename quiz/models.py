@@ -16,6 +16,7 @@ class Quiz(models.Model):
     time_limit = models.PositiveIntegerField(help_text="Time limit in minutes")
     # for_class = models.CharField(max_length=50, blank=True, help_text="Specify if for a specific class")
     subject = models.ForeignKey(Subject, related_name='quizzes', on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_quizzes')
     max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum number of attempts allowed")
 
     def __str__(self):
@@ -36,6 +37,17 @@ class Option(models.Model):
 
     def __str__(self):
         return self.text
+
+class PlannedQuiz(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='planned_quizzes')
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
+    taken = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['student', 'quiz']
+
+    def __str__(self):
+        return f"{self.student}'s planned quiz: {self.quiz.title}"
 
 class QuizAttempt(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -67,14 +79,7 @@ class CustomUser(AbstractUser):
         ('teacher', 'teacher'),
     )
 
-    SUBJECT_CHOICES = [
-        ('maths', 'Maths'),
-        ('english', 'English'),
-        ('science', 'Science'),
-    ]
-    DEFAULT_SUBJECT = 'maths'
     subjects = models.ManyToManyField(Subject, blank=True)
-
     email = models.EmailField(unique=True)
     status = models.CharField(max_length=100, choices=STATUS, default='student')
     school = models.CharField("School", max_length=100, default='', blank=True)
