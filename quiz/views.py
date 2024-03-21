@@ -405,6 +405,17 @@ def quiz_attempts(request, quiz_id):
 
     return HttpResponse(attempts_html)
 
+def quiz_attempts_owner(request, quiz_id):
+    #user = request.user
+    attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).order_by('-date_attempted')
+    total_attempts = attempts.count()  # Calculate the total number of attempts
+
+    # Render the template with attempts and total_attempts
+    context = {'attempts': attempts, 'total_attempts': total_attempts}
+    attempts_html = render_to_string('partials/quiz_attempts_owner.html', context)
+
+    return HttpResponse(attempts_html)
+
 @student_required
 def view_take_later(request):
     planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
@@ -448,6 +459,14 @@ def toggle_take_later(request, quiz_id):
 #     answers = Answer.objects.filter(quiz_attempt=attempt)
     
 #     return render(request, 'quiz/quiz_attempt_detail5.html', {'attempt': attempt, 'answers': answers})
+@teacher_required
+def user_created_attempted_quizzes(request):
+    # Assuming you have the user in request.user
+    user_quizzes = Quiz.objects.filter(created_by=request.user)  # Quizzes created by the user
+    attempted_quizzes = user_quizzes.filter(quizattempt__isnull=False).distinct()  # Quizzes that have been attempted
+
+    context = {'attempted_quizzes': attempted_quizzes}
+    return render(request, 'quiz/view_attempted_quizzes.html', context)
 
 @login_required
 def homepage(request):

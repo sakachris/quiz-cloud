@@ -1,0 +1,33 @@
+{% extends 'quiz/header.html' %}
+{% block content %}
+    {% if attempted_quizzes %}
+        {% for quiz in attempted_quizzes %}
+        <div>
+            <h2>{{ quiz.title }}</h2>
+            <button data-quiz-id="{{ quiz.id }}"
+                    data-url="{% url 'quiz_attempts_owner' quiz.id %}"
+                    onclick="toggleAttempts(this);"
+                    class="btn btn-secondary">See Attempts</button>
+            <div id="attempts-{{quiz.id}}"></div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <h6>You don't have attempted quizzes</h6>
+    {% endif %}
+    <script>
+        function toggleAttempts(button) {
+          var quizId = button.getAttribute('data-quiz-id');
+          var target = document.getElementById('attempts-' + quizId);
+          var url = button.getAttribute('data-url');
+          if (target.innerHTML.trim() === '') {
+            // Load the attempts via HTMX
+            htmx.ajax('GET', url, target);
+            button.innerText = 'Hide Attempts';  // Change button text
+          } else {
+            // Clear the content
+            target.innerHTML = '';
+            button.innerText = 'See Attempts';  // Reset the button text
+          }
+        }
+    </script>
+{% endblock content%}

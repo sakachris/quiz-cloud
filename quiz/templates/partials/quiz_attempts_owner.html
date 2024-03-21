@@ -1,0 +1,15 @@
+<div id="attempts-{{ attempts.first.quiz.id }}">
+    <ul>
+        {% for attempt in attempts %}
+            <li>Attempted by: {{ attempt.user }} - On: {{ attempt.date_attempted }} - Score: {{ attempt.score }}
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
+                    View Attempt
+                </button>
+                
+                {% include 'quiz/quiz_attempt_detail5.html' with attempt=attempt %}
+
+            </li>
+        {% endfor %}
+
+    </ul>
+</div>
