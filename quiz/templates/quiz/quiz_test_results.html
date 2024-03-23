@@ -1,0 +1,9 @@
+{% extends 'quiz/header.html' %}
+{% block content %}
+    <h1>Quiz Results: {{ attempt.quiz.title }}</h1>
+    <p>Marks Scored: {{ attempt.score }} out of {{ total_marks }}</p>
+    <p>Date Submitted: {{ date_submitted }}</p>
+    <!-- Display time taken if you're tracking it -->
+    <p>Time Taken: {{ time_taken }}</p>
+    <a href="{% url 'delete_attempt' attempt.id %}" class="btn btn-primary" >Back to Quiz</a>
+{% endblock content%}

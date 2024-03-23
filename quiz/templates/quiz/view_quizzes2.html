@@ -1,0 +1,23 @@
+{% extends 'quiz/header.html' %}
+
+{% block content %}
+<h2>Available Quizzes</h2>
+
+{% if quizzes %}
+<ul>
+    {% for quiz in quizzes %}
+    <li>
+        <h3>{{ quiz.title }}</h3>
+        <p>{{ quiz.description }}</p>
+        <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
+        <!-- Add more quiz details here -->
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No quizzes are available for your subjects.</p>
+<p>It looks like you haven't selected any subjects yet. Please update your profile to select the subjects you're taking.</p>
+    <a href="{% url 'profile' user.username %}" class="btn btn-primary">Select Subjects</a>
+{% endif %}
+
+{% endblock %}

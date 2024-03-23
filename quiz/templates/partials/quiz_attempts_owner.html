@@ -1,0 +1,19 @@
+<div id="attempts-{{ attempts.first.quiz.id }}">
+    {% for user, attempts in attempts_by_user.items %}
+    <div>
+        <h5>{{ user.username }}</h5>
+        <ul>
+            {% for attempt in attempts %}
+                <li>
+                    Attempted on: {{ attempt.date_attempted }} - Score: {{ attempt.score }} {% if attempt.passed %} (Passed) {% else %} (Failed) {% endif %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
+                        View Attempt
+                    </button>
+                    
+                    {% include 'quiz/quiz_attempt_detail5.html' with attempt=attempt %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>

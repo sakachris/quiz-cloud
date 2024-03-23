@@ -7,7 +7,7 @@
 <div id="timer" style="display:none;">Time left: </div>
 <div id="quiz-container" style="display:none;">
     <!-- Quiz form -->
-    <form id="quiz-form" method="post" action="{% url 'submit_quiz' quiz.id %}">
+    <form id="quiz-form" method="post" action="{% url 'submit_test_quiz' quiz.id %}">
         {% csrf_token %}
         {% for question in quiz.questions.all %}
         <div>
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide the start button, show the quiz container and timer
         this.style.display = 'none';
 
-        fetch("{% url 'start_quiz' quiz.id %}", {
+        fetch("{% url 'start_test_quiz' quiz.id %}", {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,

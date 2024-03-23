@@ -1,9 +1,12 @@
 {% extends 'quiz/header.html' %}
 {% block content %}
     <h2>Quiz is: {{ quiz.title }}</h2>
-    <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary">
-        Add Question
-    </button>
+    {% if request.user == quiz.created_by %}
+        <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary">
+            Add Question
+        </button>
+        <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary">Test Quiz</a>
+    {% endif %}
     <a href="{% url 'created_quiz' %}" class="btn btn-success">Quizzes</a>
     <div id="question-form">
         {% for question in questions %}

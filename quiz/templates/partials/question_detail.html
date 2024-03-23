@@ -1,7 +1,11 @@
 <div hx-target="this" hx-swap="outerHTML">
     <h3>
         {{ question.text }}: {{ question.marks }}marks
-        <button hx-post="{% url 'delete_question' question.id %}" class="btn btn-danger">Delete</button>
-        <button hx-post="{% url 'update_question' question.id %}" class="btn btn-success">Update</button>
+        {% if request.user == question.quiz.created_by  %}
+            <button hx-post="{% url 'delete_question' question.id %}" class="btn btn-danger">Delete</button>
+            <button hx-post="{% url 'update_question' question.id %}" class="btn btn-success">Update</button>
+            <a href="{% url 'add_option' question.id %}" class="btn btn-success">Add Option</a>
+        {% endif %}
     </h3>
 </div>
+<!-- == question.quiz.created_by -->

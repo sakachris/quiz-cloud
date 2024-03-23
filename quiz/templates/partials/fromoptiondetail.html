@@ -18,3 +18,12 @@
     </div>
     {% endfor %}
 </ul>
+
+<script>
+    document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('close-attempts')) {
+        var target = event.target.closest('div');
+        target.innerHTML = ''; // Clear the content of the closest div (which should be the container of the attempts list)
+      }
+    });
+</script> 
