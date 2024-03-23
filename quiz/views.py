@@ -15,6 +15,7 @@ from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
+from collections import defaultdict
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
@@ -511,12 +512,14 @@ def quiz_attempts(request, quiz_id):
 
 @teacher_required
 def quiz_attempts_owner(request, quiz_id):
-    #user = request.user
-    attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).order_by('-date_attempted')
-    total_attempts = attempts.count()  # Calculate the total number of attempts
+    all_attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).select_related('user').order_by('user', '-date_attempted')
 
-    # Render the template with attempts and total_attempts
-    context = {'attempts': attempts, 'total_attempts': total_attempts}
+    # Organize attempts by user
+    attempts_by_user = defaultdict(list)
+    for attempt in all_attempts:
+        attempts_by_user[attempt.user].append(attempt)
+
+    context = {'attempts_by_user': dict(attempts_by_user)}
     attempts_html = render_to_string('partials/quiz_attempts_owner.html', context)
 
     return HttpResponse(attempts_html)
