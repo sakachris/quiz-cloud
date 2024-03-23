@@ -9,10 +9,12 @@ from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
+from django.db.models import Sum
 from django.db.models.query_utils import Q
 from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.urls import reverse
 
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
 from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
@@ -229,12 +231,17 @@ def update_option(request, option_id):
 
     return render(request, "partials/option_form.html", context)
 
-@login_required
+@student_required
 def get_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
 
-@login_required
+@teacher_required
+def test_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
+
+@student_required
 @require_POST
 def start_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
@@ -259,8 +266,78 @@ def start_quiz(request, quiz_id):
         'attempt_id': attempt.id
     })
 
-@login_required
+@teacher_required
+@require_POST
+def start_test_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+
+    # new attempt if maximum attempts is not reached
+    attempt = QuizAttempt.objects.create(
+        user=request.user,
+        quiz=quiz,
+        start_time=timezone.now()
+    )
+    
+    return JsonResponse({
+        'status': 'success',
+        'message': 'New quiz test started',
+        'attempt_id': attempt.id
+    })
+
+@student_required
 def submit_quiz(request, quiz_id):
+    if request.method == 'POST':
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+        quiz_attempt = QuizAttempt.objects.filter(user=request.user, quiz=quiz).order_by('-start_time').first()
+        if not quiz_attempt:
+            return HttpResponse("No quiz attempt found", status=404)
+        
+        quiz_attempt.end_time = timezone.now()
+        quiz_attempt.save()
+        
+        total_score = 0
+        for key, value in request.POST.items():
+            if key.startswith('question_'):
+                question_id = key.split('_')[1]
+                selected_option_id = value
+                
+                question = get_object_or_404(Question, pk=question_id)
+                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                
+                Answer.objects.create(
+                    quiz_attempt=quiz_attempt,
+                    question=question,
+                    selected_option=selected_option
+                )
+                
+                if selected_option.is_correct:
+                    total_score += question.marks
+
+        # total_marks = quiz.questions.aggregate(total=Sum('marks'))['total'] or 0
+        total_marks = sum(question.marks for question in quiz.questions.all())
+        if total_marks != 0:
+            percentage_marks = round((total_score/total_marks) * 100)
+        else:
+            percentage_marks = 0
+
+        quiz_attempt.score = total_score
+        quiz_attempt.percentage_score = percentage_marks
+        if percentage_marks >= quiz.pass_mark:
+            quiz_attempt.passed = True
+        quiz_attempt.save()
+
+        planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
+        planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
+        if quiz_id in planned_quizzes_ids:
+            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id)
+            planned.delete()
+
+        return redirect('quiz_results', quiz_attempt.id)
+    else:
+        return HttpResponse("Invalid request", status=400)
+
+@teacher_required
+def submit_test_quiz(request, quiz_id):
     if request.method == 'POST':
         quiz = get_object_or_404(Quiz, pk=quiz_id)
         quiz_attempt = QuizAttempt.objects.filter(user=request.user, quiz=quiz).order_by('-start_time').first()
@@ -291,17 +368,11 @@ def submit_quiz(request, quiz_id):
         quiz_attempt.score = total_score
         quiz_attempt.save()
 
-        planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
-        planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
-        if quiz_id in planned_quizzes_ids:
-            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id)
-            planned.delete()
-
-        return redirect('quiz_results', quiz_attempt.id)
+        return redirect('quiz_test_results', quiz_attempt.id)
     else:
         return HttpResponse("Invalid request", status=400)
 
-@login_required
+@student_required
 def quiz_results(request, attempt_id):
     attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
     total_marks = sum(question.marks for question in attempt.quiz.questions.all())
@@ -316,6 +387,8 @@ def quiz_results(request, attempt_id):
 
     number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz).count()
     max_attempts = attempt.quiz.max_attempts
+    # attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
+    # total_attempts = attempts.count()
 
     context = {
         'attempt': attempt,
@@ -326,6 +399,36 @@ def quiz_results(request, attempt_id):
         'max_attempts': max_attempts,
     }
     return render(request, 'quiz/quiz_results.html', context)
+
+@teacher_required
+def quiz_test_results(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
+    total_marks = sum(question.marks for question in attempt.quiz.questions.all())
+    date_submitted = attempt.end_time.strftime("%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
+    
+    if attempt.start_time and attempt.end_time:
+        time_taken = attempt.end_time - attempt.start_time
+        # Formatting time_taken as a string, i.e, "MM minutes, SS seconds"
+        time_taken_str = f"{time_taken.seconds // 60} minutes, {time_taken.seconds % 60} seconds"
+    else:
+        time_taken_str = "N/A"
+
+    context = {
+        'attempt': attempt,
+        'total_marks': total_marks,
+        'date_submitted': date_submitted,
+        'time_taken': time_taken_str,
+    }
+    return render(request, 'quiz/quiz_test_results.html', context)
+
+@teacher_required
+def delete_attempt(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, user=request.user)  # Ensure the user owns the attempt
+    quiz_id = attempt.quiz.id
+    attempt.delete()
+    # Redirect to the quiz list or wherever you like
+    # return HttpResponseRedirect(reverse('quizzes_list'))
+    return HttpResponseRedirect(reverse('add_question', args=[quiz_id]))
 
 @student_required
 def view_quizzes(request):
@@ -354,6 +457,7 @@ def view_quizzes(request):
     }
     return render(request, 'quiz/view_quizzes.html', context)
 
+@student_required
 def user_quizzes(request):
     user = request.user
     #user_subjects = user.subjects.all()
@@ -393,7 +497,7 @@ def user_quizzes(request):
 #     # Render to a template string and return as HttpResponse
 #     attempts_html = render_to_string('partials/quiz_attempts.html', {'attempts': attempts})
 #     return HttpResponse(attempts_html)
-
+@login_required
 def quiz_attempts(request, quiz_id):
     user = request.user
     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
@@ -405,6 +509,7 @@ def quiz_attempts(request, quiz_id):
 
     return HttpResponse(attempts_html)
 
+@teacher_required
 def quiz_attempts_owner(request, quiz_id):
     #user = request.user
     attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).order_by('-date_attempted')

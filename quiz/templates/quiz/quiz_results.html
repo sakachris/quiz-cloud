@@ -2,9 +2,24 @@
 {% block content %}
     <h1>Quiz Results: {{ attempt.quiz.title }}</h1>
     <p>Marks Scored: {{ attempt.score }} out of {{ total_marks }}</p>
+    <p>Percentage Scored: {{ attempt.percentage_score }}%</p>
+    <p>Pass Mark: {{ attempt.quiz.pass_mark }}%</p>
     <p>Date Submitted: {{ date_submitted }}</p>
     <!-- Display time taken if you're tracking it -->
     <p>Time Taken: {{ time_taken }}</p>
-    <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
-    <a href="{% url 'created_quiz' %}" class="btn btn-primary">Back to Quizzes</a>
+    
+    {% if attempt.passed %}
+        <h6>You have passed the Quiz</h6>
+        <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
+        <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
+    {% else %}
+        <h6>You have NOT passed the Quiz</h6>
+        <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
+        {% if number_of_attempts != max_attempts %}
+            <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary">Take Quiz Again</a>
+        {% else %}
+            <h6>You have exhausted all attempts</h6>
+        {% endif %}
+        <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
+    {% endif %}
 {% endblock content%}

@@ -5,6 +5,7 @@
         <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary">
             Add Question
         </button>
+        <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary">Test Quiz</a>
     {% endif %}
     <a href="{% url 'created_quiz' %}" class="btn btn-success">Quizzes</a>
     <div id="question-form">

@@ -18,6 +18,7 @@ class Quiz(models.Model):
     subject = models.ForeignKey(Subject, related_name='quizzes', on_delete=models.SET_NULL, null=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_quizzes')
     max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum number of attempts allowed")
+    pass_mark = models.PositiveIntegerField(default=80, help_text="Percentage Pass Mark")
 
     def __str__(self):
         return self.title
@@ -53,6 +54,8 @@ class QuizAttempt(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.PositiveIntegerField(default=0)
+    percentage_score = models.PositiveIntegerField(default=0)
+    passed = models.BooleanField(default=False)
     date_attempted = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
