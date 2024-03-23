@@ -2,6 +2,7 @@
     <div class="class row" hx-target="this" hx-swap="outerHTML">
         <div class="class col-4 col-md-3">
             <h3>{{ quiz.title }}</h3>
+            <h6>Owner: {{ quiz.created_by }}</h6>
         </div>
         <div class="class col-4 col-md-3">
             <h3>{{ quiz.time_limit }}</h3>

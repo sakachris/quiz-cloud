@@ -1,0 +1,29 @@
+{% extends 'quiz/header.html' %}
+
+{% block content %}
+<h2>Available Quizzes</h2>
+
+{% if quizzes %}
+<ul>
+    {% for quiz in quizzes %}
+    <li id="quiz-li-{{ quiz.id }}">
+        <h3>{{ quiz.title }}</h3>
+        <p>{{ quiz.description }}</p>
+        <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
+        {% if quiz.id in planned_quizzes_ids %}
+        <!-- Ensure that hx-target points to the id of this button element itself -->
+        <button class="btn btn-secondary" id="quiz-button-{{ quiz.id }}" hx-post="{% url 'toggle_take_later' quiz.id %}" hx-swap="outerHTML" hx-target="#quiz-button-{{ quiz.id }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Added</button>
+        {% else %}
+        <!-- Ensure that hx-target points to the id of this button element itself -->
+        <button class="btn btn-secondary" id="quiz-button-{{ quiz.id }}" hx-post="{% url 'toggle_take_later' quiz.id %}" hx-swap="outerHTML" hx-target="#quiz-button-{{ quiz.id }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Take Later</button>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No quizzes are available for your subjects.</p>
+<p>It looks like you haven't selected any subjects yet. Please update your profile to select the subjects you're taking.</p>
+    <a href="{% url 'profile' user.username %}" class="btn btn-primary">Select Subjects</a>
+{% endif %}
+
+{% endblock %}
