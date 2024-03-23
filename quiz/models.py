@@ -59,6 +59,7 @@ class QuizAttempt(models.Model):
     date_attempted = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    expired = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user}'s attempt on {self.quiz.title}"

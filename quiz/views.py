@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils import timezone
+from datetime import timedelta
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
@@ -246,7 +247,7 @@ def test_quiz(request, quiz_id):
 @require_POST
 def start_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz).count()
+    current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz, expired=False).count()
 
     if current_attempts_count >= quiz.max_attempts:
         return JsonResponse({
@@ -375,6 +376,7 @@ def submit_test_quiz(request, quiz_id):
 
 @student_required
 def quiz_results(request, attempt_id):
+    now = timezone.now()
     attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
     total_marks = sum(question.marks for question in attempt.quiz.questions.all())
     date_submitted = attempt.end_time.strftime("%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
@@ -386,8 +388,29 @@ def quiz_results(request, attempt_id):
     else:
         time_taken_str = "N/A"
 
-    number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz).count()
+    number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz, expired=False).count()
+    non_expired_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz, expired=False)
     max_attempts = attempt.quiz.max_attempts
+    hours = 0
+    minutes = 0
+    if non_expired_attempts.count() >= max_attempts:
+        last_attempt = non_expired_attempts.first()
+        print(last_attempt.score)
+        time_since_last_attempt = now - last_attempt.date_attempted
+        cooldown_period = timedelta(days=1)  # 1 day cooldown period
+
+        if time_since_last_attempt > cooldown_period:
+            # Mark previous attempts as expired instead of deleting them
+            non_expired_attempts.update(expired=True)
+            # Allow the user to start a new attempt
+            # Logic to start a new attempt goes here
+        else:
+            # Calculate the remaining time
+            remaining_time = cooldown_period - time_since_last_attempt
+            # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
+            hours, remainder = divmod(remaining_time.seconds, 3600)
+            minutes = remainder // 60
+            # Pass the remaining time to the template
     # attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
     # total_attempts = attempts.count()
 
@@ -398,6 +421,8 @@ def quiz_results(request, attempt_id):
         'time_taken': time_taken_str,
         'number_of_attempts': number_of_attempts,
         'max_attempts': max_attempts,
+        'remaining_hours': hours,
+        'remaining_minutes': minutes,
     }
     return render(request, 'quiz/quiz_results.html', context)
 
@@ -500,12 +525,38 @@ def user_quizzes(request):
 #     return HttpResponse(attempts_html)
 @login_required
 def quiz_attempts(request, quiz_id):
+    now = timezone.now()
     user = request.user
     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
     total_attempts = attempts.count()  # Calculate the total number of attempts
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    non_expired_attempts = QuizAttempt.objects.filter(user=user, quiz=quiz, expired=False).order_by('-date_attempted')
+    hours = 0
+    minutes = 0
+    if non_expired_attempts.count() >= quiz.max_attempts:
+        last_attempt = non_expired_attempts.first()
+        time_since_last_attempt = now - last_attempt.date_attempted
+        cooldown_period = timedelta(days=1)  # 1 day cooldown period
+
+        if time_since_last_attempt > cooldown_period:
+            # Mark previous non_expired_attempts as expired instead of deleting them
+            non_expired_attempts.update(expired=True)
+            # Allow the user to start a new attempt
+            # Logic to start a new attempt goes here
+        else:
+            # Calculate the remaining time
+            remaining_time = cooldown_period - time_since_last_attempt
+            # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
+            hours, remainder = divmod(remaining_time.seconds, 3600)
+            minutes = remainder // 60
 
     # Render the template with attempts and total_attempts
-    context = {'attempts': attempts, 'total_attempts': total_attempts}
+    context = {
+        'attempts': attempts,
+        'total_attempts': total_attempts,
+        'remaining_hours': hours,
+        'remaining_minutes': minutes,
+    }
     attempts_html = render_to_string('partials/quiz_attempts.html', context)
 
     return HttpResponse(attempts_html)

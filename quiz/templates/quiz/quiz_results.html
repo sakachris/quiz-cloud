@@ -15,10 +15,16 @@
     {% else %}
         <h6>You have NOT passed the Quiz</h6>
         <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
-        {% if number_of_attempts != max_attempts %}
+        {% if number_of_attempts < max_attempts %}
             <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary">Take Quiz Again</a>
         {% else %}
             <h6>You have exhausted all attempts</h6>
+            {% if remaining_hours or remaining_minutes %}
+                <p>You have reached the maximum number of attempts. Please wait 
+                {% if remaining_hours %}{{ remaining_hours }} hour(s) {% endif %}
+                {% if remaining_minutes %}{{ remaining_minutes }} minute(s) {% endif %}
+                before trying again.</p>
+            {% endif %}
         {% endif %}
         <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
     {% endif %}
