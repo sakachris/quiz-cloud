@@ -508,29 +508,40 @@ def user_quizzes(request):
 
     return render(request, 'quiz/user_quizzes.html', context)
 
-# def close_attempts(request):
-#     # Return an empty HTTP response to clear the container
-#     return HttpResponse('')
+@student_required
+def completed_quizzes(request):
+    user = request.user
+    #user_subjects = user.subjects.all()
+    student_subjects = user.subjects.all()
+    
+    # # All quizzes in the user's subjects
+    # #quizzes = Quiz.objects.filter(subject__in=user_subjects).distinct()
+    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
+    # planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
+    # planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
 
-# def remove_attempts(request, quiz_id):
-#     # Return an empty div with the same ID to replace the content
-#     return HttpResponse(f'<div id="attempts-{quiz_id}"></div>')
+    # Quizzes with at least one attempt by the user
+    attempted_quizzes_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
+    attempted_quizzes = quizzes.filter(id__in=attempted_quizzes_ids)
 
-# def quiz_attempts(request, quiz_id):
-#     user = request.user
-#     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
+    context = {
+        #'quizzes': quizzes,
+        'attempted_quizzes': attempted_quizzes,
+        'user': user,
+        #'planned_quizzes_ids': planned_quizzes_ids,
+    }
 
-#     # Render to a template string and return as HttpResponse
-#     attempts_html = render_to_string('partials/quiz_attempts.html', {'attempts': attempts})
-#     return HttpResponse(attempts_html)
+    return render(request, 'quiz/completed_quizzes.html', context)
+
 @login_required
 def quiz_attempts(request, quiz_id):
     now = timezone.now()
     user = request.user
     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
-    total_attempts = attempts.count()  # Calculate the total number of attempts
+    # total_attempts = attempts.count()  # Calculate the total number of attempts
     quiz = get_object_or_404(Quiz, id=quiz_id)
     non_expired_attempts = QuizAttempt.objects.filter(user=user, quiz=quiz, expired=False).order_by('-date_attempted')
+    total_attempts = non_expired_attempts.count()
     hours = 0
     minutes = 0
     if non_expired_attempts.count() >= quiz.max_attempts:
@@ -554,6 +565,7 @@ def quiz_attempts(request, quiz_id):
     context = {
         'attempts': attempts,
         'total_attempts': total_attempts,
+        'non_expired_attempts': non_expired_attempts,
         'remaining_hours': hours,
         'remaining_minutes': minutes,
     }
@@ -634,10 +646,6 @@ def homepage(request):
 @teacher_required
 def teacher(request):
     return render(request=request, template_name="quiz/teacher.html")
-
-@student_required
-def student(request):
-    return render(request=request, template_name="quiz/student.html")
 
 def activate(request, uidb64, token):
     User = get_user_model()
@@ -720,7 +728,7 @@ def custom_login(request):
                 if user.status == 'teacher':
                     return redirect("teacher")
                 elif user.status == 'student':
-                    return redirect("student")
+                    return redirect('user_quizzes')
             
         else:
             for error in list(form.errors.values()):

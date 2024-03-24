@@ -1,33 +1,55 @@
-<header class="site-header" style="margin-bottom: 5px">
-    <nav class="navbar navbar-expand-md navbar-color">
-        <div class="container">
-            <!-- Navbar Left Side -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2c91f7;">
+    <div class="container">
+        <a href="#" class="navbar-brand fw-bold text-white">QuizCloud</a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav">
-                <a class="nav-item nav-link" href="/">Home</a>
-            </div>
-            <button aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation"
-                    class="navbar-toggler ml-auto float-right btncolor" data-target="#navbarToggle" data-toggle="collapse" type="button">
-                <i class="fas fa-bars fa-2x"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarToggle">
-                <div class="navbar-nav">
+                {% if user.status == 'student' %}
                     {% if user.is_authenticated %}
-                        <a class="nav-item nav-link" href="{% url 'profile' user.username %}">
-                            {{user.username}} <i class="fas fa-user"></i>
-                        </a>
-                        <a class="nav-item nav-link" href="{% url 'logout' %}">
-                            Log out <i class="fas fa-sign-out-alt"></i>
-                        </a>
-                    {% else %}
-                        <a class="nav-item nav-link" href="{% url 'login' %}">
-                            Log in <i class="fas fa-sign-in-alt"></i>
-                        </a>
-                        <a class="nav-item nav-link" href="{% url 'register' %}">
-                            Sign up <i class="fas fa-user-plus"></i>
-                        </a>
+                    <a href="{% url 'user_quizzes' %}" class="nav-item nav-link active text-white">
+                        Quizzes
+                    </a>
+                    <a href="{% url 'view_take_later' %}" class="nav-item nav-link text-white">
+                        Take Later Quizzes
+                    </a>
+                    <a href="{% url 'completed_quizzes' %}" class="nav-item nav-link text-white">
+                        Taken Quizzes
+                    </a>
                     {% endif %}
-                </div>
+                {% elif user.status == 'teacher' %}
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'create_quiz' %}" class="nav-item nav-link active text-white">
+                        Create Quiz
+                    </a>
+                    <a href="{% url 'created_quiz' %}" class="nav-item nav-link text-white">
+                        View Quizzes
+                    </a>
+                    <a href="{% url 'attempted_quizzes' %}" class="nav-item nav-link text-white">
+                        My Attempted Quizzes
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="nav-item nav-link text-white">
+                    Logout <i class="bi bi-box-arrow-right"></i>
+                </a>
+                <a href="{% url 'profile' user.username %}" class="nav-item nav-link text-white">
+                    Hi {{ user.username }} <i class="bi bi-person-circle"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="nav-item nav-link text-white">
+                    Login <i class="bi bi-box-arrow-left"></i>
+                </a>
+                <a href="{% url 'register' %}" class="nav-item nav-link text-white">
+                    Signup <i class="bi bi-door-open"></i>
+                </a>
+                {% endif %}
+                <!-- <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle"> -->
             </div>
         </div>
-    </nav>
-</header>
+    </div>
+</nav>

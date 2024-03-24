@@ -5,7 +5,7 @@
         <ul>
             {% for attempt in attempts %}
                 <li>
-                    Attempted on: {{ attempt.date_attempted }} - Score: {{ attempt.score }} {% if attempt.passed %} (Passed) {% else %} (Failed) {% endif %}
+                    {{ attempt.date_attempted }} - Score: {{ attempt.percentage_score }}% {% if attempt.passed %} (Passed) {% else %} (Failed) {% endif %}
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
                         View Attempt
                     </button>

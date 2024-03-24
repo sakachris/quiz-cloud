@@ -1,12 +1,14 @@
 <div hx-target="this" hx-swap="outerHTML" id="qop">
     <ul>
         <li>
-            <h5>{{ option.text }} {% if option.is_correct %} (Correct Answer){% endif %}
+            <h6>{{ option.text }} {% if option.is_correct %} <i class="bi bi-check-circle"></i>{% endif %}
             {% if request.user == option.question.quiz.created_by %}
-                <button hx-post="{% url 'delete_option' option.id %}" class="btn btn-danger">Delete</button>
-                <button hx-post="{% url 'update_option' option.id %}" class="btn btn-success">Update</button>
+                <i hx-post="{% url 'delete_option' option.id %}" class="bi bi-trash"></i>
+                <i hx-post="{% url 'update_option' option.id %}" class="bi bi-pencil-square"></i>
+                <!-- <button hx-post="{% url 'delete_option' option.id %}" class="btn btn-danger">Delete</button> -->
+                <!-- <button hx-post="{% url 'update_option' option.id %}" class="btn btn-success">Update</button> -->
             {% endif %}
-            </h5>
+            </h6>
         </li>
     </ul>
 </div>
