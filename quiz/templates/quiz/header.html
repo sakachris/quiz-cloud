@@ -9,6 +9,14 @@
         #quiz-container {
             display: none;
         }
+        /* Custom Tooltip Styles */
+        .tooltip .tooltip-inner {
+            background-color: darkred; /* Tooltip background color */
+            color: white; /* Tooltip text color */
+        }
+        .tooltip.bs-tooltip-top .tooltip-arrow::before, .tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
+            border-top-color: darkred; /* Arrow color for top tooltip */
+        }
     </style>
 
     <!-- Bootstrap CSS -->

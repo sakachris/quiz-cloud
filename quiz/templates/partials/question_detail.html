@@ -2,12 +2,16 @@
     <h5>
         {{ question.text }}: {{ question.marks }}marks
         {% if request.user == question.quiz.created_by  %}
-            <i hx-post="{% url 'delete_question' question.id %}" class="bi bi-trash"></i>
-            <i hx-post="{% url 'update_question' question.id %}" class="bi bi-pencil-square"></i>
-            <!-- <button hx-post="{% url 'delete_question' question.id %}" class="btn btn-danger">Delete</button>
-            <button hx-post="{% url 'update_question' question.id %}" class="btn btn-success">Update</button> -->
-            <!-- <a href="{% url 'add_option' question.id %}" class="btn btn-success">Add Option</a> -->
-            <a href="{% url 'add_option' question.id %}"><i class="bi bi-plus-circle"></i></a>
+            <i hx-post="{% url 'delete_question' question.id %}" class="bi bi-trash" style="color: red;" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Question"></i>
+            <i hx-post="{% url 'update_question' question.id %}" class="bi bi-pencil-square" style="color: green;" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Question"></i>
+            <a href="{% url 'add_option' question.id %}"><i class="bi bi-plus-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Option"></i></a>
         {% endif %}
     </h5>
 </div>
+
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
