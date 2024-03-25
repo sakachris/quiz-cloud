@@ -18,7 +18,7 @@ from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirec
 from django.urls import reverse
 from collections import defaultdict
 
-from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
+from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, QuizForms
 from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
 from .tokens import account_activation_token
 from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer, PlannedQuiz
@@ -239,13 +239,39 @@ def update_option(request, option_id):
 
 @student_required
 def get_quiz(request, quiz_id):
+    '''quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render(request, 'quiz/get_quiz.html', {'quiz': quiz})'''
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
+    questions = quiz.questions.prefetch_related('options').all()
+    if request.method == 'POST':
+        form = QuizForms(request.POST, questions=questions)
+        if form.is_valid():
+            pass
+    else:
+        form = QuizForms(questions=questions)
+    
+    return render(request, 'quiz/get_quiz.html', {'quiz': quiz, 'form': form})
 
+# @teacher_required
+# def test_quiz(request, quiz_id):
+#     quiz = get_object_or_404(Quiz, id=quiz_id)
+#     return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
 @teacher_required
 def test_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
+    questions = quiz.questions.prefetch_related('options').all()
+    #form = QuizForm(questions=questions)
+    #quiz = get_object_or_404(Quiz, id=quiz_id)
+    #questions = quiz.questions.all()
+    if request.method == 'POST':
+        form = QuizForms(request.POST, questions=questions)
+        if form.is_valid():
+            # Process the valid form data.
+            pass
+    else:
+        form = QuizForms(questions=questions)
+    
+    return render(request, 'quiz/test_quiz.html', {'quiz': quiz, 'form': form})
 
 @student_required
 @require_POST
@@ -302,22 +328,55 @@ def submit_quiz(request, quiz_id):
         quiz_attempt.save()
         
         total_score = 0
-        for key, value in request.POST.items():
+        #for key, value in request.POST.items():
+        for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
-                selected_option_id = value
+                #selected_option_id = value
+                selected_option_ids = value
                 
                 question = get_object_or_404(Question, pk=question_id)
-                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                correct_options = question.options.filter(is_correct=True)
+                #selected_option = get_object_or_404(Option, pk=selected_option_id)
                 
-                Answer.objects.create(
+                # Create an answer object
+                answer = Answer.objects.create(
+                    quiz_attempt=quiz_attempt,
+                    question=question
+                )
+
+                # Add selected options to the answer
+                for option_id in selected_option_ids:
+                    selected_option = get_object_or_404(Option, pk=option_id)
+                    answer.selected_options.add(selected_option)
+
+                if correct_options.count() > 1:
+                    # Verify that all selected options are correct and that all correct options are selected
+                    if all(str(option.id) in selected_option_ids for option in correct_options) and \
+                       all(str(correct_option.id) in selected_option_ids for correct_option in correct_options):
+                        total_score += question.marks  # User gets full marks for selecting all correct options
+                else:
+                    # Handle single correct option
+                    selected_option_id = value[0] if value else None
+                    '''selected_option = get_object_or_404(Option, pk=selected_option_id)
+
+                    Answer.objects.create(
+                        quiz_attempt=quiz_attempt,
+                        question=question,
+                        selected_option=selected_option
+                    )'''
+
+                    if selected_option.is_correct:
+                        total_score += question.marks
+
+                '''Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question,
                     selected_option=selected_option
                 )
                 
                 if selected_option.is_correct:
-                    total_score += question.marks
+                    total_score += question.marks'''
 
         # total_marks = quiz.questions.aggregate(total=Sum('marks'))['total'] or 0
         total_marks = sum(question.marks for question in quiz.questions.all())
@@ -354,24 +413,55 @@ def submit_test_quiz(request, quiz_id):
         quiz_attempt.save()
         
         total_score = 0
-        for key, value in request.POST.items():
+        #for key, value in request.POST.items():
+        for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
-                selected_option_id = value
+                #selected_option_id = value
+                selected_option_ids = value
                 
                 question = get_object_or_404(Question, pk=question_id)
-                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                correct_options = question.options.filter(is_correct=True)
+                #selected_option = get_object_or_404(Option, pk=selected_option_id)
                 
-                Answer.objects.create(
+                if correct_options.count() > 1:
+                    # Verify that all selected options are correct and that all correct options are selected
+                    if all(str(option.id) in selected_option_ids for option in correct_options) and \
+                       all(str(correct_option.id) in selected_option_ids for correct_option in correct_options):
+                        total_score += question.marks  # User gets full marks for selecting all correct options
+                else:
+                    # Handle single correct option
+                    selected_option_id = value[0] if value else None
+                    selected_option = get_object_or_404(Option, pk=selected_option_id)
+
+                    Answer.objects.create(
+                        quiz_attempt=quiz_attempt,
+                        question=question,
+                        selected_option=selected_option
+                    )
+
+                    if selected_option.is_correct:
+                        total_score += question.marks
+
+                '''Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question,
                     selected_option=selected_option
                 )
                 
                 if selected_option.is_correct:
-                    total_score += question.marks
+                    total_score += question.marks'''
         
+        total_marks = sum(question.marks for question in quiz.questions.all())
+        if total_marks != 0:
+            percentage_marks = round((total_score/total_marks) * 100)
+        else:
+            percentage_marks = 0
+
         quiz_attempt.score = total_score
+        quiz_attempt.percentage_score = percentage_marks
+        if percentage_marks >= quiz.pass_mark:
+            quiz_attempt.passed = True
         quiz_attempt.save()
 
         return redirect('quiz_test_results', quiz_attempt.id)

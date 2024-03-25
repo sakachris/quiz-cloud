@@ -1,16 +1,17 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Questions{% endblock %}
 {% block content %}
-<div class="">
+<div class="d-flex justify-content-center">
+    <div class="class container">
     <h2>{{ quiz.title }}</h2>
     <div class="mb-3">
         {% if request.user == quiz.created_by %}
-            <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary">
+            <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary btn-sm">
                 Add Question
             </button>
-            <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary">Test Quiz</a>
+            <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
         {% endif %}
-        <a href="{% url 'created_quiz' %}" class="btn btn-success">Quizzes</a>
+        <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm">Quizzes</a>
     </div>
     <div>
         <h6>
@@ -29,6 +30,7 @@
                 </div>
             {% endfor %}
         </ol>       
+    </div>
     </div>
 </div>   
 {% endblock %}

@@ -30,6 +30,9 @@ class Question(models.Model):
 
     def __str__(self):
         return self.text
+    
+    def has_multiple_correct_answers(self):
+        return self.options.filter(is_correct=True).count() > 1
 
 class Option(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE, null=True)
@@ -67,10 +70,13 @@ class QuizAttempt(models.Model):
 class Answer(models.Model):
     quiz_attempt = models.ForeignKey(QuizAttempt, related_name='answers', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    #selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    selected_options = models.ManyToManyField(Option)
 
     def __str__(self):
-        return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
+        options_str = ', '.join(option.text for option in self.selected_options.all())
+        return f"Answer to {self.question.text} by {self.quiz_attempt.user}: {options_str}"
+        #return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
 
 class CustomUser(AbstractUser):
     def image_upload_to(self, instance=None):

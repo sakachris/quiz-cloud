@@ -1,7 +1,9 @@
 {% extends 'quiz/header.html' %}
+{% block title %}Add Options{% endblock %}
 {% block content %}
-    <h2>Question is: {{ question.text }}</h2>
-    <button hx-get="{% url 'option_form' %}" hx-swap="afterbegin" hx-target="#option-form" class="btn btn-success">
+<div class="class container">
+    <h2>{{ question.text }}</h2>
+    <button hx-get="{% url 'option_form' %}" hx-swap="afterbegin" hx-target="#option-form" class="btn btn-success btn-sm">
         Add Option
     </button>
     <div id="option-form">
@@ -11,7 +13,8 @@
         </div>
         {% endfor %}       
     </div>
-    <a href="{% url 'add_question' question.quiz.id %}" class="btn btn-primary">
+    <a href="{% url 'add_question' question.quiz.id %}" class="btn btn-primary btn-sm">
         Finish
-    </a>   
+    </a>
+</div>   
 {% endblock %}
