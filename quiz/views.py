@@ -65,6 +65,8 @@ def add_option_form(request):
 def add_question(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
     questions = Question.objects.filter(quiz=quiz)
+    total_questions = questions.count()
+    total_marks = questions.aggregate(total=Sum('marks'))['total']
     form = QuestionForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
@@ -82,7 +84,9 @@ def add_question(request, quiz_id):
     context = {
         "quiz": quiz,
         "questions": questions,
-        "form": form
+        "form": form,
+        "total_questions": total_questions,
+        "total_marks": total_marks,
     }
     return render(request, 'quiz/add_question.html', context)
 
@@ -331,7 +335,7 @@ def submit_quiz(request, quiz_id):
         planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
         planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
         if quiz_id in planned_quizzes_ids:
-            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id)
+            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id, student=request.user)
             planned.delete()
 
         return redirect('quiz_results', quiz_attempt.id)
