@@ -3,14 +3,17 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.conf import settings
 import os
+import uuid
 
 class Subject(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 class Quiz(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
     time_limit = models.PositiveIntegerField(help_text="Time limit in minutes")
@@ -24,6 +27,7 @@ class Quiz(models.Model):
         return self.title
 
 class Question(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.TextField()
     marks = models.PositiveIntegerField(default=5)
@@ -35,6 +39,7 @@ class Question(models.Model):
         return self.options.filter(is_correct=True).count() > 1
 
 class Option(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE, null=True)
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
@@ -43,6 +48,7 @@ class Option(models.Model):
         return self.text
 
 class PlannedQuiz(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='planned_quizzes')
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     taken = models.BooleanField(default=False)
@@ -54,6 +60,7 @@ class PlannedQuiz(models.Model):
         return f"{self.student}'s planned quiz: {self.quiz.title}"
 
 class QuizAttempt(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.PositiveIntegerField(default=0)
@@ -68,6 +75,7 @@ class QuizAttempt(models.Model):
         return f"{self.user}'s attempt on {self.quiz.title}"
 
 class Answer(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     quiz_attempt = models.ForeignKey(QuizAttempt, related_name='answers', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     #selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
