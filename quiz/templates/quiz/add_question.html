@@ -1,21 +1,36 @@
 {% extends 'quiz/header.html' %}
+{% block title %}Questions{% endblock %}
 {% block content %}
-    <h2>Quiz is: {{ quiz.title }}</h2>
-    {% if request.user == quiz.created_by %}
-        <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary">
-            Add Question
-        </button>
-        <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary">Test Quiz</a>
-    {% endif %}
-    <a href="{% url 'created_quiz' %}" class="btn btn-success">Quizzes</a>
+<div class="d-flex justify-content-center">
+    <div class="class container">
+    <h2>{{ quiz.title }}</h2>
+    <div class="mb-3">
+        {% if request.user == quiz.created_by %}
+            <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary btn-sm">
+                Add Question
+            </button>
+            <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+        {% endif %}
+        <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm">Quizzes</a>
+    </div>
+    <div>
+        <h6>
+        Total Questions: {{ total_questions }}
+        Total Marks: {{ total_marks }}
+        </h6>
+    </div>
     <div id="question-form">
-        {% for question in questions %}
-            <div>
-                {% include 'partials/question_detail.html' %}
-                {% for option in question.options.all %}
-                    {% include 'partials/option_detail.html' %}
-                {% endfor %}
-            </div>
-        {% endfor %}       
-    </div>   
+        <ol>
+            {% for question in questions %}
+                <div>
+                    <li>{% include 'partials/question_detail.html' %}</li>
+                    {% for option in question.options.all %}
+                        {% include 'partials/option_detail.html' %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </ol>       
+    </div>
+    </div>
+</div>   
 {% endblock %}

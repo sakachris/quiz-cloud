@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils import timezone
+from datetime import timedelta
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
@@ -17,7 +18,7 @@ from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirec
 from django.urls import reverse
 from collections import defaultdict
 
-from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
+from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, QuizForms
 from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
 from .tokens import account_activation_token
 from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer, PlannedQuiz
@@ -64,6 +65,8 @@ def add_option_form(request):
 def add_question(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
     questions = Question.objects.filter(quiz=quiz)
+    total_questions = questions.count()
+    total_marks = questions.aggregate(total=Sum('marks'))['total']
     form = QuestionForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
@@ -81,7 +84,9 @@ def add_question(request, quiz_id):
     context = {
         "quiz": quiz,
         "questions": questions,
-        "form": form
+        "form": form,
+        "total_questions": total_questions,
+        "total_marks": total_marks,
     }
     return render(request, 'quiz/add_question.html', context)
 
@@ -234,19 +239,45 @@ def update_option(request, option_id):
 
 @student_required
 def get_quiz(request, quiz_id):
+    '''quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render(request, 'quiz/get_quiz.html', {'quiz': quiz})'''
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'quiz/get_quiz.html', {'quiz': quiz})
+    questions = quiz.questions.prefetch_related('options').all()
+    if request.method == 'POST':
+        form = QuizForms(request.POST, questions=questions)
+        if form.is_valid():
+            pass
+    else:
+        form = QuizForms(questions=questions)
+    
+    return render(request, 'quiz/get_quiz.html', {'quiz': quiz, 'form': form})
 
+# @teacher_required
+# def test_quiz(request, quiz_id):
+#     quiz = get_object_or_404(Quiz, id=quiz_id)
+#     return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
 @teacher_required
 def test_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
+    questions = quiz.questions.prefetch_related('options').all()
+    #form = QuizForm(questions=questions)
+    #quiz = get_object_or_404(Quiz, id=quiz_id)
+    #questions = quiz.questions.all()
+    if request.method == 'POST':
+        form = QuizForms(request.POST, questions=questions)
+        if form.is_valid():
+            # Process the valid form data.
+            pass
+    else:
+        form = QuizForms(questions=questions)
+    
+    return render(request, 'quiz/test_quiz.html', {'quiz': quiz, 'form': form})
 
 @student_required
 @require_POST
 def start_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz).count()
+    current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz, expired=False).count()
 
     if current_attempts_count >= quiz.max_attempts:
         return JsonResponse({
@@ -297,22 +328,55 @@ def submit_quiz(request, quiz_id):
         quiz_attempt.save()
         
         total_score = 0
-        for key, value in request.POST.items():
+        #for key, value in request.POST.items():
+        for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
-                selected_option_id = value
+                #selected_option_id = value
+                selected_option_ids = value
                 
                 question = get_object_or_404(Question, pk=question_id)
-                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                correct_options = question.options.filter(is_correct=True)
+                #selected_option = get_object_or_404(Option, pk=selected_option_id)
                 
-                Answer.objects.create(
+                # Create an answer object
+                answer = Answer.objects.create(
+                    quiz_attempt=quiz_attempt,
+                    question=question
+                )
+
+                # Add selected options to the answer
+                for option_id in selected_option_ids:
+                    selected_option = get_object_or_404(Option, pk=option_id)
+                    answer.selected_options.add(selected_option)
+
+                if correct_options.count() > 1:
+                    # Verify that all selected options are correct and that all correct options are selected
+                    if all(str(option.id) in selected_option_ids for option in correct_options) and \
+                       all(str(correct_option.id) in selected_option_ids for correct_option in correct_options):
+                        total_score += question.marks  # User gets full marks for selecting all correct options
+                else:
+                    # Handle single correct option
+                    selected_option_id = value[0] if value else None
+                    '''selected_option = get_object_or_404(Option, pk=selected_option_id)
+
+                    Answer.objects.create(
+                        quiz_attempt=quiz_attempt,
+                        question=question,
+                        selected_option=selected_option
+                    )'''
+
+                    if selected_option.is_correct:
+                        total_score += question.marks
+
+                '''Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question,
                     selected_option=selected_option
                 )
                 
                 if selected_option.is_correct:
-                    total_score += question.marks
+                    total_score += question.marks'''
 
         # total_marks = quiz.questions.aggregate(total=Sum('marks'))['total'] or 0
         total_marks = sum(question.marks for question in quiz.questions.all())
@@ -330,7 +394,7 @@ def submit_quiz(request, quiz_id):
         planned_quizzes = PlannedQuiz.objects.filter(student=request.user, taken=False)
         planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
         if quiz_id in planned_quizzes_ids:
-            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id)
+            planned = get_object_or_404(PlannedQuiz, quiz_id=quiz_id, student=request.user)
             planned.delete()
 
         return redirect('quiz_results', quiz_attempt.id)
@@ -349,24 +413,55 @@ def submit_test_quiz(request, quiz_id):
         quiz_attempt.save()
         
         total_score = 0
-        for key, value in request.POST.items():
+        #for key, value in request.POST.items():
+        for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
-                selected_option_id = value
+                #selected_option_id = value
+                selected_option_ids = value
                 
                 question = get_object_or_404(Question, pk=question_id)
-                selected_option = get_object_or_404(Option, pk=selected_option_id)
+                correct_options = question.options.filter(is_correct=True)
+                #selected_option = get_object_or_404(Option, pk=selected_option_id)
                 
-                Answer.objects.create(
+                if correct_options.count() > 1:
+                    # Verify that all selected options are correct and that all correct options are selected
+                    if all(str(option.id) in selected_option_ids for option in correct_options) and \
+                       all(str(correct_option.id) in selected_option_ids for correct_option in correct_options):
+                        total_score += question.marks  # User gets full marks for selecting all correct options
+                else:
+                    # Handle single correct option
+                    selected_option_id = value[0] if value else None
+                    selected_option = get_object_or_404(Option, pk=selected_option_id)
+
+                    Answer.objects.create(
+                        quiz_attempt=quiz_attempt,
+                        question=question,
+                        selected_option=selected_option
+                    )
+
+                    if selected_option.is_correct:
+                        total_score += question.marks
+
+                '''Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question,
                     selected_option=selected_option
                 )
                 
                 if selected_option.is_correct:
-                    total_score += question.marks
+                    total_score += question.marks'''
         
+        total_marks = sum(question.marks for question in quiz.questions.all())
+        if total_marks != 0:
+            percentage_marks = round((total_score/total_marks) * 100)
+        else:
+            percentage_marks = 0
+
         quiz_attempt.score = total_score
+        quiz_attempt.percentage_score = percentage_marks
+        if percentage_marks >= quiz.pass_mark:
+            quiz_attempt.passed = True
         quiz_attempt.save()
 
         return redirect('quiz_test_results', quiz_attempt.id)
@@ -375,6 +470,7 @@ def submit_test_quiz(request, quiz_id):
 
 @student_required
 def quiz_results(request, attempt_id):
+    now = timezone.now()
     attempt = get_object_or_404(QuizAttempt, pk=attempt_id)
     total_marks = sum(question.marks for question in attempt.quiz.questions.all())
     date_submitted = attempt.end_time.strftime("%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
@@ -386,8 +482,29 @@ def quiz_results(request, attempt_id):
     else:
         time_taken_str = "N/A"
 
-    number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz).count()
+    number_of_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz, expired=False).count()
+    non_expired_attempts = QuizAttempt.objects.filter(user=attempt.user, quiz=attempt.quiz, expired=False)
     max_attempts = attempt.quiz.max_attempts
+    hours = 0
+    minutes = 0
+    if non_expired_attempts.count() >= max_attempts:
+        last_attempt = non_expired_attempts.first()
+        print(last_attempt.score)
+        time_since_last_attempt = now - last_attempt.date_attempted
+        cooldown_period = timedelta(days=1)  # 1 day cooldown period
+
+        if time_since_last_attempt > cooldown_period:
+            # Mark previous attempts as expired instead of deleting them
+            non_expired_attempts.update(expired=True)
+            # Allow the user to start a new attempt
+            # Logic to start a new attempt goes here
+        else:
+            # Calculate the remaining time
+            remaining_time = cooldown_period - time_since_last_attempt
+            # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
+            hours, remainder = divmod(remaining_time.seconds, 3600)
+            minutes = remainder // 60
+            # Pass the remaining time to the template
     # attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
     # total_attempts = attempts.count()
 
@@ -398,6 +515,8 @@ def quiz_results(request, attempt_id):
         'time_taken': time_taken_str,
         'number_of_attempts': number_of_attempts,
         'max_attempts': max_attempts,
+        'remaining_hours': hours,
+        'remaining_minutes': minutes,
     }
     return render(request, 'quiz/quiz_results.html', context)
 
@@ -483,29 +602,67 @@ def user_quizzes(request):
 
     return render(request, 'quiz/user_quizzes.html', context)
 
-# def close_attempts(request):
-#     # Return an empty HTTP response to clear the container
-#     return HttpResponse('')
+@student_required
+def completed_quizzes(request):
+    user = request.user
+    #user_subjects = user.subjects.all()
+    student_subjects = user.subjects.all()
+    
+    # # All quizzes in the user's subjects
+    # #quizzes = Quiz.objects.filter(subject__in=user_subjects).distinct()
+    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
+    # planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
+    # planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
 
-# def remove_attempts(request, quiz_id):
-#     # Return an empty div with the same ID to replace the content
-#     return HttpResponse(f'<div id="attempts-{quiz_id}"></div>')
+    # Quizzes with at least one attempt by the user
+    attempted_quizzes_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
+    attempted_quizzes = quizzes.filter(id__in=attempted_quizzes_ids)
 
-# def quiz_attempts(request, quiz_id):
-#     user = request.user
-#     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
+    context = {
+        #'quizzes': quizzes,
+        'attempted_quizzes': attempted_quizzes,
+        'user': user,
+        #'planned_quizzes_ids': planned_quizzes_ids,
+    }
 
-#     # Render to a template string and return as HttpResponse
-#     attempts_html = render_to_string('partials/quiz_attempts.html', {'attempts': attempts})
-#     return HttpResponse(attempts_html)
+    return render(request, 'quiz/completed_quizzes.html', context)
+
 @login_required
 def quiz_attempts(request, quiz_id):
+    now = timezone.now()
     user = request.user
     attempts = QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).order_by('-date_attempted')
-    total_attempts = attempts.count()  # Calculate the total number of attempts
+    # total_attempts = attempts.count()  # Calculate the total number of attempts
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    non_expired_attempts = QuizAttempt.objects.filter(user=user, quiz=quiz, expired=False).order_by('-date_attempted')
+    total_attempts = non_expired_attempts.count()
+    hours = 0
+    minutes = 0
+    if non_expired_attempts.count() >= quiz.max_attempts:
+        last_attempt = non_expired_attempts.first()
+        time_since_last_attempt = now - last_attempt.date_attempted
+        cooldown_period = timedelta(days=1)  # 1 day cooldown period
+        if not last_attempt.passed:
+            if time_since_last_attempt > cooldown_period:
+                # Mark previous non_expired_attempts as expired instead of deleting them
+                non_expired_attempts.update(expired=True)
+                # Allow the user to start a new attempt
+                # Logic to start a new attempt goes here
+            else:
+                # Calculate the remaining time
+                remaining_time = cooldown_period - time_since_last_attempt
+                # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
+                hours, remainder = divmod(remaining_time.seconds, 3600)
+                minutes = remainder // 60
 
     # Render the template with attempts and total_attempts
-    context = {'attempts': attempts, 'total_attempts': total_attempts}
+    context = {
+        'attempts': attempts,
+        'total_attempts': total_attempts,
+        'non_expired_attempts': non_expired_attempts,
+        'remaining_hours': hours,
+        'remaining_minutes': minutes,
+    }
     attempts_html = render_to_string('partials/quiz_attempts.html', context)
 
     return HttpResponse(attempts_html)
@@ -583,10 +740,6 @@ def homepage(request):
 @teacher_required
 def teacher(request):
     return render(request=request, template_name="quiz/teacher.html")
-
-@student_required
-def student(request):
-    return render(request=request, template_name="quiz/student.html")
 
 def activate(request, uidb64, token):
     User = get_user_model()
@@ -669,7 +822,7 @@ def custom_login(request):
                 if user.status == 'teacher':
                     return redirect("teacher")
                 elif user.status == 'student':
-                    return redirect("student")
+                    return redirect('user_quizzes')
             
         else:
             for error in list(form.errors.values()):

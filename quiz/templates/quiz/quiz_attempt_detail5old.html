@@ -23,34 +23,31 @@
                     <!-- Display quiz attempt details -->
                     <h3>Quiz: {{ attempt.quiz.title }}</h3>
                     <h4>Questions and Options:</h4>
-                    <ol>
+                    <ul>
                         {% for answer in attempt.answers.all %}
                             <li>
                                 {{ answer.question.text }}
-                                <!-- Check if the selected option is correct and display the marks -->
-                                {% if answer.is_fully_correct %}
-                                    <strong style="color: green;">({{ answer.question.marks }} marks)</strong>
-                                {% else %}
-                                    <strong style="color: red;">(0 marks)</strong>
-                                {% endif %}
                                 <ul>
-                                    {% for option in answer.question.options.all %}
-                                    <li {% if option in answer.selected_options.all %} class="selected"{% endif %}>
-                                        {{ option.text }}
-                                        <!-- Indicate if it's the correct answer -->
-                                        {% if option.is_correct %}
-                                            <i class="bi bi-check-circle" style="color: blue;"></i>
-                                        {% endif %}
-                                        <!-- Indicate if it's the user's selected answer -->
-                                        {% if option in answer.selected_options.all %}
-                                            <span style="color: green;">(Selected)</span>
-                                        {% endif %}
-                                    </li>
+                                    <!-- Iterate through all selected options for this answer -->
+                                    {% for selected_option in answer.selected_options.all %}
+                                        <li {% if selected_option.is_correct %} class="selected" style="color: green;" {% else %} style="color: red;" {% endif %}>
+                                            {{ selected_option.text }}
+                                            <!-- Indicate if it's the correct answer -->
+                                            {% if selected_option.is_correct %}
+                                                <strong>(Correct Answer)</strong>
+                                            {% endif %}
+                                            <!-- Display marks if all correct options were selected -->
+                                            {% if answer.selected_options.count == answer.question.options.filter(is_correct=True).count %}
+                                                <span>{{ answer.question.marks }} marks</span>
+                                            {% else %}
+                                                <span>0 marks</span>
+                                            {% endif %}
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </li>
                         {% endfor %}
-                    </ol>
+                    </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

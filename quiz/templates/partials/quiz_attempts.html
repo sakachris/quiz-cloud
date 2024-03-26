@@ -2,12 +2,12 @@
 
 <div id="attempts-{{ attempts.first.quiz.id }}">
     <ul>
-        {% for attempt in attempts %}
-            <li>Attempted on: {{ attempt.date_attempted }} - Score: {{ attempt.score }}
+        {% for attempt in non_expired_attempts %}
+            <li>{{ attempt.date_attempted }} - Score: {{ attempt.percentage_score }}% {% if attempt.passed %} (Passed) {% else %} (Failed) {% endif %}
                 {% if attempt.passed %}
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
-                        View Attempt
-                    </button>
+                <a href="#" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
+                    <i class="bi bi-eye-fill"></i>
+                </a>
                 {% endif %}
                 
                 {% include 'quiz/quiz_attempt_detail5.html' with attempt=attempt %}
@@ -17,7 +17,14 @@
 
     </ul>
     <p>Attempts: {{ total_attempts }} out of {{ attempts.first.quiz.max_attempts }}</p>
-    {% if total_attempts != attempts.first.quiz.max_attempts %}
-        <a href="{% url 'get_quiz' attempts.first.quiz.id %}" class="btn btn-primary">Take Quiz Again</a>
+    {% if total_attempts < attempts.first.quiz.max_attempts %}
+        <a href="{% url 'get_quiz' attempts.first.quiz.id %}" class="btn btn-primary btn-sm">Take Quiz Again</a>
+    {% else %}
+        {% if remaining_hours or remaining_minutes %}
+        <p>You have reached the maximum number of attempts. Please wait 
+        {% if remaining_hours %}{{ remaining_hours }} hour(s) {% endif %}
+        {% if remaining_minutes %}{{ remaining_minutes }} minute(s) {% endif %}
+        before trying again.</p>
+        {% endif %}
     {% endif %}
 </div>

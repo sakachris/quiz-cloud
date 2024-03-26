@@ -1,0 +1,47 @@
+{% extends 'quiz/header.html' %}
+{% block title %}Completed Quizzes{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-1">
+        {% for quiz in attempted_quizzes %}
+        <div class="col">
+            <div class="card border-primary h-100">
+                <div class="class card-header" style="background-color: #2c91f7;">
+                    <h4 class="text-white">{{ quiz.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Subject: {{ quiz.subject }}</h5>
+                    <p class="card-text mb-0">{{ quiz.description }}</p>
+                    <p class="mb-0">Time Limit: {{ quiz.time_limit }} mins</p>
+                    <p class="mb-0">Created by: Tr. {{ quiz.created_by }}</p>
+                    <p>Pass Mark: {{ quiz.pass_mark }}%</p>
+                    <button data-quiz-id="{{ quiz.id }}"
+                        data-url="{% url 'quiz_attempts' quiz.id %}"
+                        onclick="toggleAttempts(this);"
+                        class="btn btn-secondary btn-sm">See Attempts</button>
+                    <div id="attempts-{{ quiz.id }}"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+  function toggleAttempts(button) {
+    var quizId = button.getAttribute('data-quiz-id');
+    var target = document.getElementById('attempts-' + quizId);
+    var url = button.getAttribute('data-url');
+    if (target.innerHTML.trim() === '') {
+      // Load the attempts via HTMX
+      htmx.ajax('GET', url, target);
+      button.innerText = 'Hide Attempts';  // Change button text
+    } else {
+      // Clear the content
+      target.innerHTML = '';
+      button.innerText = 'See Attempts';  // Reset the button text
+    }
+  }
+</script>
+{% endblock %}

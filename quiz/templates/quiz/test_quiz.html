@@ -1,7 +1,8 @@
 {% extends "quiz/header.html" %}
 {% load static %}
-{% load quiz_filters %}
 
+{% load crispy_forms_tags %}
+{% load quiz_extras %}
 {% block content %}
 <button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
 <div id="timer" style="display:none;">Time left: </div>
@@ -9,18 +10,18 @@
     <!-- Quiz form -->
     <form id="quiz-form" method="post" action="{% url 'submit_test_quiz' quiz.id %}">
         {% csrf_token %}
-        {% for question in quiz.questions.all %}
-        <div>
-            <p>{{ forloop.counter }}. {{ question.text }} ({{ question.marks }} marks)</p>
-            {% for option in question.options.all %}
-            <label>
-                <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}">
-                {{ forloop.parentloop.counter|make_letter:forloop.counter }}) {{ option.text }}
-            </label><br>
-            {% endfor %}
-        </div>
+        {% for field in form %}
+            <div class="form-group">
+                {% if field|is_checkbox %}
+                    <!-- Render with checkboxes for multiple correct answers -->
+                    {{ field|as_crispy_field }}
+                {% else %}
+                    <!-- Render with radio buttons for a single correct answer -->
+                    {{ field|as_crispy_field }}
+                {% endif %}
+            </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary btn-sm">Submit Quiz</button>
     </form>
 </div>
 <script>

@@ -22,6 +22,48 @@ class QuizForm(forms.ModelForm):
             'pass_mark': forms.NumberInput(attrs={'marks': 'form-control'})
         }
 
+'''class QuizForms(forms.Form):
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop('questions')
+        super(QuizForms, self).__init__(*args, **kwargs)
+        
+        for i, question in enumerate(questions, 1):
+            field_name = f'question_{question.id}'
+            choices = [(o.id, o.text) for o in question.options.all()]
+            self.fields[field_name] = forms.ChoiceField(
+                label=f"{i}. {question.text} ({question.marks} marks)",
+                choices=choices,
+                widget=forms.RadioSelect
+            )'''
+
+class QuizForms(forms.Form):
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop('questions')
+        super(QuizForms, self).__init__(*args, **kwargs)
+
+        #for question in questions:
+        for i, question in enumerate(questions, 1):
+            #field_name = f"question_{question.pk}"
+            field_name = f"question_{question.id}"
+            #choices = [(option.pk, option.text) for option in question.options.all()]
+            choices = [(option.id, option.text) for option in question.options.all()]
+            if question.has_multiple_correct_answers():
+                self.fields[field_name] = forms.MultipleChoiceField(
+                    #label=f"{question.text} ({question.marks} marks)",
+                    label=f"{i}. {question.text} ({question.marks} marks)",
+                    choices=choices,
+                    widget=forms.CheckboxSelectMultiple,
+                    required=False
+                )
+            else:
+                self.fields[field_name] = forms.ChoiceField(
+                    #label=f"{question.text} ({question.marks} marks)",
+                    label=f"{i}. {question.text} ({question.marks} marks)",
+                    choices=choices,
+                    widget=forms.RadioSelect,
+                    required=True
+                )
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question

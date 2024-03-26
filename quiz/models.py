@@ -30,6 +30,9 @@ class Question(models.Model):
 
     def __str__(self):
         return self.text
+    
+    def has_multiple_correct_answers(self):
+        return self.options.filter(is_correct=True).count() > 1
 
 class Option(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE, null=True)
@@ -59,6 +62,7 @@ class QuizAttempt(models.Model):
     date_attempted = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    expired = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user}'s attempt on {self.quiz.title}"
@@ -66,10 +70,26 @@ class QuizAttempt(models.Model):
 class Answer(models.Model):
     quiz_attempt = models.ForeignKey(QuizAttempt, related_name='answers', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    #selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
+    selected_options = models.ManyToManyField(Option)
 
     def __str__(self):
-        return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
+        options_str = ', '.join(option.text for option in self.selected_options.all())
+        return f"Answer to {self.question.text} by {self.quiz_attempt.user}: {options_str}"
+        #return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
+    
+    '''def all_options_correct(self):
+        return all(option.is_correct for option in self.selected_options.all())'''
+    
+    def is_fully_correct(self):
+        # Retrieve all correct options for the question
+        correct_options = self.question.options.filter(is_correct=True)
+        # Retrieve all selected options
+        selected_correct_options = self.selected_options.filter(is_correct=True)
+        # Check if the count of selected correct options matches the count of all correct options
+        # and that all selected options are correct
+        return (correct_options.count() == selected_correct_options.count() and
+                selected_correct_options.count() == self.selected_options.count())
 
 class CustomUser(AbstractUser):
     def image_upload_to(self, instance=None):
