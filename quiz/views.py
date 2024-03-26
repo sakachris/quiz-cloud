@@ -642,18 +642,18 @@ def quiz_attempts(request, quiz_id):
         last_attempt = non_expired_attempts.first()
         time_since_last_attempt = now - last_attempt.date_attempted
         cooldown_period = timedelta(days=1)  # 1 day cooldown period
-
-        if time_since_last_attempt > cooldown_period:
-            # Mark previous non_expired_attempts as expired instead of deleting them
-            non_expired_attempts.update(expired=True)
-            # Allow the user to start a new attempt
-            # Logic to start a new attempt goes here
-        else:
-            # Calculate the remaining time
-            remaining_time = cooldown_period - time_since_last_attempt
-            # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
-            hours, remainder = divmod(remaining_time.seconds, 3600)
-            minutes = remainder // 60
+        if not last_attempt.passed:
+            if time_since_last_attempt > cooldown_period:
+                # Mark previous non_expired_attempts as expired instead of deleting them
+                non_expired_attempts.update(expired=True)
+                # Allow the user to start a new attempt
+                # Logic to start a new attempt goes here
+            else:
+                # Calculate the remaining time
+                remaining_time = cooldown_period - time_since_last_attempt
+                # Convert remaining_time to a more readable format if desired, e.g., hours and minutes
+                hours, remainder = divmod(remaining_time.seconds, 3600)
+                minutes = remainder // 60
 
     # Render the template with attempts and total_attempts
     context = {

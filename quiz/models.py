@@ -77,6 +77,19 @@ class Answer(models.Model):
         options_str = ', '.join(option.text for option in self.selected_options.all())
         return f"Answer to {self.question.text} by {self.quiz_attempt.user}: {options_str}"
         #return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
+    
+    '''def all_options_correct(self):
+        return all(option.is_correct for option in self.selected_options.all())'''
+    
+    def is_fully_correct(self):
+        # Retrieve all correct options for the question
+        correct_options = self.question.options.filter(is_correct=True)
+        # Retrieve all selected options
+        selected_correct_options = self.selected_options.filter(is_correct=True)
+        # Check if the count of selected correct options matches the count of all correct options
+        # and that all selected options are correct
+        return (correct_options.count() == selected_correct_options.count() and
+                selected_correct_options.count() == self.selected_options.count())
 
 class CustomUser(AbstractUser):
     def image_upload_to(self, instance=None):

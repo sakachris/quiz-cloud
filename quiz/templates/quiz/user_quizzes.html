@@ -3,7 +3,8 @@
 {% block title %}Quizzes{% endblock %}
 {% block content %}
 <div class="container">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-0">
+    <!-- < class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-0"> -->
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 g-4 mt-0">
         {% for quiz in quizzes %}
         <div class="col">
             <div class="card border-primary h-100">
@@ -21,7 +22,7 @@
                         <button data-quiz-id="{{ quiz.id }}"
                             data-url="{% url 'quiz_attempts' quiz.id %}"
                             onclick="toggleAttempts(this);"
-                            class="btn btn-secondary">See Attempts</button>
+                            class="btn btn-secondary btn-sm">See Attempts</button>
                         <div id="attempts-{{ quiz.id }}"></div>
                     {% else %}
                         <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
