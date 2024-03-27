@@ -1,12 +1,41 @@
 {% extends "quiz/header.html" %}
+{% block title %}Take Quiz{% endblock %}
 {% load static %}
-
 {% load crispy_forms_tags %}
 {% load quiz_extras %}
 {% block content %}
-<button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
+<div class="d-flex justify-content-center">
+    <div id="start-quiz-btn" class="class row">
+        <div>
+            <div class="card text-center mt-3" style="width: 18rem;">
+                <div class="card-header">
+                    <h4>{{ quiz.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ quiz.description }}</h6>
+                    <h6 class="card-title">Pass Mark: {{ quiz.pass_mark }}%</h6>
+                    <h6 class="card-title">Total Questions: {{ total_questions }}</h6>
+                    <h6 class="card-title">Time Limit: {{ quiz.time_limit }} minutes</h6>
+                    <button class="btn btn-success btn-sm mt-2">Start Quiz</button>
+                </div>
+                <div class="card-footer text-body-secondary">
+                    <h6>Attempts: {{ attempt_count }} out of {{ quiz.max_attempts }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
 <div id="timer" style="display:none;">Time left: </div>
-<div id="quiz-container" style="display:none;">
+<div id="quiz-container" style="display:none;"> -->
+<div class="d-flex justify-content-center min-vh-100">
+    <div class="col-sm-12 col-md-8 col-lg-6">
+        <!-- <div id="timer" class="mb-2" style="display:none;">Time left: </div> -->
+        <div id="timer" class="fixed-top bg-light border-bottom shadow-sm p-2 text-center fw-bold" style="display: none; z-index: 900; top: 50px; right: 15px; left: 15px;">
+            Time left: <span id="time-remaining">00:00</span>
+        </div>
+        <div class="mt-5" id="quiz-container" style="display:none;">
     <!-- Quiz form -->
     <form id="quiz-form" method="post" action="{% url 'submit_quiz' quiz.id %}">
         {% csrf_token %}
@@ -24,6 +53,9 @@
         <button type="submit" class="btn btn-primary btn-sm">Submit Quiz</button>
     </form>
 </div>
+</div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const startQuizBtn = document.getElementById('start-quiz-btn');

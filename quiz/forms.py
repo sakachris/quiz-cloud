@@ -1,4 +1,6 @@
 from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Row, Column
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
 from django.contrib.auth import get_user_model
 from .models import Subject, Quiz, Question, Option
@@ -21,6 +23,25 @@ class QuizForm(forms.ModelForm):
             'max_attempts': forms.NumberInput(attrs={'marks': 'form-control'}),
             'pass_mark': forms.NumberInput(attrs={'marks': 'form-control'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super(QuizForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('title', css_class='form-group col-md-4 mb-0'),
+                Column('description', css_class='form-group col-md-4 mb-0'),
+                Column('pass_mark', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('time_limit', css_class='form-group col-md-4 mb-0'),
+                Column('subject', css_class='form-group col-md-4 mb-0'),
+                Column('max_attempts', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            'submit'  # Assuming you have a submit field in your form
+        )
 
 '''class QuizForms(forms.Form):
     def __init__(self, *args, **kwargs):

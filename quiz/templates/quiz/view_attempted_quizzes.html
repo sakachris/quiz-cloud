@@ -1,18 +1,32 @@
 {% extends 'quiz/header.html' %}
+{% block title %}Attempted Quizzes{% endblock %}
 {% block content %}
     {% if attempted_quizzes %}
+    <div class="class container">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 mt-1">
         {% for quiz in attempted_quizzes %}
-        <div>
-            <h2>{{ quiz.title }}</h2>
-            <button data-quiz-id="{{ quiz.id }}"
-                    data-url="{% url 'quiz_attempts_owner' quiz.id %}"
-                    onclick="toggleAttempts(this);"
-                    class="btn btn-secondary">See Attempts</button>
-            <div id="attempts-{{quiz.id}}"></div>
+        <div class="col">
+            <div class="card border-primary h-100">
+                <div class="class card-header" style="background-color: #2c91f7;">
+                    <h4 class="text-white">{{ quiz.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <div>
+                        <h5>{{ count_users }} Users, {{ count_attempts }} Attempts</h5>
+                        <button data-quiz-id="{{ quiz.id }}"
+                                data-url="{% url 'quiz_attempts_owner' quiz.id %}"
+                                onclick="toggleAttempts(this);"
+                                class="btn btn-secondary btn-sm">See Attempts</button>
+                        <div id="attempts-{{quiz.id}}"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         {% endfor %}
     {% else %}
         <h6>You don't have attempted quizzes</h6>
+    </div>
+    </div>
     {% endif %}
     <script>
         function toggleAttempts(button) {

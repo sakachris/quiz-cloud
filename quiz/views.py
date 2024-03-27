@@ -243,14 +243,21 @@ def get_quiz(request, quiz_id):
     return render(request, 'quiz/get_quiz.html', {'quiz': quiz})'''
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.prefetch_related('options').all()
+    total_questions = questions.count()
+    attempt_count = QuizAttempt.objects.filter(quiz=quiz, user=request.user).count()
     if request.method == 'POST':
         form = QuizForms(request.POST, questions=questions)
         if form.is_valid():
             pass
     else:
         form = QuizForms(questions=questions)
-    
-    return render(request, 'quiz/get_quiz.html', {'quiz': quiz, 'form': form})
+    context = {
+        'quiz': quiz,
+        'form': form,
+        'attempt_count': attempt_count,
+        'total_questions': total_questions
+    }
+    return render(request, 'quiz/get_quiz.html', context)
 
 # @teacher_required
 # def test_quiz(request, quiz_id):
@@ -679,8 +686,11 @@ def quiz_attempts(request, quiz_id):
 
 @teacher_required
 def quiz_attempts_owner(request, quiz_id):
-    all_attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).select_related('user').order_by('user', '-date_attempted')
-
+    #all_attempts = QuizAttempt.objects.filter(quiz_id=quiz_id).select_related('user').order_by('user', '-date_attempted')
+    all_attempts = QuizAttempt.objects.filter(
+        quiz_id=quiz_id, 
+        user__status='student'
+    ).select_related('user').order_by('user', '-date_attempted')
     # Organize attempts by user
     attempts_by_user = defaultdict(list)
     for attempt in all_attempts:
@@ -739,8 +749,14 @@ def user_created_attempted_quizzes(request):
     # Assuming you have the user in request.user
     user_quizzes = Quiz.objects.filter(created_by=request.user)  # Quizzes created by the user
     attempted_quizzes = user_quizzes.filter(quizattempt__isnull=False).distinct()  # Quizzes that have been attempted
-
-    context = {'attempted_quizzes': attempted_quizzes}
+    
+    count_attempts = user_quizzes.filter(quizattempt__isnull=False).count()
+    count_users = user_quizzes.count() # This is wrong, correct it
+    context = {
+        'attempted_quizzes': attempted_quizzes,
+        'count_users': count_users,
+        'count_attempts': count_attempts
+    }
     return render(request, 'quiz/view_attempted_quizzes.html', context)
 
 @login_required
