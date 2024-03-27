@@ -136,9 +136,9 @@ a.article-title:hover {
 }
 
 /* Small devices (landscape phones, 544px and up) */
-@media (max-width: 544px) {
-    p, a, pre, code {font-size:20px !important;} /*1rem = 16px*/
-}
+/*@media (max-width: 544px) {
+    p, a, pre, code {font-size:20px !important;}
+}*/
 
 .errorlist {
     list-style: None;

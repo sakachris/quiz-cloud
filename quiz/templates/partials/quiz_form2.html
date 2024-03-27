@@ -1,0 +1,43 @@
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="class row">
+        <div class="class col-4 col-md-3">
+            <label for="{{ form.title.id_for_label }}">{{ form.title.label}}</label>
+            {{ form.title}}
+        </div>
+        <div class="class col-4 col-md-3 align-self-end">
+            <label for="{{ form.description.id_for_label }}">{{ form.description.label}}</label>
+            {{ form.description}}
+        </div>
+        <div class="class col-4 col-md-3 align-self-end">
+            <label for="{{ form.pass_mark.id_for_label }}">{{ form.pass_mark.label}}</label>
+            {{ form.pass_mark}}
+        </div> 
+    </div>
+    <div class="class row">
+        <div class="class col-4 col-md-3 align-self-end">
+            <label for="{{ form.time_limit.id_for_label }}">{{ form.time_limit.label}}</label>
+            {{ form.time_limit}}
+        </div>
+        <div class="class col-4 col-md-3">
+            <label for="{{ form.subject.id_for_label }}">{{ form.subject.label}}</label>
+            {{ form.subject}}
+        </div> 
+        <div class="class col-4 col-md-3">
+            <label for="{{ form.max_attempts.id_for_label }}">{{ form.max_attempts.label}}</label>
+            {{ form.max_attempts}}
+        </div> 
+    </div>
+    {% if quiz %}
+        <div class="class col-3 align-self-end">
+            <button type="submit" hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">
+                Submit
+            </button>
+        </div>
+    {% else %}
+    <div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+    {% endif %}
+</form>

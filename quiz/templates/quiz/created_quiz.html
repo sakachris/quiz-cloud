@@ -1,7 +1,7 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Created Quizzes{% endblock %}
 {% block content %}
-    <a href="{% url 'create_quiz' %}" class="btn btn-success">New Quiz</a>
+    <!-- <a href="{% url 'create_quiz' %}" class="btn btn-success">New Quiz</a> -->
     <div class="class container">
         <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 mt-1">
             {% for quiz in quizzes %}

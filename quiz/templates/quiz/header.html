@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'quiz/images/favicon-32x32.png' %}">
     <style>
         #quiz-container {
@@ -16,6 +16,9 @@
         }
         .tooltip.bs-tooltip-top .tooltip-arrow::before, .tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
             border-top-color: #2c91f7; /* Arrow color for top tooltip */
+        }
+        .btn-fixed-size {
+            font-size: 0.175rem; /* This is typically the font size for .btn-sm in Bootstrap */
         }
     </style>
 

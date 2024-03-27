@@ -1,31 +1,49 @@
 {% extends 'quiz/header.html' %}
+{% block title %}Quiz Result{% endblock %}
 {% block content %}
-    <h1>Quiz Results: {{ attempt.quiz.title }}</h1>
-    <p>Marks Scored: {{ attempt.score }} out of {{ total_marks }}</p>
-    <p>Percentage Scored: {{ attempt.percentage_score }}%</p>
-    <p>Pass Mark: {{ attempt.quiz.pass_mark }}%</p>
-    <p>Date Submitted: {{ date_submitted }}</p>
-    <!-- Display time taken if you're tracking it -->
-    <p>Time Taken: {{ time_taken }}</p>
-    
-    {% if attempt.passed %}
-        <h6>You have passed the Quiz</h6>
-        <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
-        <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
-    {% else %}
-        <h6>You have NOT passed the Quiz</h6>
-        <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
-        {% if number_of_attempts < max_attempts %}
-            <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary">Take Quiz Again</a>
-        {% else %}
-            <h6>You have exhausted all attempts</h6>
-            {% if remaining_hours or remaining_minutes %}
-                <p>You have reached the maximum number of attempts. Please wait 
-                {% if remaining_hours %}{{ remaining_hours }} hour(s) {% endif %}
-                {% if remaining_minutes %}{{ remaining_minutes }} minute(s) {% endif %}
-                before trying again.</p>
-            {% endif %}
-        {% endif %}
-        <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
-    {% endif %}
+<div class="d-flex justify-content-center">
+    <div class="class row">
+        <div>
+            <div class="card mt-3" style="width: 18rem;">
+                <div class="card-header">
+                    <h4>{{ attempt.quiz.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">Score: {{ attempt.score }} out of {{ total_marks }}</h6>
+                    <h6 class="card-title">Percentage Score: {{ attempt.percentage_score}}%</h6>
+                    <h6 class="card-title">Pass Mark: {{ attempt.quiz.pass_mark }}%</h6>
+                    <h6 class="card-title">Time Taken: {{ time_taken }}</h6>
+                    
+                    {% if attempt.passed %}
+                    <div class="bg-success text-center p-2 rounded-3">
+                        <h6 class="mb-0 text-white">You have passed the Quiz</h6>
+                    </div>                    
+                    <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
+                    <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
+                    {% else %}
+                    <div class="bg-danger text-center p-2 rounded-3">
+                        <h6 class="mb-0 text-white">You have NOT passed the Quiz</h6>
+                    </div>
+                    <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
+                    {% if number_of_attempts < max_attempts %}
+                        <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary btn-sm">Retake</a>
+                    {% else %}
+                        <h6>You have exhausted all attempts</h6>
+                        {% if remaining_hours or remaining_minutes %}
+                            <p>You have reached the maximum number of attempts. Please wait 
+                            {% if remaining_hours %}{{ remaining_hours }} hour(s) {% endif %}
+                            {% if remaining_minutes %}{{ remaining_minutes }} minute(s) {% endif %}
+                            before trying again.</p>
+                        {% endif %}
+                    {% endif %}
+                    <a href="{% url 'user_quizzes' %}" class="btn btn-primary btn-sm">Quizzes</a>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-body-secondary">
+                    <h6>Date: {{ date_submitted }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content%}
