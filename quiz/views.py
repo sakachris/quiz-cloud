@@ -424,6 +424,16 @@ def submit_test_quiz(request, quiz_id):
                 correct_options = question.options.filter(is_correct=True)
                 #selected_option = get_object_or_404(Option, pk=selected_option_id)
                 
+                answer = Answer.objects.create(
+                    quiz_attempt=quiz_attempt,
+                    question=question
+                )
+
+                # Add selected options to the answer
+                for option_id in selected_option_ids:
+                    selected_option = get_object_or_404(Option, pk=option_id)
+                    answer.selected_options.add(selected_option)
+
                 if correct_options.count() > 1:
                     # Verify that all selected options are correct and that all correct options are selected
                     if all(str(option.id) in selected_option_ids for option in correct_options) and \
@@ -431,14 +441,14 @@ def submit_test_quiz(request, quiz_id):
                         total_score += question.marks  # User gets full marks for selecting all correct options
                 else:
                     # Handle single correct option
-                    selected_option_id = value[0] if value else None
-                    selected_option = get_object_or_404(Option, pk=selected_option_id)
+                    #selected_option_id = value[0] if value else None
+                    '''selected_option = get_object_or_404(Option, pk=selected_option_id)
 
                     Answer.objects.create(
                         quiz_attempt=quiz_attempt,
                         question=question,
                         selected_option=selected_option
-                    )
+                    )'''
 
                     if selected_option.is_correct:
                         total_score += question.marks

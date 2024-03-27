@@ -1,10 +1,28 @@
 {% extends "quiz/header.html" %}
+{% block title %}Test Quiz{% endblock %}
 {% load static %}
 
 {% load crispy_forms_tags %}
 {% load quiz_extras %}
 {% block content %}
-<button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
+<div id="start-quiz-btn" class="class row">
+    <div class="col-sm-6 mb-3 mb-sm-0">
+        <div class="card text-center mt-3">
+            <div class="card-header">
+                <h4>{{ quiz.title }}</h4>
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">{{ quiz.description }}</h6>
+                <p class="card-text">Pass Mark: {{ quiz.pass_mark }}%</p>
+                <button class="btn btn-success btn-sm">Start Quiz</button>
+            </div>
+            <div class="card-footer text-body-secondary">
+                <h6>Time Limit: {{ quiz.time_limit }}minutes</h6>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <button id="start-quiz-btn" class="btn btn-success btn-sm">Start Quiz</button> -->
 <div id="timer" style="display:none;">Time left: </div>
 <div id="quiz-container" style="display:none;">
     <!-- Quiz form -->
