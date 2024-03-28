@@ -1,17 +1,21 @@
 {% load crispy_forms_tags %}
-<form method="POST">
-    {% csrf_token %}
-    {% crispy form %}
-
-    {% if quiz %}
-    <div class="col-3 align-self-end">
-        <button type="submit" hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">
-            Submit
-        </button>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <form method="POST" class="mt-2">
+                {% csrf_token %}
+                {{ form.title|as_crispy_field }}
+                {{ form.description|as_crispy_field }}
+                {{ form.pass_mark|as_crispy_field }}
+                {{ form.time_limit|as_crispy_field }}
+                {{ form.subject|as_crispy_field }}
+                {{ form.max_attempts|as_crispy_field }}
+                {% if quiz %}
+                    <button type="submit" hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">Submit</button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                {% endif %}
+            </form>
+        </div>
     </div>
-    {% else %}
-    <div>
-        <button class="btn btn-primary" type="submit">Submit</button>
-    </div>
-    {% endif %}
-</form>
+</div>

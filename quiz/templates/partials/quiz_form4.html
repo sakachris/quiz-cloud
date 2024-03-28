@@ -1,0 +1,11 @@
+<!-- quiz_form.html -->
+{% load crispy_forms_tags %}
+<form method="POST"
+      hx-post="{% if quiz %}{% url 'update_quiz' quiz.id %}{% else %}{% url 'create_quiz' %}{% endif %}"
+      enctype="multipart/form-data">
+    {% csrf_token %}
+    {% crispy form %}
+    <div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+</form>
