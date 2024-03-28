@@ -18,7 +18,9 @@
     </ul>
     <p>Attempts: {{ total_attempts }} out of {{ attempts.first.quiz.max_attempts }}</p>
     {% if total_attempts < attempts.first.quiz.max_attempts %}
+        {% if attempts.first.quiz.published %}
         <a href="{% url 'get_quiz' attempts.first.quiz.id %}" class="btn btn-primary btn-sm">Take Quiz Again</a>
+        {% endif %}
     {% else %}
         {% if remaining_hours or remaining_minutes %}
         <p>You have reached the maximum number of attempts. Please wait 

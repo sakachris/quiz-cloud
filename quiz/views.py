@@ -42,7 +42,14 @@ def create_quiz(request):
 
 @teacher_required
 def created_quiz(request):
-    quizzes = Quiz.objects.all()
+    user_quizzes = Quiz.objects.filter(created_by=request.user)
+    
+    # Get all published quizzes not created by the user
+    other_quizzes = Quiz.objects.filter(~Q(created_by=request.user), published=True)
+    
+    # Combine the two querysets
+    quizzes = user_quizzes | other_quizzes
+
     return render(request, 'quiz/created_quiz.html', {'quizzes': quizzes})
 
 @teacher_required
@@ -241,7 +248,7 @@ def update_option(request, option_id):
 def get_quiz(request, quiz_id):
     '''quiz = get_object_or_404(Quiz, id=quiz_id)
     return render(request, 'quiz/get_quiz.html', {'quiz': quiz})'''
-    quiz = get_object_or_404(Quiz, id=quiz_id)
+    quiz = get_object_or_404(Quiz, id=quiz_id, published=True)
     questions = quiz.questions.prefetch_related('options').all()
     total_questions = questions.count()
     attempt_count = QuizAttempt.objects.filter(quiz=quiz, user=request.user).count()
@@ -265,7 +272,7 @@ def get_quiz(request, quiz_id):
 #     return render(request, 'quiz/test_quiz.html', {'quiz': quiz})
 @teacher_required
 def test_quiz(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
     questions = quiz.questions.prefetch_related('options').all()
     #form = QuizForm(questions=questions)
     #quiz = get_object_or_404(Quiz, id=quiz_id)
@@ -283,7 +290,7 @@ def test_quiz(request, quiz_id):
 @student_required
 @require_POST
 def start_quiz(request, quiz_id):
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    quiz = get_object_or_404(Quiz, pk=quiz_id, published=True)
     current_attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz, expired=False).count()
 
     if current_attempts_count >= quiz.max_attempts:
@@ -602,7 +609,7 @@ def user_quizzes(request):
     
     # All quizzes in the user's subjects
     #quizzes = Quiz.objects.filter(subject__in=user_subjects).distinct()
-    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
+    quizzes = Quiz.objects.filter(published=True, subject__in=student_subjects).distinct()
     planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
     planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
 
@@ -710,6 +717,16 @@ def view_take_later(request):
     
     return render(request, 'quiz/view_take_later.html', context)
 
+@login_required
+@require_POST
+def toggle_quiz_published(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, created_by=request.user)
+    quiz.published = not quiz.published
+    quiz.save()
+
+    # Return a snippet of HTML that htmx can use to replace the existing button
+    context = {'quiz': quiz}
+    return render(request, 'partials/toggle_published_button.html', context)
 
 @student_required
 @require_POST

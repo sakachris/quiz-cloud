@@ -22,6 +22,7 @@ class Quiz(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_quizzes')
     max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum number of attempts allowed")
     pass_mark = models.PositiveIntegerField(default=80, help_text="Percentage Pass Mark")
+    published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
