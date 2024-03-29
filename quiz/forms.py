@@ -17,59 +17,23 @@ class QuizForm(forms.ModelForm):
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.TextInput(attrs={'class': 'form-control'}),
-            'time_limit': forms.NumberInput(attrs={'marks': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 1}),
+            'time_limit': forms.NumberInput(attrs={'class': 'form-control'}),
             'subject': forms.Select(attrs={'class': 'form-control'}),
-            'max_attempts': forms.NumberInput(attrs={'marks': 'form-control'}),
-            'pass_mark': forms.NumberInput(attrs={'marks': 'form-control'})
+            'max_attempts': forms.NumberInput(attrs={'class': 'form-control'}),
+            'pass_mark': forms.NumberInput(attrs={'class': 'form-control'})
         }
-
-    # def __init__(self, *args, **kwargs):
-    #     super(QuizForm, self).__init__(*args, **kwargs)
-    #     self.helper = FormHelper()
-    #     self.helper.layout = Layout(
-    #         Row(
-    #             Column('title', css_class='form-group col-md-4 mb-0'),
-    #             Column('description', css_class='form-group col-md-4 mb-0'),
-    #             Column('pass_mark', css_class='form-group col-md-4 mb-0'),
-    #             css_class='form-row'
-    #         ),
-    #         Row(
-    #             Column('time_limit', css_class='form-group col-md-4 mb-0'),
-    #             Column('subject', css_class='form-group col-md-4 mb-0'),
-    #             Column('max_attempts', css_class='form-group col-md-4 mb-0'),
-    #             css_class='form-row'
-    #         ),
-    #     )
-
-'''class QuizForms(forms.Form):
-    def __init__(self, *args, **kwargs):
-        questions = kwargs.pop('questions')
-        super(QuizForms, self).__init__(*args, **kwargs)
-        
-        for i, question in enumerate(questions, 1):
-            field_name = f'question_{question.id}'
-            choices = [(o.id, o.text) for o in question.options.all()]
-            self.fields[field_name] = forms.ChoiceField(
-                label=f"{i}. {question.text} ({question.marks} marks)",
-                choices=choices,
-                widget=forms.RadioSelect
-            )'''
 
 class QuizForms(forms.Form):
     def __init__(self, *args, **kwargs):
         questions = kwargs.pop('questions')
         super(QuizForms, self).__init__(*args, **kwargs)
 
-        #for question in questions:
         for i, question in enumerate(questions, 1):
-            #field_name = f"question_{question.pk}"
             field_name = f"question_{question.id}"
-            #choices = [(option.pk, option.text) for option in question.options.all()]
             choices = [(option.id, option.text) for option in question.options.all()]
             if question.has_multiple_correct_answers():
                 self.fields[field_name] = forms.MultipleChoiceField(
-                    #label=f"{question.text} ({question.marks} marks)",
                     label=f"{i}. {question.text} ({question.marks} marks)",
                     choices=choices,
                     widget=forms.CheckboxSelectMultiple,
@@ -77,7 +41,6 @@ class QuizForms(forms.Form):
                 )
             else:
                 self.fields[field_name] = forms.ChoiceField(
-                    #label=f"{question.text} ({question.marks} marks)",
                     label=f"{i}. {question.text} ({question.marks} marks)",
                     choices=choices,
                     widget=forms.RadioSelect,

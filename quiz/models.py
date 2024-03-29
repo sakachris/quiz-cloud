@@ -79,24 +79,15 @@ class Answer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     quiz_attempt = models.ForeignKey(QuizAttempt, related_name='answers', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    #selected_option = models.ForeignKey(Option, on_delete=models.CASCADE)
     selected_options = models.ManyToManyField(Option)
 
     def __str__(self):
         options_str = ', '.join(option.text for option in self.selected_options.all())
         return f"Answer to {self.question.text} by {self.quiz_attempt.user}: {options_str}"
-        #return f"Answer to {self.question.text} by {self.quiz_attempt.user}"
-    
-    '''def all_options_correct(self):
-        return all(option.is_correct for option in self.selected_options.all())'''
     
     def is_fully_correct(self):
-        # Retrieve all correct options for the question
         correct_options = self.question.options.filter(is_correct=True)
-        # Retrieve all selected options
         selected_correct_options = self.selected_options.filter(is_correct=True)
-        # Check if the count of selected correct options matches the count of all correct options
-        # and that all selected options are correct
         return (correct_options.count() == selected_correct_options.count() and
                 selected_correct_options.count() == self.selected_options.count())
 
