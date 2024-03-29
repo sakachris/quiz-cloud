@@ -31,6 +31,21 @@
                 {% endfor %}
             </ol>       
         </div>
+        {% if questions %}
+        <div id="quiz-{{ quiz.id }}">
+            <!-- Use htmx attributes for the toggle functionality -->
+            <button hx-post="{% url 'toggle_published' quiz.id %}"
+                    hx-target="#quiz-{{ quiz.id }}"
+                    hx-swap="outerHTML"
+                    class="toggle-published btn-pub">
+                {% if quiz.published %}
+                Unpublish
+                {% else %}
+                Publish
+                {% endif %}
+            </button>
+        </div>
+        {% endif %}
     </div>
 </div>   
 {% endblock %}
