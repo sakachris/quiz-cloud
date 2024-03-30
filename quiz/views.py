@@ -560,9 +560,14 @@ def user_quizzes(request):
     ''' all quizzes students can access according to selected subject '''
     user = request.user
     student_subjects = user.subjects.all()
+    attempted_quiz_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
     
     quizzes = Quiz.objects.filter(
-        published=True, subject__in=student_subjects).distinct()
+        published=True,
+        subject__in=student_subjects
+    ).exclude(
+        id__in=attempted_quiz_ids
+    ).distinct()
     planned_quizzes = PlannedQuiz.objects.filter(student=user, taken=False)
     planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
 
@@ -576,6 +581,7 @@ def user_quizzes(request):
         'attempted_quizzes': attempted_quizzes,
         'user': user,
         'planned_quizzes_ids': planned_quizzes_ids,
+        'student_subjects': student_subjects,
     }
 
     return render(request, 'quiz/user_quizzes.html', context)
@@ -656,7 +662,7 @@ def quiz_attempts_owner(request, quiz_id):
 def view_take_later(request):
     ''' quizzes saved for later by students '''
     planned_quizzes = PlannedQuiz.objects.filter(
-        student=request.user, taken=False)
+        student=request.user, taken=False, quiz__published=True)
     quizzes = [quiz.quiz for quiz in planned_quizzes]
 
     context = {'quizzes': quizzes}
@@ -797,7 +803,7 @@ def custom_login(request):
                 login(request, user)
                 messages.success(request, f"Hello <b>{user.username}</b>! You have been logged in")
                 if user.status == 'teacher':
-                    return redirect("teacher")
+                    return redirect('created_quiz')
                 elif user.status == 'student':
                     return redirect('user_quizzes')
             

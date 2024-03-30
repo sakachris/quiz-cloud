@@ -1,14 +1,15 @@
+{% load crispy_forms_tags %}
 <div hx-target="this" hx-swap="outerHTML">
     <form method="POST">
         {% csrf_token %}
         <div class="class row">
             <div class="class col-4 col-md-3">
-                <label for="{{ form.text.id_for_label }}">{{ form.text.label}}</label>
-                {{ form.text}}
+                <!-- <label for="{{ form.text.id_for_label }}">{{ form.text.label}}</label> -->
+                {{ form.text|as_crispy_field }}
             </div>
             <div class="class col-4 col-md-3 align-self-end">
-                <label for="{{ form.is_correct.id_for_label }}">{{ form.is_correct.label}}</label>
-                {{ form.is_correct}}
+                <!-- <label for="{{ form.is_correct.id_for_label }}">{{ form.is_correct.label}}</label> -->
+                {{ form.is_correct|as_crispy_field }}
             </div>
             {% if option %}
                 <div class="class col-3 align-self-end">
