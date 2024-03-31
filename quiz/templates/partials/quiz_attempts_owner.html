@@ -4,7 +4,7 @@
         <div class="d-flex">
         <h5>{{ user.username }}</h5>
         <a href="#" data-toggle="modal" data-target="#quizProfileModal-{{ user.id }}">
-            <i class="bi bi-person-circle ms-2"></i>
+            <i class="bi bi-person-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="View Profile"></i>
         </a>
         </div>
         
@@ -14,7 +14,7 @@
                 <li>
                     {{ attempt.date_attempted }} - Score: {{ attempt.percentage_score }}% {% if attempt.passed %} (Passed) {% else %} (Failed) {% endif %}
                     <a href="#" data-toggle="modal" data-target="#quizAttemptModal-{{ attempt.id }}">
-                        <i class="bi bi-eye-fill"></i>
+                        <i class="bi bi-eye-fill" data-bs-toggle="tooltip" data-bs-placement="top" title="View Attempt"></i>
                     </a>
                     
                     {% include 'quiz/quiz_attempt_detail5.html' with attempt=attempt %}
