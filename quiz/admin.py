@@ -1,14 +1,10 @@
 from django.contrib import admin
 from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, PlannedQuiz
 
-# Register your models here.
 admin.site.register(CustomUser)
 admin.site.register(Subject)
 admin.site.register(QuizAttempt)
 admin.site.register(PlannedQuiz)
-#admin.site.register(Quiz)
-#admin.site.register(Question)
-#admin.site.register(Option)
 
 class QuestionInLineAdmin(admin.TabularInline):
     model = Question

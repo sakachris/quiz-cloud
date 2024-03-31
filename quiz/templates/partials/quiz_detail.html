@@ -6,7 +6,6 @@
                     <h4 class="text-white mb-0">{{ quiz.title }}</h4>
                     {% if request.user == quiz.created_by %}
                     <div id="quiz-{{ quiz.id }}">
-                        <!-- Use htmx attributes for the toggle functionality -->
                         <button hx-post="{% url 'toggle_published' quiz.id %}"
                                 hx-target="#quiz-{{ quiz.id }}"
                                 hx-swap="outerHTML"
@@ -34,7 +33,6 @@
                         <div class="col-auto align-self-end">
                             <a href="{% url 'add_question' quiz.id %}" class="btn btn-success">Questions</a>
                         </div>
-                        <!-- == quiz.created_by -->
                         {% if request.user == quiz.created_by %}
                             <div class="col-auto align-self-end">
                                 <button hx-post="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger">Delete</button>

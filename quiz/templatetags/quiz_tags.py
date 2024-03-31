@@ -1,5 +1,3 @@
-# yourapp/templatetags/quiz_tags.py
-
 from django import template
 register = template.Library()
 

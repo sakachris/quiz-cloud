@@ -17,7 +17,6 @@ from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
 from collections import defaultdict
-
 from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, QuizForms
 from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
 from .tokens import account_activation_token
@@ -629,7 +628,8 @@ def completed_quizzes(request):
     student_subjects = user.subjects.all()
     
     q = request.GET.get('q', '')
-    attempted_quizzes_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
+    attempted_quizzes_ids = QuizAttempt.objects.filter(
+        user=user).values_list('quiz_id', flat=True)
     
     attempted_quizzes = Quiz.objects.filter(
         Q(id__in=attempted_quizzes_ids) & 
@@ -892,29 +892,6 @@ def custom_login(request):
         context={"form": form}
         )
 
-'''def profile(request, username):
-    if request.method == "POST":
-        user = request.user
-        form = UserUpdateForm(request.POST, request.FILES, instance=user)
-        if form.is_valid():
-            user_form = form.save()
-            messages.success(request, f'{user_form.username}, Your profile has been updated!')
-            return redirect("profile", user_form.username)
-
-        for error in list(form.errors.values()):
-            messages.error(request, error)
-
-    user = get_user_model().objects.filter(username=username).first()
-    if user:
-        form = UserUpdateForm(instance=user)
-        form.fields['school'].widget.attrs = {'rows': 1}
-        return render(
-            request=request,
-            template_name="quiz/profile.html",
-            context={"form": form}
-            )
-    
-    return redirect("homepage")'''
 
 def profile(request, username):
     ''' user profile '''

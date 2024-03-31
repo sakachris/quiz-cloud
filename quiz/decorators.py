@@ -25,32 +25,19 @@ def user_not_authenticated(function=None, redirect_url='/'):
     return decorator
 
 def is_teacher(user):
+    ''' authentication for teacher '''
     if user.is_authenticated and user.status == 'teacher':
         return True
     raise PermissionDenied
 
 def is_student(user):
+    ''' authentication for student '''
     if user.is_authenticated and user.status == 'student':
         return True
     raise PermissionDenied
 
 teacher_required = user_passes_test(is_teacher, login_url='login')
 student_required = user_passes_test(is_student, login_url='login')
-
-# def teacher_and_owner_required(function):
-#     @login_required
-#     @wraps(function)
-#     def wrapper(request, *args, **kwargs):
-#         quiz_id = kwargs.get('quiz_id')
-#         quiz = get_object_or_404(Quiz, pk=quiz_id)
-
-#         # Check if the logged-in user is the teacher who created the quiz
-#         if not request.user.is_authenticated or request.user.status != 'teacher' or quiz.created_by != request.user:
-#             raise PermissionDenied
-        
-#         return function(request, *args, **kwargs)
-    
-#     return wrapper
 
 def teacher_and_owner_required(function):
     @wraps(function)
