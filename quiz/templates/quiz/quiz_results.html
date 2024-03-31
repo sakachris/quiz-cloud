@@ -1,33 +1,33 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Quiz Result{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-center">
-    <div class="class row">
-        <div>
-            <div class="card mt-3" style="width: 18rem;">
-                <div class="card-header">
-                    <h4>{{ attempt.quiz.title }}</h4>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-3">
+                <div class="card-header" style="background-color: #2c91f7;">
+                    <h4 class="text-white">{{ attempt.quiz.title }}</h4>
                 </div>
                 <div class="card-body">
-                    <h6 class="card-title">Score: {{ attempt.score }} out of {{ total_marks }}</h6>
-                    <h6 class="card-title">Percentage Score: {{ attempt.percentage_score}}%</h6>
-                    <h6 class="card-title">Pass Mark: {{ attempt.quiz.pass_mark }}%</h6>
-                    <h6 class="card-title">Time Taken: {{ time_taken }}</h6>
+                    <h5 class="card-title">Score: {{ attempt.score }} out of {{ total_marks }}</h5>
+                    <h5 class="card-title">Percentage Score: {{ attempt.percentage_score}}%</h5>
+                    <h5 class="card-title">Pass Mark: {{ attempt.quiz.pass_mark }}%</h5>
+                    <h5 class="card-title mb-3">Time Taken: {{ time_taken }}</h5>
                     
                     {% if attempt.passed %}
                     <div class="bg-success text-center p-2 rounded-3">
                         <h6 class="mb-0 text-white">You have passed the Quiz</h6>
                     </div>                    
-                    <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
+                    <h5 class="mt-3 mb-3">Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</h5>
                     <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Back to Quizzes</a>
                     {% else %}
                     <div class="bg-danger text-center p-2 rounded-3">
                         <h6 class="mb-0 text-white">You have NOT passed the Quiz</h6>
                     </div>
-                    <p>Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</p>
-                    {% if number_of_attempts < max_attempts %}
-                        <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary btn-sm">Retake</a>
-                    {% else %}
+                    <h5 class="mt-3 mb-3">Number of Attempts: {{ number_of_attempts }} out of {{ max_attempts }}</h5>
+                        {% if number_of_attempts < max_attempts %}
+                            <a href="{% url 'get_quiz' attempt.quiz.id %}" class="btn btn-primary">Retake</a>
+                        {% else %}
                         <h6>You have exhausted all attempts</h6>
                         {% if remaining_hours or remaining_minutes %}
                             <p>You have reached the maximum number of attempts. Please wait 
@@ -36,11 +36,11 @@
                             before trying again.</p>
                         {% endif %}
                     {% endif %}
-                    <a href="{% url 'user_quizzes' %}" class="btn btn-primary btn-sm">Quizzes</a>
+                    <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Quizzes</a>
                     {% endif %}
                 </div>
-                <div class="card-footer text-body-secondary">
-                    <h6>Date: {{ date_submitted }}</h6>
+                <div class="card-footer" style="background-color: #2c91f7;">
+                    <h6 class="text-white">Date: {{ date_submitted }}</h6>
                 </div>
             </div>
         </div>
