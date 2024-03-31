@@ -10,7 +10,7 @@ from datetime import timedelta
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.db.models.query_utils import Q
 from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
@@ -43,16 +43,42 @@ def create_quiz(request):
 @teacher_required
 def created_quiz(request):
     ''' list of created quizzes '''
-    user_quizzes = Quiz.objects.filter(created_by=request.user)
+    q = request.GET.get('q', '')
+    user_quizzes = Quiz.objects.filter(
+        Q(created_by=request.user) &
+        (
+            Q(title__icontains=q) |
+            Q(subject__name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(created_by__username__icontains=q) |
+            Q(time_limit__icontains=q) |
+            Q(pass_mark__icontains=q)
+        )
+    )
     
-    # Get all published quizzes not created by the user
-    other_quizzes = Quiz.objects.filter(
-        ~Q(created_by=request.user), published=True)
-    
-    # Combine the two querysets
-    quizzes = user_quizzes | other_quizzes
+    context = {'quizzes': user_quizzes, 'q': q}
 
-    return render(request, 'quiz/created_quiz.html', {'quizzes': quizzes})
+    return render(request, 'quiz/created_quiz.html', context)
+
+@teacher_required
+def other_quizzes(request):
+    ''' list of created quizzes by other users '''
+    q = request.GET.get('q', '')
+    other_quizzes = Quiz.objects.filter(
+        ~Q(created_by=request.user) &
+        Q(published=True) &
+        (
+            Q(title__icontains=q) |
+            Q(subject__name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(created_by__username__icontains=q) |
+            Q(time_limit__icontains=q) |
+            Q(pass_mark__icontains=q)
+        )
+    )
+    context = {'quizzes': other_quizzes, 'q': q}
+
+    return render(request, 'quiz/created_quiz_others.html', context)
 
 @teacher_required
 def add_question_form(request):
@@ -732,17 +758,27 @@ def toggle_take_later(request, quiz_id):
 @teacher_required
 def user_created_attempted_quizzes(request):
     ''' attempted quizzes for teacher's quizzes '''
-    user_quizzes = Quiz.objects.filter(created_by=request.user)
+    q = request.GET.get('q', '')
+    user_quizzes = Quiz.objects.filter(
+        Q(created_by=request.user) &
+        (
+            Q(title__icontains=q) |
+            Q(subject__name__icontains=q)
+        )
+    )
     attempted_quizzes = user_quizzes.filter(
-        quizattempt__isnull=False).distinct()
-    
-    count_attempts = user_quizzes.filter(quizattempt__isnull=False).count()
-    count_users = user_quizzes.count() # This is wrong, correct it
+        quizattempt__isnull=False,
+        quizattempt__user__status="student"
+    ).annotate(
+        total_attempts=Count('quizattempt'),
+        total_students=Count('quizattempt__user', distinct=True)
+    ).distinct()
+
     context = {
         'attempted_quizzes': attempted_quizzes,
-        'count_users': count_users,
-        'count_attempts': count_attempts
+        'q': q
     }
+    
     return render(request, 'quiz/view_attempted_quizzes.html', context)
 
 @login_required

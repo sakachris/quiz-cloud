@@ -24,10 +24,13 @@
                         Create Quiz
                     </a>
                     <a href="{% url 'created_quiz' %}" class="nav-item nav-link text-white">
-                        View Quizzes
+                        My Quizzes
                     </a>
                     <a href="{% url 'attempted_quizzes' %}" class="nav-item nav-link text-white">
                         My Attempted Quizzes
+                    </a>
+                    <a href="{% url 'other_quizzes' %}" class="nav-item nav-link text-white">
+                        Other Quizzes
                     </a>
                     {% endif %}
                 {% endif %}

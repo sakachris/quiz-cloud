@@ -10,8 +10,10 @@
                     Add Question
                 </button>
                 <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+                <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
+            {% else %}
+                <a href="{% url 'other_quizzes' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
             {% endif %}
-            <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
         </div>
         <div>
             <h6>
@@ -32,19 +34,20 @@
             </ol>       
         </div>
         {% if questions %}
-        <div id="quiz-{{ quiz.id }}">
-            <!-- Use htmx attributes for the toggle functionality -->
-            <button hx-post="{% url 'toggle_published' quiz.id %}"
-                    hx-target="#quiz-{{ quiz.id }}"
-                    hx-swap="outerHTML"
-                    class="toggle-published btn-pub">
-                {% if quiz.published %}
-                Unpublish
-                {% else %}
-                Publish
-                {% endif %}
-            </button>
-        </div>
+            {% if request.user == quiz.created_by %}
+                <div id="quiz-{{ quiz.id }}">
+                    <button hx-post="{% url 'toggle_published' quiz.id %}"
+                            hx-target="#quiz-{{ quiz.id }}"
+                            hx-swap="outerHTML"
+                            class="toggle-published btn-pub">
+                        {% if quiz.published %}
+                        Unpublish
+                        {% else %}
+                        Publish
+                        {% endif %}
+                    </button>
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 </div>   
