@@ -21,8 +21,8 @@
                 </div>
                 <div class="modal-body">
                     <!-- Display quiz attempt details -->
-                    <h3>Quiz: {{ attempt.quiz.title }}</h3>
-                    <h4>Questions and Options:</h4>
+                    <h3>{{ attempt.quiz.title }}</h3>
+                    <!-- <h4>Questions and Options:</h4> -->
                     <ol>
                         {% for answer in attempt.answers.all %}
                             <li>

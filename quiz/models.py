@@ -23,6 +23,8 @@ class Quiz(models.Model):
     max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum number of attempts allowed")
     pass_mark = models.PositiveIntegerField(default=80, help_text="Percentage Pass Mark")
     published = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title

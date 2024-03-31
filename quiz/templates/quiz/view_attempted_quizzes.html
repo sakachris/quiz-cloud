@@ -1,32 +1,48 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Attempted Quizzes{% endblock %}
 {% block content %}
+    <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'attempted_quizzes' %}">
+        <div class="form-group me-2">
+        <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search ...">
+        </div>
+        <button type="submit" class="btn btn-primary me-2">Search</button>
+        <a href="{% url 'attempted_quizzes' %}" class="btn btn-secondary">Clear</a>
+    </form>
     {% if attempted_quizzes %}
     <div class="class container">
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 g-4 mt-1">
-        {% for quiz in attempted_quizzes %}
-        <div class="col">
-            <div class="card border-primary h-100">
-                <div class="class card-header" style="background-color: #2c91f7;">
-                    <h4 class="text-white">{{ quiz.title }}</h4>
-                </div>
-                <div class="card-body">
-                    <div>
-                        <h5>{{ count_users }} Users, {{ count_attempts }} Attempts</h5>
-                        <button data-quiz-id="{{ quiz.id }}"
-                                data-url="{% url 'quiz_attempts_owner' quiz.id %}"
-                                onclick="toggleAttempts(this);"
-                                class="btn btn-secondary btn-sm">See Attempts</button>
-                        <div id="attempts-{{quiz.id}}"></div>
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4 mt-0">
+            {% for quiz in attempted_quizzes %}
+                <div class="col">
+                    <div class="card border-primary h-100">
+                        <div class="class card-header d-flex justify-content-between align-items-center" style="background-color: #2c91f7;">
+                            <h4 class="text-white">{{ quiz.title }}</h4>
+                            <h4 class="text-white">{{ quiz.subject }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <h5>{{ quiz.total_students }} Users, {{ quiz.total_attempts }} Attempts</h5>
+                                <button data-quiz-id="{{ quiz.id }}"
+                                        data-url="{% url 'quiz_attempts_owner' quiz.id %}"
+                                        onclick="toggleAttempts(this);"
+                                        class="btn btn-secondary btn-sm">See Attempts</button>
+                                <div id="attempts-{{quiz.id}}"></div>
+                            </div>
+                        </div>
+                        <div class="class card-footer d-flex justify-content-between align-items-center" style="background-color: #2c91f7;">
+                            <small class="text-white">Created: {{ quiz.created_at|date:"d/m/Y" }}</small>
+                            <small class="text-white">Updated: {{ quiz.updated_at|date:"d/m/Y" }}</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+    </div>
     {% else %}
-        <h6>You don't have attempted quizzes</h6>
-    </div>
-    </div>
+        {% if q %}
+            <h5 class="text-center">No search result found</h5>
+        {% else %}
+        <h5 class="text-center">You don't have attempted quizzes</h5>
+        {% endif %}
     {% endif %}
     <script>
         function toggleAttempts(button) {

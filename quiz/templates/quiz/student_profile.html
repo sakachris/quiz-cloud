@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Modal -->
+    <div class="modal fade" id="quizProfileModal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="quizProfileModalLabel-{{ user.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <legend class="modal-title fw-bold" id="quizProfileModalLabel-{{ user.id }}">Student Profile</legend>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container mt-1">
+                        <div class="row  justify-content-center">
+                            <div class="col-md-12">
+                                <h4 class="account-heading">{{ user.username }}
+                                    <small class="text-muted">({{ user.status }})</small>
+                                </h4>
+                                <img class="rounded-circle account-img profile-image", src="{{ user.image.url }}">
+                                <h6 class="text-secondary">Name: {{ user.first_name }} {{ user.last_name }}</h6>
+                                <h6 class="text-secondary">Email: {{ user.email }}</h6>
+                                <h6 class="text-secondary">School: {{ user.school }}</h6>
+                                {% if user.status == 'student' %}
+                                <h6>Subjects:
+                                    {% for subject in user.subjects.all %}
+                                        {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </h6>
+                                {% endif %}                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

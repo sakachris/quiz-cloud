@@ -1,19 +1,19 @@
 {% extends 'quiz/header.html' %}
-{% block title %}Created Quizzes{% endblock %}
+{% block title %}Other Created Quizzes{% endblock %}
 {% block content %}
     <!-- <a href="{% url 'create_quiz' %}" class="btn btn-success">New Quiz</a> -->
     <div class="class container">
-        <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'created_quiz' %}">
+        <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'other_quizzes' %}">
             <div class="form-group me-2">
               <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search ...">
             </div>
             <button type="submit" class="btn btn-primary me-2">Search</button>
-            <a href="{% url 'created_quiz' %}" class="btn btn-secondary">Clear</a>
+            <a href="{% url 'other_quizzes' %}" class="btn btn-secondary">Clear</a>
         </form>
         {% if quizzes %}
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 g-4 mt-0">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4 mt-0">
             {% for quiz in quizzes %}
-                {% include 'partials/quiz_detail.html' %}   
+                {% include 'partials/quiz_detail_others.html' %}   
             {% endfor %}
         </div>
         {% else %}

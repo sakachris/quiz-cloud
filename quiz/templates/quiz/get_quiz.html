@@ -4,56 +4,52 @@
 {% load crispy_forms_tags %}
 {% load quiz_extras %}
 {% block content %}
-<div class="d-flex justify-content-center">
-    <div id="start-quiz-btn" class="class row">
-        <div>
-            <div class="card text-center mt-3" style="width: 18rem;">
-                <div class="card-header">
-                    <h4>{{ quiz.title }}</h4>
+<div class="container">
+    <div id="start-quiz-btn" class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center mt-3">
+                <div class="card-header" style="background-color: #2c91f7;">
+                    <h4 class="text-white">{{ quiz.title }}</h4>
                 </div>
                 <div class="card-body">
-                    <h6 class="card-title">{{ quiz.description }}</h6>
-                    <h6 class="card-title">Pass Mark: {{ quiz.pass_mark }}%</h6>
-                    <h6 class="card-title">Total Questions: {{ total_questions }}</h6>
-                    <h6 class="card-title">Time Limit: {{ quiz.time_limit }} minutes</h6>
-                    <button class="btn btn-success btn-sm mt-2">Start Quiz</button>
+                    <h5 class="card-title">{{ quiz.description }}</h5>
+                    <h5 class="card-title">Pass Mark: {{ quiz.pass_mark }}%</h5>
+                    <h5 class="card-title">Total Questions: {{ total_questions }}</h5>
+                    <h5 class="card-title">Time Limit: {{ quiz.time_limit }} minutes</h5>
+                    <button class="btn btn-success mt-2">Start Quiz</button>
                 </div>
-                <div class="card-footer text-body-secondary">
-                    <h6>Attempts: {{ attempt_count }} out of {{ quiz.max_attempts }}</h6>
+                <div class="card-footer" style="background-color: #2c91f7;">
+                    <h5 class="text-white">Attempts: {{ attempt_count }} out of {{ quiz.max_attempts }}</h5>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- <button id="start-quiz-btn" class="btn btn-success">Start Quiz</button>
-<div id="timer" style="display:none;">Time left: </div>
-<div id="quiz-container" style="display:none;"> -->
-<div class="d-flex justify-content-center min-vh-100">
-    <div class="col-sm-12 col-md-8 col-lg-6">
-        <!-- <div id="timer" class="mb-2" style="display:none;">Time left: </div> -->
-        <div id="timer" class="fixed-top bg-light border-bottom shadow-sm p-2 text-center fw-bold" style="display: none; z-index: 900; top: 50px; right: 15px; left: 15px;">
-            Time left: <span id="time-remaining">00:00</span>
+<div class="container">
+    <div id="timer" class="fixed-top bg-light border-bottom shadow-sm p-2 text-center fw-bold" style="display: none; z-index: 900; top: 50px; right: 15px; left: 15px;">
+        Time left: <span id="time-remaining">00:00</span>
+    </div>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 border border-primary rounded border-2 shadow div-bg-color p-3" id="quiz-container" style="display:none;">
+        <!-- Quiz form -->
+            <form id="quiz-form" method="post" action="{% url 'submit_quiz' quiz.id %}">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {% if field|is_checkbox %}
+                            <!-- Render with checkboxes for multiple correct answers -->
+                            {{ field|as_crispy_field }}
+                        {% else %}
+                            <!-- Render with radio buttons for a single correct answer -->
+                            {{ field|as_crispy_field }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary btn-sm">Submit Quiz</button>
+            </form>
         </div>
-        <div class="mt-5" id="quiz-container" style="display:none;">
-    <!-- Quiz form -->
-    <form id="quiz-form" method="post" action="{% url 'submit_quiz' quiz.id %}">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="form-group">
-                {% if field|is_checkbox %}
-                    <!-- Render with checkboxes for multiple correct answers -->
-                    {{ field|as_crispy_field }}
-                {% else %}
-                    <!-- Render with radio buttons for a single correct answer -->
-                    {{ field|as_crispy_field }}
-                {% endif %}
-            </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary btn-sm">Submit Quiz</button>
-    </form>
-</div>
-</div>
+    </div>
 </div>
 
 <script>

@@ -9,14 +9,6 @@
         #quiz-container {
             display: none;
         }
-        /* Custom Tooltip Styles */
-        .tooltip .tooltip-inner {
-            background-color: #2c91f7; /* Tooltip background color */
-            color: white; /* Tooltip text color */
-        }
-        .tooltip.bs-tooltip-top .tooltip-arrow::before, .tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
-            border-top-color: #2c91f7; /* Arrow color for top tooltip */
-        }
         .btn-fixed-size {
             font-size: 0.175rem; /* This is typically the font size for .btn-sm in Bootstrap */
         }
@@ -32,6 +24,9 @@
         }
         .width-200 {
             max-width: 200px;
+        }
+        .div-bg-color {
+            background-color: #e9f1f1; /* Orange color */
         }
 
     </style>
@@ -55,10 +50,14 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include 'quiz/includes/navbar.html' %}
-    <main role="main" class="container-xl">
-        <div class="row">
-            <div class="col-lg-12 col-md-12-p-0 col-sm-12">
-                {% include 'quiz/includes/messaging.html' %}
+    <main role="main" class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="class row justify-content-center mt-1">
+                    <div class="class col-md-6">
+                        {% include 'quiz/includes/messaging.html' %}
+                    </div>
+                </div>
                 {% block content %}
                 {% endblock %}
             </div>

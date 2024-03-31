@@ -1,17 +1,38 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Questions{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-center min-vh-100">
-    <div class="col-sm-12 col-md-8 col-lg-6">
-        <h2>{{ quiz.title }}</h2>
+<div class="container">
+    <div class="row justify-content-center">
+    <div class="col-md-8 border border-primary rounded border-2 shadow div-bg-color p-2">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>{{ quiz.title }}</h2>
+            {% if questions %}
+                {% if request.user == quiz.created_by %}
+                    <div id="quiz-{{ quiz.id }}">
+                        <button hx-post="{% url 'toggle_published' quiz.id %}"
+                                hx-target="#quiz-{{ quiz.id }}"
+                                hx-swap="outerHTML"
+                                class="toggle-published btn-pub">
+                            {% if quiz.published %}
+                            Unpublish
+                            {% else %}
+                            Publish
+                            {% endif %}
+                        </button>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
         <div class="mb-3">
             {% if request.user == quiz.created_by %}
                 <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary btn-sm">
                     Add Question
                 </button>
                 <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+                <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
+            {% else %}
+                <a href="{% url 'other_quizzes' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
             {% endif %}
-            <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm text-sm btn-fixed-size">Quizzes</a>
         </div>
         <div>
             <h6>
@@ -31,21 +52,7 @@
                 {% endfor %}
             </ol>       
         </div>
-        {% if questions %}
-        <div id="quiz-{{ quiz.id }}">
-            <!-- Use htmx attributes for the toggle functionality -->
-            <button hx-post="{% url 'toggle_published' quiz.id %}"
-                    hx-target="#quiz-{{ quiz.id }}"
-                    hx-swap="outerHTML"
-                    class="toggle-published btn-pub">
-                {% if quiz.published %}
-                Unpublish
-                {% else %}
-                Publish
-                {% endif %}
-            </button>
-        </div>
-        {% endif %}
+    </div>
     </div>
 </div>   
 {% endblock %}

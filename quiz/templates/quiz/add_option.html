@@ -2,19 +2,24 @@
 {% block title %}Add Options{% endblock %}
 {% block content %}
 <div class="class container">
-    <h2>{{ question.text }}</h2>
-    <button hx-get="{% url 'option_form' %}" hx-swap="afterbegin" hx-target="#option-form" class="btn btn-success btn-sm">
-        Add Option
-    </button>
-    <div id="option-form">
-        {% for option in options %}
-        <div>
-            {% include 'partials/option_detail.html' %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 border border-primary rounded border-2 shadow div-bg-color p-3">
+            <h2>{{ question.text }}</h2>
+            
+            <div id="option-form">
+                {% for option in options %}
+                <div>
+                    {% include 'partials/option_detail.html' %}
+                </div>
+                {% endfor %}       
+            </div>
+            <a href="{% url 'add_question' question.quiz.id %}" class="btn btn-primary btn-sm">
+                Finish
+            </a>
+            <button hx-get="{% url 'option_form' %}" hx-swap="afterbegin" hx-target="#option-form" class="btn btn-success btn-sm">
+                Add Option
+            </button>
         </div>
-        {% endfor %}       
     </div>
-    <a href="{% url 'add_question' question.quiz.id %}" class="btn btn-primary btn-sm">
-        Finish
-    </a>
 </div>   
 {% endblock %}
