@@ -2,14 +2,14 @@
 {% block title %}Completed Quizzes{% endblock %}
 {% block content %}
 <div class="container">
-  <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'completed_quizzes' %}">
-    <div class="form-group me-2">
-      <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search ...">
-    </div>
-    <button type="submit" class="btn btn-primary me-2">Search</button>
-    <a href="{% url 'completed_quizzes' %}" class="btn btn-secondary">Clear</a>
-  </form>
 {% if attempted_quizzes %}
+<form class="form-inline d-flex justify-content-end" method="get" action="{% url 'completed_quizzes' %}">
+  <div class="form-group me-2">
+    <input type="text" class="form-control" name="q" placeholder="Search ...">
+  </div>
+  <button type="submit" class="btn btn-primary me-2">Search</button>
+  <button class="btn btn-secondary ml-2" onclick="">Clear</button>
+</form>
     <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4 mt-0">
         {% for quiz in attempted_quizzes %}
         <div class="col">
@@ -38,9 +38,7 @@
         {% endfor %}
     </div>
 {% else %}
-{% if q %}
-<h5 class="text-center">No search result found</h5>
-{% elif not student_subjects.exists %}
+{% if not student_subjects.exists %}
 <div class="mt-5">
   <div class="container">
     <div class="row justify-content-center">

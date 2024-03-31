@@ -3,6 +3,13 @@
 {% block title %}Quizzes{% endblock %}
 {% block content %}
 <div class="container">
+    <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'user_quizzes' %}">
+        <div class="form-group me-2">
+          <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search ...">
+        </div>
+        <button type="submit" class="btn btn-primary me-2">Search</button>
+        <a href="{% url 'user_quizzes' %}" class="btn btn-secondary">Clear</a>
+    </form>
 {% if quizzes %}
     <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4 mt-0">
         {% for quiz in quizzes %}
@@ -46,7 +53,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 text-center">
-            {% if student_subjects.exists %}
+            {% if q %}
+                <h5 class="text-center">No search result found</h5>
+            {% elif student_subjects.exists %}
                 <h4 class="text-center">You have attempted all available quizzes. Keep checking for new quizzes</h4>
             {% else %}
                 <h4 class="text-danger">It looks like you haven't selected any subjects yet. Please update your profile to select the subjects you're taking.</h4>

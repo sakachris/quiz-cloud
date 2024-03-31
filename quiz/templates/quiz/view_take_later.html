@@ -2,7 +2,14 @@
 {% block title %}Take Later Quizzes{% endblock %}
 {% block content %}
 <div class="text-center">
-    <h2 class="text-primary-emphasis">Quizzes Saved For Later</h2>
+    <!-- <h2 class="text-primary-emphasis">Quizzes Saved For Later</h2> -->
+    <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'view_take_later' %}">
+        <div class="form-group me-2">
+          <input type="text" class="form-control" name="q" value="{{ q }}" placeholder="Search ...">
+        </div>
+        <button type="submit" class="btn btn-primary me-2">Search</button>
+        <a href="{% url 'view_take_later' %}" class="btn btn-secondary">Clear</a>
+    </form>
 </div>
 {% if quizzes %}
 <div class="container">
@@ -34,9 +41,13 @@
 {% else %}
 <div class="row justify-content-center mt-5">
     <div class="col-md-6 text-center">
+        {% if q %}
+            <h5 class="text-center">No search result found</h5>
+        {% else %}
         <h6>No quizzes saved for later</h6>
         <h6>Browse available quizzes for your subjects</h6>
         <a href="{% url 'user_quizzes' %}" class="btn btn-primary">Browse Quizzes</a>
+        {% endif %}
     </div>
 </div>
 {% endif %}

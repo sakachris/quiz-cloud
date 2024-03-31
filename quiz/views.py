@@ -562,9 +562,18 @@ def user_quizzes(request):
     student_subjects = user.subjects.all()
     attempted_quiz_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
     
+    q = request.GET.get('q', '')
     quizzes = Quiz.objects.filter(
-        published=True,
-        subject__in=student_subjects
+        Q(published=True) &
+        Q(subject__in=student_subjects) &
+        (
+            Q(title__icontains=q) |
+            Q(subject__name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(created_by__username__icontains=q) |
+            Q(time_limit__icontains=q) |
+            Q(pass_mark__icontains=q)
+        )
     ).exclude(
         id__in=attempted_quiz_ids
     ).distinct()
@@ -582,6 +591,7 @@ def user_quizzes(request):
         'user': user,
         'planned_quizzes_ids': planned_quizzes_ids,
         'student_subjects': student_subjects,
+        'q': q,
     }
 
     return render(request, 'quiz/user_quizzes.html', context)
@@ -591,17 +601,28 @@ def completed_quizzes(request):
     ''' list of quizzes a student has done '''
     user = request.user
     student_subjects = user.subjects.all()
-
-    quizzes = Quiz.objects.filter(subject__in=student_subjects).distinct()
-    attempted_quizzes_ids = QuizAttempt.objects.filter(
-        user=user).values_list('quiz_id', flat=True)
-    attempted_quizzes = quizzes.filter(id__in=attempted_quizzes_ids)
+    
+    q = request.GET.get('q', '')
+    attempted_quizzes_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
+    
+    attempted_quizzes = Quiz.objects.filter(
+        Q(id__in=attempted_quizzes_ids) & 
+        Q(subject__in=student_subjects) &
+        (
+            Q(title__icontains=q) |
+            Q(subject__name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(created_by__username__icontains=q) |
+            Q(time_limit__icontains=q) |
+            Q(pass_mark__icontains=q)
+        )
+    ).distinct()
 
     context = {
         'attempted_quizzes': attempted_quizzes,
         'user': user,
+        'q': q,
     }
-
     return render(request, 'quiz/completed_quizzes.html', context)
 
 @login_required
@@ -661,11 +682,20 @@ def quiz_attempts_owner(request, quiz_id):
 @student_required
 def view_take_later(request):
     ''' quizzes saved for later by students '''
+    q = request.GET.get('q', '')
     planned_quizzes = PlannedQuiz.objects.filter(
-        student=request.user, taken=False, quiz__published=True)
+        student=request.user, taken=False, quiz__published=True
+    ).filter(
+        Q(quiz__title__icontains=q) |
+        Q(quiz__subject__name__icontains=q) | 
+        Q(quiz__description__icontains=q) | 
+        Q(quiz__created_by__username__icontains=q) |
+        Q(quiz__time_limit__icontains=q) |
+        Q(quiz__pass_mark__icontains=q)
+    )
     quizzes = [quiz.quiz for quiz in planned_quizzes]
 
-    context = {'quizzes': quizzes}
+    context = {'quizzes': quizzes, 'q': q}
     
     return render(request, 'quiz/view_take_later.html', context)
 
