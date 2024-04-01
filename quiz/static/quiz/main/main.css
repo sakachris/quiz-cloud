@@ -189,3 +189,26 @@ a.article-title:hover {
   height: 125px;
   padding: 5px;
 }
+
+#quiz-container {
+    display: none;
+}
+.btn-fixed-size {
+    font-size: 0.175rem;
+}
+.btn-pub {
+    background-color: white;
+    color: #2c91f7;
+    border-color: #2c91f7;
+    border-radius: 0.35rem;
+    font-weight: bold;
+}
+.width-100 {
+    max-width: 100px;
+}
+.width-200 {
+    max-width: 200px;
+}
+.div-bg-color {
+    background-color: #e9f1f1;
+}
