@@ -1,7 +1,6 @@
 {% extends 'quiz/header.html' %}
 {% block title %}Created Quizzes{% endblock %}
 {% block content %}
-    <!-- <a href="{% url 'create_quiz' %}" class="btn btn-success">New Quiz</a> -->
     <div class="class container">
         <form class="form-inline d-flex justify-content-end mb-0" method="get" action="{% url 'created_quiz' %}">
             <div class="form-group me-2">
