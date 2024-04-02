@@ -1,0 +1,15 @@
+.hero-section {
+    background: url('../images/ab.jpg') no-repeat center center;
+    background-size: cover;
+    color: rgba(255, 255, 255, 0.867);
+    padding: 100px 0;
+}
+
+#about, #features, #get-started {
+    padding: 40px 0;
+}
+
+footer {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}

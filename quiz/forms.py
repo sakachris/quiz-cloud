@@ -1,28 +1,39 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
+from django.contrib.auth.forms import (
+    UserCreationForm,
+    AuthenticationForm,
+    SetPasswordForm,
+    PasswordResetForm
+)
 from django.contrib.auth import get_user_model
 from .models import Subject, Quiz, Question, Option
-#from captcha.fields import ReCaptchaField
-#from captcha.widgets import ReCaptchaV2Checkbox
-# forms.py
-#from django import forms
-from django.forms import inlineformset_factory
+
 
 class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title', 'description', 'time_limit', 'subject', 'max_attempts', 'pass_mark']
+        fields = [
+            'title',
+            'description',
+            'time_limit',
+            'subject',
+            'max_attempts',
+            'pass_mark'
+        ]
 
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 1}),
+            'description': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 1}
+            ),
             'time_limit': forms.NumberInput(attrs={'class': 'form-control'}),
             'subject': forms.Select(attrs={'class': 'form-control'}),
             'max_attempts': forms.NumberInput(attrs={'class': 'form-control'}),
             'pass_mark': forms.NumberInput(attrs={'class': 'form-control'})
         }
+
 
 class QuizForms(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -31,7 +42,9 @@ class QuizForms(forms.Form):
 
         for i, question in enumerate(questions, 1):
             field_name = f"question_{question.id}"
-            choices = [(option.id, option.text) for option in question.options.all()]
+            choices = [
+                (option.id, option.text) for option in question.options.all()
+            ]
             if question.has_multiple_correct_answers():
                 self.fields[field_name] = forms.MultipleChoiceField(
                     label=f"{i}. {question.text} ({question.marks} marks)",
@@ -47,6 +60,7 @@ class QuizForms(forms.Form):
                     required=True
                 )
 
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
@@ -57,6 +71,7 @@ class QuestionForm(forms.ModelForm):
             'marks': forms.NumberInput(attrs={'marks': 'form-control'})
         }
 
+
 class OptionForm(forms.ModelForm):
     class Meta:
         model = Option
@@ -64,16 +79,29 @@ class OptionForm(forms.ModelForm):
 
         widgets = {
             'text': forms.TextInput(attrs={'class': 'form-control'}),
-            'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+            'is_correct': forms.CheckboxInput(
+                attrs={'class': 'form-check-input'}
+            )
         }
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(help_text='A valid email address, please.', required=True)
+    email = forms.EmailField(
+        help_text='Provide a valid email address.', required=True
+    )
 
     class Meta:
         model = get_user_model()
-        fields = ['status', 'first_name', 'last_name', 'username', 'email', 'school', 'password1', 'password2']
+        fields = [
+            'status',
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'school',
+            'password1',
+            'password2'
+        ]
 
     def save(self, commit=True):
         user = super(UserRegistrationForm, self).save(commit=False)
@@ -82,6 +110,7 @@ class UserRegistrationForm(UserCreationForm):
             user.save()
 
         return user
+
 
 class UserLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -94,7 +123,6 @@ class UserLoginForm(AuthenticationForm):
     password = forms.CharField(widget=forms.PasswordInput(
         attrs={'class': 'form-control', 'placeholder': 'Password'}))
 
-    #captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
@@ -106,15 +134,22 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['first_name', 'last_name', 'email', 'image', 'subjects', 'school']
+        fields = [
+            'first_name',
+            'last_name',
+            'email',
+            'image',
+            'subjects',
+            'school'
+        ]
+
 
 class SetPasswordForm(SetPasswordForm):
     class Meta:
         model = get_user_model()
         fields = ['new_password1', 'new_password2']
 
+
 class PasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):
         super(PasswordResetForm, self).__init__(*args, **kwargs)
-
-    # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())

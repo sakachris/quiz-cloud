@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-ee-08w7^$)_khs0c*d!r7a+imze+m+$+6xl9i7jgbzo+p9@@s8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['quizcloud.co.ke', 'www.quizcloud.co.ke', '127.0.0.1']
 
 
 # Application definition

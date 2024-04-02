@@ -15,18 +15,18 @@
         {% for quiz in quizzes %}
         <div class="col">
             <div class="card border-primary h-100">
-                <div class="class card-header d-flex justify-content-between align-items-center" style="background-color: #2c91f7;">
-                    <h4 class="text-white">{{ quiz.title }}</h4>
-                    <h4 class="text-white">{{ quiz.subject }}</h4>
+                <div class="class card-header" style="background-color: #2c91f7;">
+                    <h6 class="text-white">{{ quiz.title }}</h6>                    
                 </div>
                 <div class="card-body">
+                    <p class="">{{ quiz.description }}</p>
                     <div class="d-flex justify-content-between">
-                        <p class="card-text mb-0">{{ quiz.description }}</p>
-                        <p class="mb-0">{{ quiz.time_limit }} mins</p>
+                        <h6 class=""><i class="bi bi-book-half text-primary"></i> {{ quiz.subject }}</h6>
+                        <h6 class=""><i class="bi bi-stopwatch-fill text-primary"></i> {{ quiz.time_limit }} mins</h6>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <p class="mb-0">Created by: Tr. {{ quiz.created_by }}</p>
-                        <p>Pass Mark: {{ quiz.pass_mark }}%</p>
+                    <div class="d-flex justify-content-between mb-2">
+                        <h6 class=""><i class="bi bi-check-circle-fill text-primary"></i> {{ quiz.pass_mark }}%</h6>
+                        <h6 class=""><i class="bi bi-person-circle text-primary"></i> {{ quiz.created_by }}</h6>
                     </div>
                     {% if quiz in attempted_quizzes %}
                         <h6 class="fw-bold">You have attempted this Quiz</h6>
@@ -36,17 +36,19 @@
                             class="btn btn-secondary btn-sm">See Attempts</button>
                         <div id="attempts-{{ quiz.id }}"></div>
                     {% else %}
+                    <div class="d-flex justify-content-between">
                         <a href="{% url 'get_quiz' quiz.id %}" class="btn btn-primary">Take Quiz</a>
                         {% if quiz.id in planned_quizzes_ids %}
                             <button class="btn btn-secondary" id="quiz-button-{{ quiz.id }}" hx-post="{% url 'toggle_take_later' quiz.id %}" hx-swap="outerHTML" hx-target="#quiz-button-{{ quiz.id }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Added</button>
                         {% else %}
                             <button class="btn btn-secondary" id="quiz-button-{{ quiz.id }}" hx-post="{% url 'toggle_take_later' quiz.id %}" hx-swap="outerHTML" hx-target="#quiz-button-{{ quiz.id }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Take Later</button>
                         {% endif %}
+                    </div>
                     {% endif %}
                 </div>
                 <div class="class card-footer d-flex justify-content-between align-items-center" style="background-color: #2c91f7;">
-                    <small class="text-white">Created: {{ quiz.created_at|date:"d/m/Y" }}</small>
-                    <small class="text-white">Updated: {{ quiz.updated_at|date:"d/m/Y" }}</small>
+                    <small class="text-white"><i class="bi bi-calendar4"></i> {{ quiz.created_at|date:"jS M Y" }}</small>
+                    <small class="text-white"><i class="bi bi-calendar2-plus"></i> {{ quiz.updated_at|date:"jS M Y" }}</small>
                 </div>
             </div>
         </div>
