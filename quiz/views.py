@@ -850,7 +850,6 @@ def user_created_attempted_quizzes(request):
 @login_required
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")
-    # return redirect('login')
 
 
 def landing(request):
@@ -879,7 +878,7 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, "Activation link is invalid!")
 
-    return redirect('homepage')
+    return redirect('login')
 
 
 def activateEmail(request, user, to_email):
@@ -918,7 +917,7 @@ def register(request):
             user.is_active = False
             user.save()
             activateEmail(request, user, form.cleaned_data.get('email'))
-            return redirect('homepage')
+            return redirect('login')
 
         else:
             for error in list(form.errors.values()):
@@ -939,7 +938,7 @@ def custom_logout(request):
     ''' logging out user '''
     logout(request)
     messages.info(request, "Logged out successfully!")
-    return redirect("homepage")
+    return redirect("login")
 
 
 @user_not_authenticated
@@ -985,7 +984,7 @@ def profile(request, username):
             request,
             "You do not have permission to edit this profile."
         )
-        return redirect("homepage")
+        return redirect("login")
 
     if request.method == "POST":
         form = UserUpdateForm(request.POST, request.FILES, instance=user)
@@ -1054,10 +1053,10 @@ def password_reset_request(request):
                         request,
                         "<h2>Password reset sent</h2><hr>"
                         "<p>We've emailed you instructions for setting your"
-                        "password, if an account exists with the email you"
-                        "entered. You should receive them shortly.<br>If"
+                        "password, if an account exists with the email you "
+                        "entered, you should receive them shortly.<br>If "
                         "you don't receive an email, please make sure you've "
-                        "entered the address you registered with,"
+                        "entered the address you registered with, "
                         "and check your spam folder.</p>"
                     )
                 else:
@@ -1100,7 +1099,7 @@ def passwordResetConfirm(request, uidb64, token):
                     "Your password has been set. "
                     "You may go ahead and <b>log in </b> now."
                 )
-                return redirect('homepage')
+                return redirect('login')
             else:
                 for error in list(form.errors.values()):
                     messages.error(request, error)
@@ -1114,4 +1113,4 @@ def passwordResetConfirm(request, uidb64, token):
         request,
         'Something went wrong, redirecting back to Homepage'
     )
-    return redirect("homepage")
+    return redirect("login")
