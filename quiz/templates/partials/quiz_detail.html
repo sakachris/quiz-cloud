@@ -29,14 +29,14 @@
                     
                     <div class="row">
                         <div class="col-auto align-self-end">
-                            <a href="{% url 'add_question' quiz.id %}" class="btn btn-success">Questions</a>
+                            <a href="{% url 'add_question' quiz.id %}" class="btn btn-success btn-sm">Questions</a>
                         </div>
                         {% if request.user == quiz.created_by %}
                             <div class="col-auto align-self-end">
-                                <button hx-post="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger">Delete</button>
+                                <button hx-post="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger btn-sm">Delete</button>
                             </div>
                             <div class="col-auto align-self-end">
-                                <button hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary">Update</button>
+                                <button hx-post="{% url 'update_quiz' quiz.id %}" class="btn btn-primary btn-sm">Update</button>
                             </div>
                         {% endif %}
                     </div>

@@ -805,14 +805,14 @@ def toggle_take_later(request, quiz_id):
     if created:
         planned_quiz.save()
         button_html = (
-            f'<button class="btn btn-secondary added" id="{button_id}" '
+            f'<button class="btn btn-secondary btn-sm" id="{button_id}" '
             f'hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" '
             f'hx-target="#{button_id}">Added</button>'
         )
     else:
         planned_quiz.delete()
         button_html = (
-            f'<button class="btn btn-primary take-later" id="{button_id}" '
+            f'<button class="btn btn-primary btn-sm" id="{button_id}" '
             f'hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" '
             f'hx-target="#{button_id}">Take Later</button>'
         )
@@ -847,13 +847,8 @@ def user_created_attempted_quizzes(request):
     return render(request, 'quiz/view_attempted_quizzes.html', context)
 
 
-@login_required
 def homepage(request):
-    return render(request=request, template_name="quiz/home.html")
-
-
-def landing(request):
-    return render(request=request, template_name="quiz/landing2.html")
+    return render(request=request, template_name="quiz/landing.html")
 
 
 def activate(request, uidb64, token):
