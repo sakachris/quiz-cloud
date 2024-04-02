@@ -14,13 +14,34 @@ from django.db.models import Sum, Count
 from django.db.models.query_utils import Q
 from django.views.decorators.http import require_POST
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from collections import defaultdict
-from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, QuizForms
-from .decorators import user_not_authenticated, teacher_required, student_required, teacher_and_owner_required, question_owner_required, option_owner_required, student_and_quiz_attempt_owner_required
+from .forms import (
+    UserRegistrationForm,
+    UserLoginForm,
+    UserUpdateForm,
+    SetPasswordForm,
+    PasswordResetForm,
+    QuizForms
+    )
+from .decorators import (
+    user_not_authenticated,
+    teacher_required, student_required,
+    teacher_and_owner_required,
+    question_owner_required,
+    option_owner_required
+    )
 from .tokens import account_activation_token
-from .models import CustomUser, Subject, Quiz, Question, Option, QuizAttempt, Answer, PlannedQuiz
+from .models import (
+    CustomUser,
+    Quiz,
+    Question,
+    Option,
+    QuizAttempt,
+    Answer,
+    PlannedQuiz
+    )
 from .forms import QuizForm, QuestionForm, OptionForm
 
 
@@ -39,6 +60,7 @@ def create_quiz(request):
         form = QuizForm()
     return render(request, 'quiz/create_quiz.html', {'form': form})
 
+
 @teacher_required
 def created_quiz(request):
     ''' list of created quizzes '''
@@ -54,10 +76,11 @@ def created_quiz(request):
             Q(pass_mark__icontains=q)
         )
     )
-    
+
     context = {'quizzes': user_quizzes, 'q': q}
 
     return render(request, 'quiz/created_quiz.html', context)
+
 
 @teacher_required
 def other_quizzes(request):
@@ -79,6 +102,7 @@ def other_quizzes(request):
 
     return render(request, 'quiz/created_quiz_others.html', context)
 
+
 @teacher_required
 def add_question_form(request):
     ''' question form for adding a question '''
@@ -88,14 +112,16 @@ def add_question_form(request):
     }
     return render(request, "partials/question_form.html", context)
 
+
 @teacher_required
 def add_option_form(request):
     ''' option form for adding an option '''
     form = OptionForm()
     context = {
-        "form": form       
+        "form": form
     }
     return render(request, "partials/option_form.html", context)
+
 
 @teacher_required
 def add_question(request, quiz_id):
@@ -113,7 +139,7 @@ def add_question(request, quiz_id):
             return redirect('add_option', question_id=question.id)
     else:
         form = QuestionForm()
-    
+
     context = {
         "quiz": quiz,
         "questions": questions,
@@ -122,6 +148,7 @@ def add_question(request, quiz_id):
         "total_marks": total_marks,
     }
     return render(request, 'quiz/add_question.html', context)
+
 
 @teacher_required
 def quiz_detail(request, quiz_id):
@@ -132,6 +159,7 @@ def quiz_detail(request, quiz_id):
     }
     return render(request, "partials/quiz_detail.html", context)
 
+
 @teacher_required
 def question_detail(request, question_id):
     ''' displaying question details '''
@@ -140,6 +168,7 @@ def question_detail(request, question_id):
         "question": question
     }
     return render(request, "partials/question_detail.html", context)
+
 
 @teacher_required
 def option_detail(request, option_id):
@@ -153,6 +182,7 @@ def option_detail(request, option_id):
     }
     return render(request, "partials/option_detail.html", context)
 
+
 @teacher_and_owner_required
 def delete_quiz(request, quiz_id):
     ''' deleting quiz only by the creator '''
@@ -160,12 +190,13 @@ def delete_quiz(request, quiz_id):
     if request.method == 'POST':
         quiz.delete()
         return HttpResponse("")
-    
+
     return HttpResponseNotAllowed(
         [
             "POST",
         ]
     )
+
 
 @question_owner_required
 def delete_question(request, question_id):
@@ -174,12 +205,13 @@ def delete_question(request, question_id):
     if request.method == 'POST':
         question.delete()
         return HttpResponse("")
-    
+
     return HttpResponseNotAllowed(
         [
             "POST",
         ]
     )
+
 
 @option_owner_required
 def delete_option(request, option_id):
@@ -188,12 +220,13 @@ def delete_option(request, option_id):
     if request.method == 'POST':
         option.delete()
         return HttpResponse("")
-    
+
     return HttpResponseNotAllowed(
         [
             "POST",
         ]
     )
+
 
 @question_owner_required
 def add_option(request, question_id):
@@ -218,6 +251,7 @@ def add_option(request, question_id):
 
     return render(request, 'quiz/add_option.html', context)
 
+
 @teacher_and_owner_required
 def update_quiz(request, quiz_id):
     ''' updating quiz by owner '''
@@ -236,6 +270,7 @@ def update_quiz(request, quiz_id):
     }
 
     return render(request, "partials/quiz_form.html", context)
+
 
 @question_owner_required
 def update_question(request, question_id):
@@ -256,6 +291,7 @@ def update_question(request, question_id):
 
     return render(request, "partials/question_form.html", context)
 
+
 @option_owner_required
 def update_option(request, option_id):
     ''' updating option by owner '''
@@ -274,6 +310,7 @@ def update_option(request, option_id):
     }
 
     return render(request, "partials/option_form.html", context)
+
 
 @student_required
 def get_quiz(request, quiz_id):
@@ -297,6 +334,7 @@ def get_quiz(request, quiz_id):
     }
     return render(request, 'quiz/get_quiz.html', context)
 
+
 @teacher_required
 def test_quiz(request, quiz_id):
     ''' getting quiz to test by teacher '''
@@ -309,8 +347,9 @@ def test_quiz(request, quiz_id):
             pass
     else:
         form = QuizForms(questions=questions)
-    
+
     return render(request, 'quiz/test_quiz.html', {'quiz': quiz, 'form': form})
+
 
 @student_required
 @require_POST
@@ -332,12 +371,13 @@ def start_quiz(request, quiz_id):
         quiz=quiz,
         start_time=timezone.now()
     )
-    
+
     return JsonResponse({
         'status': 'success',
         'message': 'New quiz attempt started',
         'attempt_id': attempt.id
     })
+
 
 @teacher_required
 @require_POST
@@ -350,12 +390,13 @@ def start_test_quiz(request, quiz_id):
         quiz=quiz,
         start_time=timezone.now()
     )
-    
+
     return JsonResponse({
         'status': 'success',
         'message': 'New quiz test started',
         'attempt_id': attempt.id
     })
+
 
 @student_required
 def submit_quiz(request, quiz_id):
@@ -366,20 +407,20 @@ def submit_quiz(request, quiz_id):
             user=request.user, quiz=quiz).order_by('-start_time').first()
         if not quiz_attempt:
             return HttpResponse("No quiz attempt found", status=404)
-        
+
         quiz_attempt.end_time = timezone.now()
         quiz_attempt.save()
-        
+
         total_score = 0
 
         for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
                 selected_option_ids = value
-                
+
                 question = get_object_or_404(Question, pk=question_id)
                 correct_options = question.options.filter(is_correct=True)
-                
+
                 answer = Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question
@@ -391,19 +432,20 @@ def submit_quiz(request, quiz_id):
                     answer.selected_options.add(selected_option)
 
                 if correct_options.count() > 1:
-                    # Verify that all selected options are correct and
-                    # that all correct options are selected
-                    if all(
+                    # Verify all selected options are correct
+                    # all correct options selected
+                    correct_ids_condition = all(
                         str(
                             option.id
                         ) in selected_option_ids for option in correct_options
-                    ) and \
-                       all(
-                           str(
-                               correct_option.id
-                            ) in selected_option_ids for correct_option in correct_options
-                        ):
-                        total_score += question.marks  # User gets full marks for selecting all correct options
+                    )
+                    selected_ids_condition = all(
+                        str(correct_option.id) in selected_option_ids
+                        for correct_option in correct_options
+                    )
+                    if correct_ids_condition and selected_ids_condition:
+                        total_score += question.marks
+
                 else:
                     if selected_option.is_correct:
                         total_score += question.marks
@@ -432,6 +474,7 @@ def submit_quiz(request, quiz_id):
     else:
         return HttpResponse("Invalid request", status=400)
 
+
 @teacher_required
 def submit_test_quiz(request, quiz_id):
     ''' submitting teachers test quiz '''
@@ -441,20 +484,20 @@ def submit_test_quiz(request, quiz_id):
             user=request.user, quiz=quiz).order_by('-start_time').first()
         if not quiz_attempt:
             return HttpResponse("No quiz attempt found", status=404)
-        
+
         quiz_attempt.end_time = timezone.now()
         quiz_attempt.save()
-        
+
         total_score = 0
 
         for key, value in request.POST.lists():
             if key.startswith('question_'):
                 question_id = key.split('_')[1]
                 selected_option_ids = value
-                
+
                 question = get_object_or_404(Question, pk=question_id)
                 correct_options = question.options.filter(is_correct=True)
-                
+
                 answer = Answer.objects.create(
                     quiz_attempt=quiz_attempt,
                     question=question
@@ -466,23 +509,23 @@ def submit_test_quiz(request, quiz_id):
                     answer.selected_options.add(selected_option)
 
                 if correct_options.count() > 1:
-                    # Verify that all selected options are correct and
-                    # that all correct options are selected
-                    if all(
+                    # Verify all selected options are correct &
+                    # all correct options selected
+                    correct_ids_condition = all(
                         str(
                             option.id
                         ) in selected_option_ids for option in correct_options
-                    ) and \
-                       all(
-                           str(
-                            correct_option.id
-                            ) in selected_option_ids for correct_option in correct_options
-                        ):
+                    )
+                    selected_ids_condition = all(
+                        str(correct_option.id) in selected_option_ids
+                        for correct_option in correct_options
+                    )
+                    if correct_ids_condition and selected_ids_condition:
                         total_score += question.marks
                 else:
                     if selected_option.is_correct:
                         total_score += question.marks
-        
+
         total_marks = sum(question.marks for question in quiz.questions.all())
         if total_marks != 0:
             percentage_marks = round((total_score/total_marks) * 100)
@@ -499,6 +542,7 @@ def submit_test_quiz(request, quiz_id):
     else:
         return HttpResponse("Invalid request", status=400)
 
+
 @student_required
 def quiz_results(request, attempt_id):
     ''' getting quiz results by students '''
@@ -508,11 +552,12 @@ def quiz_results(request, attempt_id):
         question.marks for question in attempt.quiz.questions.all())
     date_submitted = attempt.end_time.strftime(
         "%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
-    
+
     if attempt.start_time and attempt.end_time:
-        time_taken = attempt.end_time - attempt.start_time
-        # Formatting time_taken as a string
-        time_taken_str = f"{time_taken.seconds // 60} minutes, {time_taken.seconds % 60} seconds"
+        time_delta = attempt.end_time - attempt.start_time
+        minutes = time_delta.seconds // 60
+        seconds = time_delta.seconds % 60
+        time_taken_str = f"{minutes} minutes, {seconds} seconds"
     else:
         time_taken_str = "N/A"
 
@@ -547,6 +592,7 @@ def quiz_results(request, attempt_id):
     }
     return render(request, 'quiz/quiz_results.html', context)
 
+
 @teacher_required
 def quiz_test_results(request, attempt_id):
     ''' quiz results for teaching after testing quiz '''
@@ -555,11 +601,12 @@ def quiz_test_results(request, attempt_id):
         question.marks for question in attempt.quiz.questions.all())
     date_submitted = attempt.end_time.strftime(
         "%Y-%m-%d %H:%M:%S") if attempt.end_time else "N/A"
-    
+
     if attempt.start_time and attempt.end_time:
-        time_taken = attempt.end_time - attempt.start_time
-        # Formatting time_taken as a string, i.e, "MM minutes, SS seconds"
-        time_taken_str = f"{time_taken.seconds // 60} minutes, {time_taken.seconds % 60} seconds"
+        time_delta = attempt.end_time - attempt.start_time
+        minutes = time_delta.seconds // 60
+        seconds = time_delta.seconds % 60
+        time_taken_str = f"{minutes} minutes, {seconds} seconds"
     else:
         time_taken_str = "N/A"
 
@@ -571,6 +618,7 @@ def quiz_test_results(request, attempt_id):
     }
     return render(request, 'quiz/quiz_test_results.html', context)
 
+
 @teacher_required
 def delete_attempt(request, attempt_id):
     ''' deleting quiz attempt after testing quiz '''
@@ -580,13 +628,15 @@ def delete_attempt(request, attempt_id):
 
     return HttpResponseRedirect(reverse('add_question', args=[quiz_id]))
 
+
 @student_required
 def user_quizzes(request):
     ''' all quizzes students can access according to selected subject '''
     user = request.user
     student_subjects = user.subjects.all()
-    attempted_quiz_ids = QuizAttempt.objects.filter(user=user).values_list('quiz_id', flat=True)
-    
+    attempted_quiz_ids = QuizAttempt.objects.filter(
+        user=user).values_list('quiz_id', flat=True)
+
     q = request.GET.get('q', '')
     quizzes = Quiz.objects.filter(
         Q(published=True) &
@@ -621,18 +671,19 @@ def user_quizzes(request):
 
     return render(request, 'quiz/user_quizzes.html', context)
 
+
 @student_required
 def completed_quizzes(request):
     ''' list of quizzes a student has done '''
     user = request.user
     student_subjects = user.subjects.all()
-    
+
     q = request.GET.get('q', '')
     attempted_quizzes_ids = QuizAttempt.objects.filter(
         user=user).values_list('quiz_id', flat=True)
-    
+
     attempted_quizzes = Quiz.objects.filter(
-        Q(id__in=attempted_quizzes_ids) & 
+        Q(id__in=attempted_quizzes_ids) &
         Q(subject__in=student_subjects) &
         (
             Q(title__icontains=q) |
@@ -650,6 +701,7 @@ def completed_quizzes(request):
         'q': q,
     }
     return render(request, 'quiz/completed_quizzes.html', context)
+
 
 @login_required
 def quiz_attempts(request, quiz_id):
@@ -687,11 +739,12 @@ def quiz_attempts(request, quiz_id):
 
     return HttpResponse(attempts_html)
 
+
 @teacher_required
 def quiz_attempts_owner(request, quiz_id):
     ''' quiz attempts for a teacher's quizzes '''
     all_attempts = QuizAttempt.objects.filter(
-        quiz_id=quiz_id, 
+        quiz_id=quiz_id,
         user__status='student'
     ).select_related('user').order_by('user', '-date_attempted')
     # Organizing attempts by user
@@ -705,6 +758,7 @@ def quiz_attempts_owner(request, quiz_id):
 
     return HttpResponse(attempts_html)
 
+
 @student_required
 def view_take_later(request):
     ''' quizzes saved for later by students '''
@@ -713,8 +767,8 @@ def view_take_later(request):
         student=request.user, taken=False, quiz__published=True
     ).filter(
         Q(quiz__title__icontains=q) |
-        Q(quiz__subject__name__icontains=q) | 
-        Q(quiz__description__icontains=q) | 
+        Q(quiz__subject__name__icontains=q) |
+        Q(quiz__description__icontains=q) |
         Q(quiz__created_by__username__icontains=q) |
         Q(quiz__time_limit__icontains=q) |
         Q(quiz__pass_mark__icontains=q)
@@ -722,8 +776,9 @@ def view_take_later(request):
     quizzes = [quiz.quiz for quiz in planned_quizzes]
 
     context = {'quizzes': quizzes, 'q': q}
-    
+
     return render(request, 'quiz/view_take_later.html', context)
+
 
 @login_required
 @require_POST
@@ -735,6 +790,7 @@ def toggle_quiz_published(request, quiz_id):
 
     context = {'quiz': quiz}
     return render(request, 'partials/toggle_published_button.html', context)
+
 
 @student_required
 @require_POST
@@ -748,12 +804,21 @@ def toggle_take_later(request, quiz_id):
 
     if created:
         planned_quiz.save()
-        button_html = f'<button class="btn btn-secondary" id="{button_id}" hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" hx-target="#{button_id}" class="added">Added</button>'
+        button_html = (
+            f'<button class="btn btn-secondary added" id="{button_id}" '
+            f'hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" '
+            f'hx-target="#{button_id}">Added</button>'
+        )
     else:
         planned_quiz.delete()
-        button_html = f'<button class="btn btn-primary" id="{button_id}" hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" hx-target="#{button_id}" class="take-later">Take Later</button>'
-    
+        button_html = (
+            f'<button class="btn btn-primary take-later" id="{button_id}" '
+            f'hx-post="{request.build_absolute_uri()}" hx-swap="outerHTML" '
+            f'hx-target="#{button_id}">Take Later</button>'
+        )
+
     return HttpResponse(button_html)
+
 
 @teacher_required
 def user_created_attempted_quizzes(request):
@@ -778,12 +843,19 @@ def user_created_attempted_quizzes(request):
         'attempted_quizzes': attempted_quizzes,
         'q': q
     }
-    
+
     return render(request, 'quiz/view_attempted_quizzes.html', context)
+
 
 @login_required
 def homepage(request):
     return render(request=request, template_name="quiz/home.html")
+    # return redirect('login')
+
+
+def landing(request):
+    return render(request=request, template_name="quiz/landing2.html")
+
 
 def activate(request, uidb64, token):
     ''' activating new account '''
@@ -791,19 +863,24 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except:
+    except User.DoesNotExist:
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
 
-        messages.success(request, "Thank you for your email confirmation. Now you can login your account.")
+        messages.success(
+            request,
+            "Thank you for your email confirmation."
+            "Now you can login your account."
+        )
         return redirect('login')
     else:
         messages.error(request, "Activation link is invalid!")
 
     return redirect('homepage')
+
 
 def activateEmail(request, user, to_email):
     ''' activating user email '''
@@ -817,10 +894,18 @@ def activateEmail(request, user, to_email):
     })
     email = EmailMessage(mail_subject, message, to=[to_email])
     if email.send():
-        messages.success(request, f'Dear <b>{user}</b>, please go to you email <b>{to_email}</b> inbox and click on \
-                received activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder.')
+        messages.success(
+            request,
+            f'Dear <b>{user}</b>, please go to your email <b>{to_email}</b>'
+            'inbox and click on the received activation link to confirm and'
+            'complete the registration.<b>Note:</b> Check your spam folder.'
+        )
     else:
-        messages.error(request, f'Problem sending email to {to_email}, check if you typed it correctly.')
+        messages.error(
+            request,
+            f'Problem sending email to {to_email},'
+            'check if you typed it correctly.'
+        )
 
 
 @user_not_authenticated
@@ -830,7 +915,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active=False
+            user.is_active = False
             user.save()
             activateEmail(request, user, form.cleaned_data.get('email'))
             return redirect('homepage')
@@ -848,12 +933,14 @@ def register(request):
         context={"form": form}
         )
 
+
 @login_required
 def custom_logout(request):
     ''' logging out user '''
     logout(request)
     messages.info(request, "Logged out successfully!")
     return redirect("homepage")
+
 
 @user_not_authenticated
 def custom_login(request):
@@ -867,22 +954,18 @@ def custom_login(request):
             )
             if user is not None:
                 login(request, user)
-                messages.success(request, f"Hello <b>{user.username}</b>! You have been logged in")
+                messages.success(
+                    request,
+                    f"Hello <b>{user.username}</b>! You have been logged in"
+                )
                 if user.status == 'teacher':
                     return redirect('created_quiz')
                 elif user.status == 'student':
                     return redirect('user_quizzes')
-            
+
         else:
             for error in list(form.errors.values()):
                 messages.error(request, error)
-        '''else:
-            for key, error in list(form.errors.items()):
-                if key == 'captcha' and error[0] == 'This field is required.':
-                    messages.error(request, "You must pass the reCAPTCHA test")
-                    continue
-                
-                messages.error(request, error)'''
 
     form = UserLoginForm()
 
@@ -898,14 +981,20 @@ def profile(request, username):
     user = get_object_or_404(CustomUser, username=username)
 
     if request.user != user:
-        messages.error(request, "You do not have permission to edit this profile.")
+        messages.error(
+            request,
+            "You do not have permission to edit this profile."
+        )
         return redirect("homepage")
 
     if request.method == "POST":
         form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            messages.success(request, f'{user.username}, your profile has been updated!')
+            messages.success(
+                request,
+                f'{user.username}, your profile has been updated!'
+            )
             return redirect("profile", username=user.username)
 
     else:
@@ -915,6 +1004,7 @@ def profile(request, username):
         template_name="quiz/profile.html",
         context={"form": form}
     )
+
 
 @login_required
 def password_change(request):
@@ -933,6 +1023,7 @@ def password_change(request):
     form = SetPasswordForm(user)
     return render(request, 'password_reset_confirm.html', {'form': form})
 
+
 @user_not_authenticated
 def password_reset_request(request):
     ''' resetting password '''
@@ -940,37 +1031,43 @@ def password_reset_request(request):
         form = PasswordResetForm(request.POST)
         if form.is_valid():
             user_email = form.cleaned_data['email']
-            associated_user = get_user_model().objects.filter(Q(email=user_email)).first()
+            associated_user = get_user_model().objects.filter(
+                Q(email=user_email)).first()
             if associated_user:
                 subject = "Password Reset request"
                 message = render_to_string("template_reset_password.html", {
                     'user': associated_user,
                     'domain': get_current_site(request).domain,
-                    'uid': urlsafe_base64_encode(force_bytes(associated_user.pk)),
-                    'token': account_activation_token.make_token(associated_user),
+                    'uid': urlsafe_base64_encode(
+                        force_bytes(associated_user.pk)),
+                    'token': account_activation_token.make_token(
+                        associated_user),
                     "protocol": 'https' if request.is_secure() else 'http'
                 })
-                email = EmailMessage(subject, message, to=[associated_user.email])
+                email = EmailMessage(
+                    subject,
+                    message,
+                    to=[associated_user.email]
+                )
                 if email.send():
-                    messages.success(request,
-                        """
-                        <h2>Password reset sent</h2><hr>
-                        <p>
-                            We've emailed you instructions for setting your password, if an account exists with the email you entered. 
-                            You should receive them shortly.<br>If you don't receive an email, please make sure you've entered the address 
-                            you registered with, and check your spam folder.
-                        </p>
-                        """
+                    messages.success(
+                        request,
+                        "<h2>Password reset sent</h2><hr>"
+                        "<p>We've emailed you instructions for setting your"
+                        "password, if an account exists with the email you"
+                        "entered. You should receive them shortly.<br>If"
+                        "you don't receive an email, please make sure you've "
+                        "entered the address you registered with,"
+                        "and check your spam folder.</p>"
                     )
                 else:
-                    messages.error(request, "Problem sending reset password email, <b>SERVER PROBLEM</b>")
+                    messages.error(
+                        request,
+                        "Problem sending reset password email,"
+                        "<b>SERVER PROBLEM</b>"
+                    )
 
             return redirect('homepage')
-
-        '''for key, error in list(form.errors.items()):
-            if key == 'captcha' and error[0] == 'This field is required.':
-                messages.error(request, "You must pass the reCAPTCHA test")
-                continue'''
 
         for error in list(form.errors.values()):
             messages.error(request, error)
@@ -978,10 +1075,11 @@ def password_reset_request(request):
 
     form = PasswordResetForm()
     return render(
-        request=request, 
-        template_name="password_reset.html", 
+        request=request,
+        template_name="password_reset.html",
         context={"form": form}
         )
+
 
 def passwordResetConfirm(request, uidb64, token):
     ''' password reset confirmation '''
@@ -989,7 +1087,7 @@ def passwordResetConfirm(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except:
+    except User.DoesNotExist:
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
@@ -997,7 +1095,11 @@ def passwordResetConfirm(request, uidb64, token):
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
                 form.save()
-                messages.success(request, "Your password has been set. You may go ahead and <b>log in </b> now.")
+                messages.success(
+                    request,
+                    "Your password has been set. "
+                    "You may go ahead and <b>log in </b> now."
+                )
                 return redirect('homepage')
             else:
                 for error in list(form.errors.values()):
@@ -1008,5 +1110,8 @@ def passwordResetConfirm(request, uidb64, token):
     else:
         messages.error(request, "Link is expired")
 
-    messages.error(request, 'Something went wrong, redirecting back to Homepage')
+    messages.error(
+        request,
+        'Something went wrong, redirecting back to Homepage'
+    )
     return redirect("homepage")
