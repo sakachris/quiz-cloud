@@ -847,13 +847,8 @@ def user_created_attempted_quizzes(request):
     return render(request, 'quiz/view_attempted_quizzes.html', context)
 
 
-@login_required
 def homepage(request):
-    return render(request=request, template_name="quiz/home.html")
-
-
-def landing(request):
-    return render(request=request, template_name="quiz/landing2.html")
+    return render(request=request, template_name="quiz/landing.html")
 
 
 def activate(request, uidb64, token):

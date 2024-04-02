@@ -5,6 +5,18 @@
     padding: 100px 0;
 }
 
+.body-content h2, .feature-item h3 {
+    color: #2c91f7; /* Matching the theme color */
+}
+
+.feature-item {
+    padding: 20px;
+    text-align: center; /* Center-aligning feature items */
+    background-color: #f0f0f0; /* A light background for contrast */
+    border-radius: 10px; /* Rounded corners for a modern look */
+    margin-bottom: 20px; /* Spacing between features */
+}
+
 #about, #features, #get-started {
     padding: 40px 0;
 }
@@ -12,4 +24,12 @@
 footer {
     background-color: #f8f9fa;
     color: #6c757d;
+}
+
+#about {
+    background-color:#e8edf3;
+}
+
+#get-started {
+    background-color:#e8edf3;
 }
