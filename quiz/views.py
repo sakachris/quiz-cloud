@@ -23,7 +23,8 @@ from .forms import (
     UserUpdateForm,
     SetPasswordForm,
     PasswordResetForm,
-    QuizForms
+    QuizForms,
+    SubjectForm
     )
 from .decorators import (
     user_not_authenticated,
@@ -996,6 +997,36 @@ def profile(request, username):
     return render(
         request=request,
         template_name="quiz/profile.html",
+        context={"form": form}
+    )
+
+
+def subjects(request, username):
+    ''' updates subjects '''
+    user = get_object_or_404(CustomUser, username=username)
+
+    if request.user != user:
+        messages.error(
+            request,
+            "You do not have permission to edit subjects."
+        )
+        return redirect("login")
+
+    if request.method == "POST":
+        form = SubjectForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                f'{user.username}, your subjects have been updated!'
+            )
+            return redirect("subjects", username=user.username)
+
+    else:
+        form = SubjectForm(instance=user)
+    return render(
+        request=request,
+        template_name="quiz/subjects.html",
         context={"form": form}
     )
 

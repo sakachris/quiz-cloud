@@ -17,6 +17,9 @@
                     <a href="{% url 'completed_quizzes' %}" class="nav-item nav-link text-white">
                         Taken Quizzes
                     </a>
+                    <a href="{% url 'subjects' user.username %}" class="nav-item nav-link text-white">
+                        My Subjects
+                    </a>
                     {% endif %}
                 {% elif user.status == 'teacher' %}
                     {% if user.is_authenticated %}

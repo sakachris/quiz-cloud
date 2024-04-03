@@ -1,0 +1,37 @@
+{% extends "quiz/header.html" %}
+{% block title %}Subjects{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if user.username == form.instance.username %}
+                <div class="border border-primary rounded border-2 shadow div-bg-color p-2">
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4 text-center fw-bold text-primary">Select Subjects</legend>
+                        {% if user.status == 'student' %}
+                            <div class="row">
+                                {% for subject in form.subjects.field.queryset %}
+                                    <!-- 4 columns for large screen, 3 for medium and 2 for small -->
+                                    <div class="col-6 col-md-4 col-lg-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="subject_{{ subject.id }}" name="subjects" value="{{ subject.id }}" {% if subject in user.subjects.all %} checked{% endif %}>
+                                            <label class="form-check-label" for="subject_{{ subject.id }}">{{ subject.name }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-sm mt-3 type="submit">Update Subjects</button>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
