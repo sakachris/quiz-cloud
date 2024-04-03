@@ -1028,7 +1028,7 @@ def password_reset_request(request):
             associated_user = get_user_model().objects.filter(
                 Q(email=user_email)).first()
             if associated_user:
-                subject = "Password Reset request"
+                subject = "Password Reset Request"
                 message = render_to_string("template_reset_password.html", {
                     'user': associated_user,
                     'domain': get_current_site(request).domain,
@@ -1061,7 +1061,7 @@ def password_reset_request(request):
                         "<b>SERVER PROBLEM</b>"
                     )
 
-            return redirect('homepage')
+            return redirect('login')
 
         for error in list(form.errors.values()):
             messages.error(request, error)
