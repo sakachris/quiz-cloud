@@ -65,7 +65,7 @@
                 <h4 class="text-center">You have attempted all available quizzes. Keep checking for new quizzes</h4>
             {% else %}
                 <h4 class="text-danger">It looks like you haven't selected any subjects yet. Please update your profile to select the subjects you're taking.</h4>
-                <a href="{% url 'profile' user.username %}" class="btn btn-primary">Select Subjects</a>
+                <a href="{% url 'subjects' user.username %}" class="btn btn-primary">Select Subjects</a>
             {% endif %}
             </div>
         </div>

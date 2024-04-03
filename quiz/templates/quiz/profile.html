@@ -58,15 +58,14 @@
                                     {{ form.school|as_crispy_field }}
                                 </div>
                             </div>
-                            {% if user.status == 'student' %}
-                                {{ form.subjects|as_crispy_field }}
-                            {% endif %}
 
-                            <a href="{% url 'password_change' %}">Change password?</a>
-                        </fieldset>
-                        <div class="form-group">
-                            <button class="btn btn-outline-info" type="submit">Update</button>
-                        </div>
+                            </fieldset>
+                            <div class="d-flex justify-content-between mb-4">
+                                <div class="form-group">
+                                    <button class="btn btn-primary btn-sm" type="submit">Update Profile</button>
+                                </div>
+                                <a href="{% url 'password_change' %}" class="btn btn-secondary btn-sm">Change password?</a>
+                            </div>
                     {% endif %}
                 </form>
             </div>

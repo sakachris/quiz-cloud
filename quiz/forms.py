@@ -144,6 +144,18 @@ class UserUpdateForm(forms.ModelForm):
         ]
 
 
+class SubjectForm(forms.ModelForm):
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.all().order_by('name'),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = get_user_model()
+        fields = ['subjects']
+
+
 class SetPasswordForm(SetPasswordForm):
     class Meta:
         model = get_user_model()
