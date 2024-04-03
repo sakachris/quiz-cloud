@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -165,12 +166,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     'django.contrib.auth.backends.ModelBackend',
 ]'''
 
+load_dotenv()  # Load environment variables from .env file
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587  # or the appropriate port for your SMTP server
-EMAIL_USE_TLS = True  # or False if not using TLS
-EMAIL_HOST_USER = 'pointsrewardsystem@gmail.com'
-EMAIL_HOST_PASSWORD = 'rpmtcqayahpbrlqg'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 PASSWORD_RESET_TIMEOUT = 14400
