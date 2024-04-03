@@ -14,6 +14,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
+load_dotenv()  # Load environment variables from .env file
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -92,11 +94,11 @@ WSGI_APPLICATION = 'quiz_cloud.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'quizcloud',
-        'USER': 'quiz',
-        'PASSWORD': 'myquizcloud',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -165,8 +167,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     'quiz.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]'''
-
-load_dotenv()  # Load environment variables from .env file
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
