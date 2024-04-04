@@ -126,11 +126,6 @@ class UserLoginForm(AuthenticationForm):
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
-    subjects = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
 
     class Meta:
         model = get_user_model()
@@ -139,7 +134,6 @@ class UserUpdateForm(forms.ModelForm):
             'last_name',
             'email',
             'image',
-            'subjects',
             'school'
         ]
 

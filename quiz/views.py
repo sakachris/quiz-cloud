@@ -420,56 +420,29 @@ def submit_quiz(request, quiz_id):
                 selected_option_ids = value
 
                 question = get_object_or_404(Question, pk=question_id)
-                correct_options = question.options.filter(is_correct=True)
-
                 answer = Answer.objects.create(
-                    quiz_attempt=quiz_attempt,
-                    question=question
-                )
+                    quiz_attempt=quiz_attempt, question=question)
 
                 # Adding selected options to the answer
                 for option_id in selected_option_ids:
                     selected_option = get_object_or_404(Option, pk=option_id)
                     answer.selected_options.add(selected_option)
 
-                if correct_options.count() > 1:
-                    # Verify all selected options are correct
-                    # all correct options selected
-                    correct_ids_condition = all(
-                        str(
-                            option.id
-                        ) in selected_option_ids for option in correct_options
-                    )
-                    selected_ids_condition = all(
-                        str(correct_option.id) in selected_option_ids
-                        for correct_option in correct_options
-                    )
-                    if correct_ids_condition and selected_ids_condition:
-                        total_score += question.marks
-
-                else:
-                    if selected_option.is_correct:
-                        total_score += question.marks
+                # Use is_fully_correct method to check if the answer is correct
+                if answer.is_fully_correct():
+                    total_score += question.marks
 
         total_marks = sum(question.marks for question in quiz.questions.all())
-        if total_marks != 0:
-            percentage_marks = round((total_score/total_marks) * 100)
-        else:
-            percentage_marks = 0
+        percentage_marks = round(
+            (total_score / total_marks) * 100) if total_marks else 0
 
         quiz_attempt.score = total_score
         quiz_attempt.percentage_score = percentage_marks
-        if percentage_marks >= quiz.pass_mark:
-            quiz_attempt.passed = True
+        quiz_attempt.passed = percentage_marks >= quiz.pass_mark
         quiz_attempt.save()
 
-        planned_quizzes = PlannedQuiz.objects.filter(
-            student=request.user, taken=False)
-        planned_quizzes_ids = [quiz.quiz.id for quiz in planned_quizzes]
-        if quiz_id in planned_quizzes_ids:
-            planned = get_object_or_404(
-                PlannedQuiz, quiz_id=quiz_id, student=request.user)
-            planned.delete()
+        PlannedQuiz.objects.filter(
+            student=request.user, quiz=quiz, taken=False).delete()
 
         return redirect('quiz_results', quiz_attempt.id)
     else:
@@ -478,7 +451,6 @@ def submit_quiz(request, quiz_id):
 
 @teacher_required
 def submit_test_quiz(request, quiz_id):
-    ''' submitting teachers test quiz '''
     if request.method == 'POST':
         quiz = get_object_or_404(Quiz, pk=quiz_id)
         quiz_attempt = QuizAttempt.objects.filter(
@@ -497,46 +469,27 @@ def submit_test_quiz(request, quiz_id):
                 selected_option_ids = value
 
                 question = get_object_or_404(Question, pk=question_id)
-                correct_options = question.options.filter(is_correct=True)
 
+                # Create an Answer instance
                 answer = Answer.objects.create(
-                    quiz_attempt=quiz_attempt,
-                    question=question
-                )
+                    quiz_attempt=quiz_attempt, question=question)
 
-                # Adding selected options to the answer
+                # Add selected options to the Answer instance
                 for option_id in selected_option_ids:
                     selected_option = get_object_or_404(Option, pk=option_id)
                     answer.selected_options.add(selected_option)
 
-                if correct_options.count() > 1:
-                    # Verify all selected options are correct &
-                    # all correct options selected
-                    correct_ids_condition = all(
-                        str(
-                            option.id
-                        ) in selected_option_ids for option in correct_options
-                    )
-                    selected_ids_condition = all(
-                        str(correct_option.id) in selected_option_ids
-                        for correct_option in correct_options
-                    )
-                    if correct_ids_condition and selected_ids_condition:
-                        total_score += question.marks
-                else:
-                    if selected_option.is_correct:
-                        total_score += question.marks
+                # Using is_fully_correct method to check correct options
+                if answer.is_fully_correct():
+                    total_score += question.marks
 
         total_marks = sum(question.marks for question in quiz.questions.all())
-        if total_marks != 0:
-            percentage_marks = round((total_score/total_marks) * 100)
-        else:
-            percentage_marks = 0
+        percentage_marks = round(
+            (total_score / total_marks) * 100) if total_marks else 0
 
         quiz_attempt.score = total_score
         quiz_attempt.percentage_score = percentage_marks
-        if percentage_marks >= quiz.pass_mark:
-            quiz_attempt.passed = True
+        quiz_attempt.passed = percentage_marks >= quiz.pass_mark
         quiz_attempt.save()
 
         return redirect('quiz_test_results', quiz_attempt.id)
@@ -565,7 +518,8 @@ def quiz_results(request, attempt_id):
     number_of_attempts = QuizAttempt.objects.filter(
         user=attempt.user, quiz=attempt.quiz, expired=False).count()
     non_expired_attempts = QuizAttempt.objects.filter(
-        user=attempt.user, quiz=attempt.quiz, expired=False)
+        user=attempt.user, quiz=attempt.quiz, expired=False
+    ).order_by('-date_attempted')
     max_attempts = attempt.quiz.max_attempts
     hours = 0
     minutes = 0
@@ -849,6 +803,11 @@ def user_created_attempted_quizzes(request):
 
 
 def homepage(request):
+    if request.user.is_authenticated:
+        if request.user.status == 'teacher':
+            return redirect('created_quiz')
+        elif request.user.status == 'student':
+            return redirect('user_quizzes')
     return render(request=request, template_name="quiz/landing.html")
 
 
@@ -971,6 +930,7 @@ def custom_login(request):
         )
 
 
+@login_required
 def profile(request, username):
     ''' user profile '''
     user = get_object_or_404(CustomUser, username=username)
@@ -1001,6 +961,7 @@ def profile(request, username):
     )
 
 
+@student_required
 def subjects(request, username):
     ''' updates subjects '''
     user = get_object_or_404(CustomUser, username=username)

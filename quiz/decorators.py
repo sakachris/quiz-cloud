@@ -30,14 +30,15 @@ def is_teacher(user):
     ''' authentication for teacher '''
     if user.is_authenticated and user.status == 'teacher':
         return True
-    raise PermissionDenied
+    return False
 
 
 def is_student(user):
     ''' authentication for student '''
     if user.is_authenticated and user.status == 'student':
         return True
-    raise PermissionDenied
+    # raise PermissionDenied
+    return False
 
 
 teacher_required = user_passes_test(is_teacher, login_url='login')
