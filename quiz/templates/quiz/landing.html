@@ -25,7 +25,7 @@
                     <li class="nav-item"><a class="nav-link text-white fw-bold" href="#about">About</a></li>
                     <li class="nav-item"><a class="nav-link text-white fw-bold" href="#features">Features</a></li>
                     <li class="nav-item"><a class="nav-link text-white fw-bold" href="#get-started">Get Started</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-outline-light text-white fw-bold" href="https://www.quizcloud.co.ke/login">Login</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-light text-white fw-bold" href="{% url 'login' %}">Login</a></li>
                 </ul>
             </div>
         </div>
@@ -88,7 +88,7 @@
             <div class="container">
                 <h2>Get Started with QuizCloud</h2>
                 <p>Ready to take your learning to the next level? Join QuizCloud today and discover a new way to learn!</p>
-                <a href="https://www.quizcloud.co.ke/register" class="btn btn-success">Sign Up</a>
+                <a href="{% url 'register' %}" class="btn btn-success">Sign Up</a>
             </div>
         </section>
     </div>
