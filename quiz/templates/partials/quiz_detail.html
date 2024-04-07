@@ -7,7 +7,10 @@
                 </div>
                 <div class="card-body">
                     {% if request.user == quiz.created_by %}
-                    <div id="quiz-{{ quiz.id }}">
+                    <a href="{% url 'validate_and_publish_quiz2' quiz.id %}" class="btn btn-success btn-sm">
+                        {% if quiz.published %}Unpublish{% else %}Publish{% endif %}
+                    </a>
+                    <!-- <div id="quiz-{{ quiz.id }}">
                         <button hx-post="{% url 'toggle_published' quiz.id %}"
                                 hx-target="#quiz-{{ quiz.id }}"
                                 hx-swap="outerHTML"
@@ -18,7 +21,7 @@
                             Publish
                             {% endif %}
                         </button>
-                    </div>
+                    </div> -->
                     {% endif %}
                     <p class="mt-2">{{ quiz.description }}</p>
                     <div class="d-flex justify-content-between mb-2">
