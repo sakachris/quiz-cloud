@@ -7,7 +7,10 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>{{ quiz.title }}</h2>
             {% if questions %}
-                {% if request.user == quiz.created_by %}
+            <a href="{% url 'validate_and_publish_quiz' quiz.id %}" class="btn btn-success btn-sm">
+                {% if quiz.published %}Unpublish{% else %}Publish{% endif %}
+            </a>
+                <!-- {% if request.user == quiz.created_by %}
                     <div id="quiz-{{ quiz.id }}">
                         <button hx-post="{% url 'toggle_published' quiz.id %}"
                                 hx-target="#quiz-{{ quiz.id }}"
@@ -20,7 +23,7 @@
                             {% endif %}
                         </button>
                     </div>
-                {% endif %}
+                {% endif %} -->
             {% endif %}
         </div>
         <div class="mb-3">
@@ -28,7 +31,13 @@
                 <button hx-get="{% url 'question_form' %}" hx-swap="afterbegin" hx-target="#question-form" class="btn btn-primary btn-sm">
                     Add Question
                 </button>
-                <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+                <!-- <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a> -->
+                <a href="{% url 'validate_quiz_before_test' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+                <!-- {% if show_test_quiz_button %}
+                    <a href="{% url 'test_quiz' quiz.id %}" class="btn btn-primary btn-sm">Test Quiz</a>
+                {% else %}
+                    <button class="btn btn-primary btn-sm" disabled>Test Quiz</button>
+                {% endif %} -->
                 <a href="{% url 'created_quiz' %}" class="btn btn-success btn-sm">Quizzes</a>
             {% else %}
                 <a href="{% url 'other_quizzes' %}" class="btn btn-success btn-sm text-sm">Quizzes</a>

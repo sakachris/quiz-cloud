@@ -151,6 +151,75 @@ def add_question(request, quiz_id):
     return render(request, 'quiz/add_question.html', context)
 
 
+def validate_quiz_requirements(quiz):
+    if quiz.questions.count() == 0:
+        return False, "The quiz must contain at least one question."
+
+    for question in quiz.questions.all():
+        if question.options.count() < 2:
+            return False, f"The question '{question.text}' must have at least two options."
+        if not question.options.filter(is_correct=True).exists():
+            return False, f"The question '{question.text}' must have at least one correct answer."
+
+    return True, ""
+
+
+'''def validate_quiz_before_add_question(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    if quiz.questions.count() >= 1:
+        for question in quiz.questions.all():
+            if question.options.count() < 2:
+                messages.error(request, f"The question '{question.text}' must have at least two options.")
+            if not question.options.filter(is_correct=True).exists():
+                messages.error(request, f"The question '{question.text}' must have at least one correct answer.")
+
+        return redirect()'''
+
+
+@teacher_required
+def validate_quiz_before_test(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    is_valid, message = validate_quiz_requirements(quiz)
+
+    if not is_valid:
+        messages.error(request, message)
+        return redirect('add_question', quiz_id=quiz.id)
+    
+    return redirect('test_quiz', quiz_id=quiz.id)
+
+
+@teacher_required
+def validate_and_publish_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    is_valid, message = validate_quiz_requirements(quiz)
+
+    if not is_valid:
+        messages.error(request, message)
+    else:
+        quiz.published = not quiz.published
+        quiz.save()
+        message = "Quiz published successfully." if quiz.published else "Quiz unpublished successfully."
+        messages.success(request, message)
+    
+    return redirect('add_question', quiz_id=quiz.id)
+
+
+@teacher_required
+def validate_and_publish_quiz2(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    is_valid, message = validate_quiz_requirements(quiz)
+
+    if not is_valid:
+        messages.error(request, message)
+    else:
+        quiz.published = not quiz.published
+        quiz.save()
+        message = "Quiz published successfully." if quiz.published else "Quiz unpublished successfully."
+        messages.success(request, message)
+    
+    return redirect('created_quiz')
+
+
 @teacher_required
 def quiz_detail(request, quiz_id):
     ''' displaying quiz details '''
@@ -251,6 +320,28 @@ def add_option(request, question_id):
     }
 
     return render(request, 'quiz/add_option.html', context)
+
+
+@question_owner_required
+def validate_option(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    options = Option.objects.filter(question=question)
+    correct_options = options.filter(is_correct=True)
+
+    # Check if the question has at least two options
+    if options.count() < 2:
+        messages.error(request, "Each question must have at least two options.")
+        return redirect('add_option', question_id=question.id)
+
+    # Check if at least one option is marked as correct
+    if correct_options.count() < 1:
+        messages.error(request, "There must be at least one correct option.")
+        return redirect('add_option', question_id=question.id)
+
+    # If validations pass, redirect to a page indicating the question setup is complete
+    # or go back to the quiz details page where you can add more questions or finalize the quiz
+    messages.success(request, "Question setup is complete. You can add another question or finalize the quiz.")
+    return redirect('add_question', quiz_id=question.quiz.id)
 
 
 @teacher_and_owner_required
