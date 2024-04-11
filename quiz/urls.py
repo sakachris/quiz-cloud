@@ -158,8 +158,20 @@ urlpatterns = [
         views.passwordResetConfirm,
         name='password_reset_confirm'
         ),
-    path('quiz/<uuid:quiz_id>/validate-test/', views.validate_quiz_before_test, name='validate_quiz_before_test'),
-    path('quiz/<uuid:quiz_id>/validate-publish/', views.validate_and_publish_quiz, name='validate_and_publish_quiz'),
-    path('quiz/<uuid:quiz_id>/validate-publish2/', views.validate_and_publish_quiz2, name='validate_and_publish_quiz2'),
+    path(
+        'quiz/<uuid:quiz_id>/validate-test/',
+        views.validate_quiz_before_test,
+        name='validate_quiz_before_test'
+        ),
+    path(
+        'quiz/<uuid:quiz_id>/validate-publish/',
+        views.validate_and_publish_quiz,
+        name='validate_and_publish_quiz'
+        ),
+    path(
+        'quiz/<uuid:quiz_id>/validate-publish2/',
+        views.validate_and_publish_quiz2,
+        name='validate_and_publish_quiz2'
+        ),
 
 ]

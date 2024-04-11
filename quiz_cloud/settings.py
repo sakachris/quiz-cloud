@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'quiz.middleware.SessionTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'quiz_cloud.urls'
@@ -83,13 +84,6 @@ WSGI_APPLICATION = 'quiz_cloud.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-'''DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}'''
 
 DATABASES = {
     'default': {
@@ -176,3 +170,4 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 PASSWORD_RESET_TIMEOUT = 14400
+SESSION_COOKIE_AGE = 60 * 60 * 8
