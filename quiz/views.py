@@ -152,28 +152,23 @@ def add_question(request, quiz_id):
 
 
 def validate_quiz_requirements(quiz):
+    min_options = 2
     if quiz.questions.count() == 0:
         return False, "The quiz must contain at least one question."
 
     for question in quiz.questions.all():
-        if question.options.count() < 2:
-            return False, f"The question '{question.text}' must have at least two options."
-        if not question.options.filter(is_correct=True).exists():
-            return False, f"The question '{question.text}' must have at least one correct answer."
+        options_count = question.options.count()
+        correct_options = question.options.filter(is_correct=True).exists()
+        question_text = question.text
+        
+        if options_count < min_options:
+            return False, (f"The question '{question_text}' must have at "
+                           f"least two options.")
+        if not correct_options:
+            return False, (f"The question '{question_text}' must have at "
+                           "least one correct answer.")
 
     return True, ""
-
-
-'''def validate_quiz_before_add_question(request, quiz_id):
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
-    if quiz.questions.count() >= 1:
-        for question in quiz.questions.all():
-            if question.options.count() < 2:
-                messages.error(request, f"The question '{question.text}' must have at least two options.")
-            if not question.options.filter(is_correct=True).exists():
-                messages.error(request, f"The question '{question.text}' must have at least one correct answer.")
-
-        return redirect()'''
 
 
 @teacher_required
@@ -198,9 +193,12 @@ def validate_and_publish_quiz(request, quiz_id):
     else:
         quiz.published = not quiz.published
         quiz.save()
-        message = "Quiz published successfully." if quiz.published else "Quiz unpublished successfully."
+        message = (
+            "Quiz published successfully." if quiz.published else
+            "Quiz unpublished successfully."
+        )
         messages.success(request, message)
-    
+
     return redirect('add_question', quiz_id=quiz.id)
 
 
@@ -211,12 +209,16 @@ def validate_and_publish_quiz2(request, quiz_id):
 
     if not is_valid:
         messages.error(request, message)
+        return redirect('add_question', quiz_id=quiz.id)
     else:
         quiz.published = not quiz.published
         quiz.save()
-        message = "Quiz published successfully." if quiz.published else "Quiz unpublished successfully."
+        message = (
+            "Quiz published successfully." if quiz.published else
+            "Quiz unpublished successfully."
+        )
         messages.success(request, message)
-    
+
     return redirect('created_quiz')
 
 
