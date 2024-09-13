@@ -43,9 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'quiz.apps.QuizConfig',
+    'quiz_api.apps.QuizApiConfig',
     'fontawesomefree',
     'crispy_forms',
     'crispy_bootstrap5',
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = 'quiz.CustomUser'
