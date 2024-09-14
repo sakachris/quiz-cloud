@@ -20,9 +20,11 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 from quiz_api import views
+# from .views import UserViewSet
 
 router = DefaultRouter()
 router.register(r"subject", views.SubjectView, basename='subject')
+router.register(r'users', views.UserViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
