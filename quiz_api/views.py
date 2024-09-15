@@ -174,7 +174,8 @@ class UserViewSet(viewsets.ViewSet):
         POST /users/password-change/
         Change user's password
         """
-        serializer = PasswordChangeSerializer(user=request.user, data=request.data)
+        # serializer = PasswordChangeSerializer(user=request.user, data=request.data)
+        serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Your password has been changed successfully'}, status=status.HTTP_200_OK)

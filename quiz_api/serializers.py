@@ -63,6 +63,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'first_name', 'last_name', 'status', 'school', 'image')
+        read_only_fields = ('username', 'email', 'status')  # Make these fields read-only
 
 
 class PasswordChangeSerializer(serializers.Serializer):
