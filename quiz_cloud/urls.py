@@ -19,12 +19,20 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
-from quiz_api import views
-# from .views import UserViewSet
+from quiz_api.views import (
+    SubjectView,
+    UserViewSet,
+    QuizViewSet,
+    QuestionViewSet,
+    OptionViewSet
+)
 
 router = DefaultRouter()
-router.register(r"subject", views.SubjectView, basename='subject')
-router.register(r'users', views.UserViewSet, basename='user')
+router.register(r"subject", SubjectView, basename='subject')
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'quizzes', QuizViewSet, basename='quizzes')
+router.register(r'questions', QuestionViewSet, basename='questions')
+router.register(r'options', OptionViewSet, basename='options')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

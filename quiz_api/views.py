@@ -21,7 +21,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from quiz.models import CustomUser, Subject
+from quiz.models import (
+    CustomUser,
+    Subject,
+    Quiz,
+    Question,
+    Option
+)
 from .serializers import (
     UserRegistrationSerializer, 
     UserLoginSerializer, 
@@ -30,7 +36,10 @@ from .serializers import (
     PasswordResetSerializer,
     PasswordResetConfirmSerializer,
     UserSubjectsUpdateSerializer,
-    SubjectSerializer
+    SubjectSerializer,
+    QuizSerializer,
+    QuestionSerializer,
+    OptionSerializer
 )
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -38,6 +47,8 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from .tokens import account_activation_token
+from .permissions import IsTeacher, IsOwner
+from .utils import validate_quiz_requirements
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -230,3 +241,130 @@ class SubjectView(viewsets.ViewSet):
     def list(self, request):
         serializer = SubjectSerializer(self.queryset, many=True)
         return Response(serializer.data)
+    
+class QuizViewSet(viewsets.ModelViewSet):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+    permission_classes = [IsTeacher]
+    
+    def perform_create(self, serializer):
+        # Allow the teacher to create a quiz without immediate validation
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsTeacher])
+    def validate_before_test(self, request, pk=None):
+        """
+        Validate the quiz before the teacher attempts to test it.
+        """
+        quiz = self.get_object()
+        is_valid, message = validate_quiz_requirements(quiz)
+        if not is_valid:
+            return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Quiz is valid for testing."})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsTeacher])
+    def validate_and_publish(self, request, pk=None):
+        """
+        Validate the quiz before publishing. If valid, toggle the published status.
+        """
+        quiz = self.get_object()
+        is_valid, message = validate_quiz_requirements(quiz)
+        if not is_valid:
+            return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Toggle published status
+        quiz.published = not quiz.published
+        quiz.save()
+
+        message = "Quiz published successfully." if quiz.published else "Quiz unpublished successfully."
+        return Response({"detail": message})
+
+    @action(detail=True, methods=['get'], permission_classes=[IsOwner])
+    def quiz_detail(self, request, pk=None):
+        """
+        Retrieve detailed information of the quiz.
+        """
+        quiz = self.get_object()
+        serializer = self.get_serializer(quiz)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsOwner])
+    def delete_quiz(self, request, pk=None):
+        """
+        Allow the teacher to delete the quiz.
+        """
+        quiz = self.get_object()
+        quiz.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsOwner])
+    def publish(self, request, pk=None):
+        """
+        Toggle the publish status of a quiz. This endpoint publishes or unpublishes a quiz
+        after validating it. Only the owner of the quiz can perform this action.
+        """
+        quiz = self.get_object()
+
+        # Validate quiz before allowing publication
+        is_valid, message = validate_quiz_requirements(quiz)
+
+        if not is_valid:
+            return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Toggle the published status
+        quiz.published = not quiz.published
+        quiz.save()
+
+        message = (
+            "Quiz published successfully." if quiz.published else
+            "Quiz unpublished successfully."
+        )
+        return Response({"detail": message}, status=status.HTTP_200_OK)
+
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    permission_classes = [IsOwner]
+
+    @action(detail=True, methods=['get'], permission_classes=[IsOwner])
+    def question_detail(self, request, pk=None):
+        question = self.get_object()
+        serializer = self.get_serializer(question)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsOwner])
+    def delete_question(self, request, pk=None):
+        question = self.get_object()
+        question.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsOwner])
+    def validate_options(self, request, pk=None):
+        question = self.get_object()
+        options = Option.objects.filter(question=question)
+        correct_options = options.filter(is_correct=True)
+
+        if options.count() < 2:
+            return Response({"detail": "Each question must have at least two options."}, status=status.HTTP_400_BAD_REQUEST)
+        if correct_options.count() < 1:
+            return Response({"detail": "There must be at least one correct option."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Question setup is complete."})
+
+class OptionViewSet(viewsets.ModelViewSet):
+    queryset = Option.objects.all()
+    serializer_class = OptionSerializer
+    permission_classes = [IsOwner]
+
+    @action(detail=True, methods=['get'], permission_classes=[IsOwner])
+    def option_detail(self, request, pk=None):
+        option = self.get_object()
+        serializer = self.get_serializer(option)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsOwner])
+    def delete_option(self, request, pk=None):
+        option = self.get_object()
+        option.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

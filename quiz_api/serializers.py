@@ -14,6 +14,7 @@ from quiz.models import (
     PlannedQuiz,
     Subject
 )
+from .utils import validate_quiz_requirements
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -120,24 +121,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class QuizSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Quiz
-        fields = "__all__"
-
-
-class QuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Question
-        fields = "__all__"
-
-
-class OptionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Option
-        fields = "__all__"
-
-
 class QuizAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizAttempt
@@ -160,3 +143,27 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = "__all__"
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'description', 'time_limit', 'subject', 'created_by', 'max_attempts', 'pass_mark', 'created_at', 'updated_at']
+
+    '''def validate(self, data):
+        # Ensure that the quiz meets the requirement rules
+        quiz = self.instance or Quiz(**data)
+        is_valid, message = validate_quiz_requirements(quiz)
+        if not is_valid:
+            raise serializers.ValidationError(message)
+        return data'''
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'quiz', 'text', 'marks']
+
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = ['id', 'question', 'text', 'is_correct']
+
