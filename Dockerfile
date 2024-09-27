@@ -13,6 +13,15 @@ WORKDIR /app
 # Copy the requirements file to the working directory
 COPY requirements.txt /app/
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libmariadb-dev-compat \
+    libmariadb-dev \
+    gcc \
+    build-essential \
+    python3-dev
+
 # Install the dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 

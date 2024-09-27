@@ -26,6 +26,8 @@ services:
     restart: always
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles  # Ensure this maps the collected static files
+      - media_volume:/app/media  # Media files mapping if needed
     ports:
       - "8000:8000"
     env_file:
