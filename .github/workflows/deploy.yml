@@ -45,3 +45,32 @@ jobs:
 
             # Restart the containers if needed
             docker-compose restart
+
+      - name: Check if Certbot is installed
+        run: |
+          if ! command -v certbot &> /dev/null
+          then
+            sudo apt-get update
+            sudo apt-get install certbot python3-certbot-nginx -y
+          else
+            echo "Certbot already installed"
+          fi
+
+      # - name: Obtain SSL certificates
+      #   run: |
+      #     if [ ! -d "/etc/letsencrypt/live/pointsystem.tech" ]; then
+      #       sudo certbot --nginx -d pointsystem.tech -d www.pointsystem.tech --non-interactive --agree-tos --email sakachris90@gmail.com
+      #     else
+      #       echo "SSL certificate already exists"
+      #     fi
+
+      - name: Obtain SSL certificates
+        run: |
+          if [ ! -d "/etc/letsencrypt/live/pointsystem.tech" ]; then
+            docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d pointsystem.tech -d www.pointsystem.tech
+          else
+            echo "SSL certificate already exists"
+          fi
+
+      - name: Restart Nginx to apply SSL
+        run: docker-compose restart nginx
