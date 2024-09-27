@@ -42,24 +42,6 @@ jobs:
 
             # Collect static files
             docker-compose exec web python manage.py collectstatic --noinput
-
-            # Check if Certbot is installed on the server
-            if ! command -v certbot &> /dev/null; then
-              sudo apt-get update
-              sudo apt-get install certbot python3-certbot-nginx -y
-            else
-              echo "Certbot already installed"
-            fi
-
-            # Obtain SSL certificates if not already obtained
-            if [ ! -d "/etc/letsencrypt/live/pointsystem.tech" ]; then
-              docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d pointsystem.tech -d www.pointsystem.tech
-            else
-              echo "SSL certificate already exists"
-            fi
-
-            # Restart Nginx to apply SSL
-            # docker-compose restart nginx
-
+            
             # Restart the containers if needed
             docker-compose restart
