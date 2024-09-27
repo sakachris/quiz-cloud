@@ -17,6 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       # Deploy to server using SSH
       - name: Deploy, Migrate, and Restart Application
         uses: appleboy/ssh-action@master
