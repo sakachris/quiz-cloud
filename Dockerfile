@@ -28,8 +28,11 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy the Django project into the container
 COPY . /app/
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Expose the port that the Gunicorn server will run on
 EXPOSE 8000
 
 # Start Gunicorn
-CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "your_project_name.wsgi:application"]
+CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "quiz_cloud.wsgi:application"]
