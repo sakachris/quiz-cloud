@@ -37,10 +37,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+#DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://pointsystem.tech',
+    'https://www.pointsystem.tech',
+    'http://127.0.0.1'
+]
+CSRF_COOKIE_SECURE = True
 
 
 # Application definition

@@ -35,7 +35,9 @@ jobs:
             docker-compose down
 
             # Build and start the Docker containers with --build
-            docker-compose up --build -d
+            # docker-compose up --build -d
+            docker-compose -f docker-compose.yml up --build -d
+
 
             # Run Django migrations
             docker-compose exec web python manage.py migrate
