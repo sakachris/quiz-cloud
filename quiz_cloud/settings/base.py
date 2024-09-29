@@ -41,11 +41,13 @@ DEBUG = True
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech', '127.0.0.1']
+
 CSRF_TRUSTED_ORIGINS = [
     'https://pointsystem.tech',
     'https://www.pointsystem.tech',
     'http://127.0.0.1'
 ]
+
 CSRF_COOKIE_SECURE = True
 
 
