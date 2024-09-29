@@ -38,6 +38,9 @@ jobs:
           docker-compose -f docker-compose.yml build
           docker-compose -f docker-compose.yml push
 
+      - name: Check Docker Compose version
+        run: docker-compose --version
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -53,6 +56,8 @@ jobs:
           script: |
             cd /home/saka/quiz-cloud
 
+            git pull origin main
+
             # Stop the running containers
             docker-compose down
 
@@ -63,10 +68,10 @@ jobs:
             docker-compose run web python manage.py migrate
 
             # Start the Docker containers
-            docker-compose up -d
+            docker-compose -f docker-compose.yml up -d --no-build
 
             # Collect static files
             docker-compose exec web python manage.py collectstatic --noinput
             
             # Restart the containers if needed
-            docker-compose restart
+            docker-compose -f docker-compose.yml restart

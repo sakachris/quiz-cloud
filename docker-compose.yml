@@ -22,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: sakachris/quiz_cloud:latest
     container_name: stage_backend
     command: gunicorn --workers 3 --bind 0.0.0.0:8000 quiz_cloud.wsgi:application
     restart: always
@@ -47,8 +48,6 @@ services:
       - static_volume:/vol/staticfiles
       - media_volume:/vol/media
       - /etc/letsencrypt:/etc/letsencrypt
-      # - certbot-ssl:/etc/letsencrypt
-      # - certbot-var:/var/lib/letsencrypt
     depends_on:
       - web
 
@@ -56,5 +55,3 @@ volumes:
   mysql_data:
   static_volume:
   media_volume:
-  # certbot-ssl:
-  # certbot-var:
