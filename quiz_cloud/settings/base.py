@@ -40,7 +40,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://pointsystem.tech',
@@ -116,6 +116,31 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+
+# Load specific environment settings based on the DJANGO_ENV environment variable
+DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
+
+if DJANGO_ENV == 'production':
+    # Production-specific settings
+    DEBUG = False
+    ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+
+    # DATABASES['default'].update({
+    #     'NAME': os.getenv('DB_PRODUCTION_NAME'),
+    #     'HOST': os.getenv('DB_PRODUCTION_HOST'),
+    #     'PORT': os.getenv('DB_PRODUCTION_PORT')
+    # })
+
+elif DJANGO_ENV == 'staging':
+    # Staging-specific settings
+    DEBUG = True  # Optionally enable debug in staging
+    ALLOWED_HOSTS = ['staging.pointsystem.tech']
+
+    DATABASES['default'].update({
+        'NAME': os.getenv('DB_STAGING_NAME'),
+        # 'HOST': os.getenv('DB_STAGING_HOST'),
+        'PORT': os.getenv('DB_STAGING_PORT')
+    })
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

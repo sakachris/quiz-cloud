@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: mysqldb_staging
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PORT: 
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data_staging:/var/lib/mysql
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+  web:
+    image: sakachris/quiz_cloud:staging
+    container_name: backend_staging
+    volumes:
+      - ./staging:/app
+      - static_volume_staging:/app/staticfiles
+      - media_volume_staging:/app/media
+    ports:
+      - "8002:8000"  # Use port 8002 for staging
+    environment:
+      # - DEBUG=False
+      - ALLOWED_HOSTS=staging.pointsystem.tech
+    env_file:
+      - .env.staging
+
+  nginx:
+    container_name: nginx_staging
+    volumes:
+      - static_volume_staging:/vol/staticfiles
+      - media_volume_staging:/vol/media
+    ports:
+      - "8082:80"  # Staging Nginx port
+      - "443:443"
+
+volumes:
+  mysql_data_staging:
+  static_volume_staging:
+  media_volume_staging:
