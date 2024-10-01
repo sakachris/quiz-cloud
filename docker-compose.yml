@@ -24,7 +24,8 @@ services:
       dockerfile: Dockerfile
     # image: sakachris/quiz_cloud:latest
     # container_name: stage_backend
-    command: gunicorn --workers 3 --bind 0.0.0.0:8000 quiz_cloud.wsgi:application
+    # command: gunicorn --workers 3 --bind 0.0.0.0:8000 quiz_cloud.wsgi:application
+    command: gunicorn --workers 3 --bind 0.0.0.0:8002 quiz_cloud.wsgi:application
     restart: always
     # volumes:
     #   - .:/app
