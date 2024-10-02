@@ -8,8 +8,8 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    # ports:
-    #   - "3306:3306"
+    ports:
+      - "3306:3306"
     volumes:
       - mysql_data_staging:/var/lib/mysql
       - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
@@ -35,7 +35,7 @@ services:
       - static_volume_staging:/app/staticfiles  # Ensure this maps the collected static files
       - media_volume_staging:/app/media  # Media files mapping if needed
     ports:
-      - "8002:8002"
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
