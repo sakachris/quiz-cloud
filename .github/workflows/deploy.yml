@@ -53,12 +53,16 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
               echo "Building and Pushing Docker Images"
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+              docker-compose -f docker-compose.production.yml build
+              docker-compose -f docker-compose.production.yml push
           elif [ "${{ github.ref_name }}" = "staging" ]; then
               echo "Building and Pushing Docker Images"
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml build
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml push
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml build
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml push
+              docker-compose -f docker-compose.staging.yml build
+              docker-compose -f docker-compose.staging.yml push
           fi
 
       - name: Check Docker Compose version
@@ -84,33 +88,57 @@ jobs:
               git checkout ${{ github.ref_name }}
               git pull origin ${{ github.ref_name }}
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml run web python manage.py migrate
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml run web python manage.py migrate
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
 
-              docker-compose -f docker-compose.yml -f docker-compose.prod.yml restart
+              # docker-compose -f docker-compose.yml -f docker-compose.prod.yml restart
+
+              docker-compose -f docker-compose.production.yml down
+
+              docker-compose -f docker-compose.production.yml pull
+
+              docker-compose -f docker-compose.production.yml run web python manage.py migrate
+
+              docker-compose -f docker-compose.production.yml up -d --no-build
+
+              docker-compose -f docker-compose.production.yml exec web python manage.py collectstatic --noinput
+
+              docker-compose -f docker-compose.production.yml restart
             elif [ "${{ github.ref_name }}" = "staging" ]; then
               echo "Actions for Staging"
               git checkout ${{ github.ref_name }}
               git pull origin ${{ github.ref_name }}
               
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml down
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml down
 
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull
 
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml run web python manage.py migrate
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml run web python manage.py migrate
 
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d --no-build
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d --no-build
 
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml exec web python manage.py collectstatic --noinput
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml exec web python manage.py collectstatic --noinput
 
-              docker-compose -f docker-compose.yml -f docker-compose.staging.yml restart
+              # docker-compose -f docker-compose.yml -f docker-compose.staging.yml restart
+
+              docker-compose -f docker-compose.staging.yml down
+
+              docker-compose -f docker-compose.staging.yml pull
+
+              docker-compose -f docker-compose.staging.yml run web python manage.py migrate
+
+              docker-compose -f docker-compose.staging.yml up -d --no-build
+
+              docker-compose -f docker-compose.staging.yml exec web python manage.py collectstatic --noinput
+
+              docker-compose -f docker-compose.staging.yml restart
             fi
 
             # git pull origin main

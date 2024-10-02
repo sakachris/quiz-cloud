@@ -35,5 +35,5 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Start Gunicorn
-# CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "quiz_cloud.wsgi:application"]
-CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8002", "quiz_cloud.wsgi:application"]
+CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "quiz_cloud.wsgi:application"]
+# CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8002", "quiz_cloud.wsgi:application"]
