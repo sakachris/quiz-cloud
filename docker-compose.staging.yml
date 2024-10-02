@@ -16,7 +16,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data_staging:/var/lib/mysql
-      # - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
     healthcheck:
       test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}", "-e", "SELECT 1"]
       timeout: 20s
