@@ -4,12 +4,16 @@ services:
     container_name: mysqldb_production
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: Revelation@21!
+      MYSQL_DATABASE: quizcloudproduction
+      MYSQL_USER: quizproduction
+      MYSQL_PASSWORD: myquizcloudproduction
+      # MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      # MYSQL_DATABASE: ${DB_NAME}
+      # MYSQL_USER: ${DB_USER}
+      # MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3308:3306"
+      - "3306:3306"
     volumes:
       - mysql_data_production:/var/lib/mysql
       - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
@@ -26,7 +30,8 @@ services:
       dockerfile: Dockerfile
     image: sakachris/quiz_cloud_production:latest
     environment:
-      - DJANGO_ENV=production
+      - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.production
+      # - DJANGO_ENV=production
     container_name: stage_backend
     command: gunicorn --workers 3 --bind 0.0.0.0:8000 quiz_cloud.wsgi:application
     restart: always
@@ -34,10 +39,10 @@ services:
       - .:/app
       - static_volume_production:/app/staticfiles  # Ensure this maps the collected static files
       - media_volume_production:/app/media  # Media files mapping if needed
-    ports:
-      - "8002:8000"
-    env_file:
-      - .env
+    # ports:
+    #   - "8000:8000"
+    # env_file:
+    #   - .env
     depends_on:
       db-production:
         condition: service_healthy
@@ -49,8 +54,8 @@ services:
     container_name: stage_nginx_production
     restart: always
     ports:
-      - "8082:80"
-      # - "443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       # - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/prod.conf:/etc/nginx/nginx.conf

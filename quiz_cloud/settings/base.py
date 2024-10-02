@@ -34,7 +34,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+# SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = '0+50tw*!%r8&%86pp81=q1pjz14z1t(&0a!p#9kf^83__6_hrc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -106,24 +107,24 @@ WSGI_APPLICATION = 'quiz_cloud.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#     }
+# }
 
 # Load specific environment settings based on the DJANGO_ENV environment variable
-DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
+# DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
 
-if DJANGO_ENV == 'production':
-    # Production-specific settings
-    DEBUG = False
-    ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+# if DJANGO_ENV == 'production':
+#     # Production-specific settings
+#     DEBUG = False
+#     ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
 
     # DATABASES['default'].update({
     #     'NAME': os.getenv('DB_PRODUCTION_NAME'),
@@ -131,16 +132,16 @@ if DJANGO_ENV == 'production':
     #     'PORT': os.getenv('DB_PRODUCTION_PORT')
     # })
 
-elif DJANGO_ENV == 'staging':
-    # Staging-specific settings
-    DEBUG = True  # Optionally enable debug in staging
-    ALLOWED_HOSTS = ['staging.pointsystem.tech']
+# elif DJANGO_ENV == 'staging':
+#     # Staging-specific settings
+#     DEBUG = True  # Optionally enable debug in staging
+#     ALLOWED_HOSTS = ['staging.pointsystem.tech']
 
-    DATABASES['default'].update({
-        'NAME': os.getenv('DB_STAGING_NAME'),
-        # 'HOST': os.getenv('DB_STAGING_HOST'),
-        'PORT': os.getenv('DB_STAGING_PORT')
-    })
+#     DATABASES['default'].update({
+#         'NAME': os.getenv('DB_STAGING_NAME'),
+#         # 'HOST': os.getenv('DB_STAGING_HOST'),
+#         'PORT': os.getenv('DB_STAGING_PORT')
+#     })
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -211,12 +212,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     'django.contrib.auth.backends.ModelBackend',
 ]'''
 
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+# EMAIL_HOST = os.getenv('EMAIL_HOST')
+# EMAIL_PORT = os.getenv('EMAIL_PORT')
+# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'quizcloudapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'wpsosviuiocilcbq'
 
 PASSWORD_RESET_TIMEOUT = 14400
 SESSION_COOKIE_AGE = 60 * 60 * 8

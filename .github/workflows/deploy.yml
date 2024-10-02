@@ -28,26 +28,26 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Set environment variables
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-              echo "Setting production environment"
-              echo DJANGO_ENV=production >> .env
-              echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-              echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-              echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-              echo DB_USER=${{ secrets.DB_USER }} >> .env
-              echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-          elif [ "${{ github.ref_name }}" = "staging" ]; then
-              echo DJANGO_ENV=staging >> .env
-              echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-              echo DB_PORT=${{ secrets.DB_STAGING_PORT }} >> .env
-              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-              echo DB_NAME=${{ secrets.DB_STAGING_NAME }} >> .env
-              echo DB_USER=${{ secrets.DB_USER }} >> .env
-              echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-          fi
+      # - name: Set environment variables
+      #   run: |
+      #     if [ "${{ github.ref_name }}" = "main" ]; then
+      #         echo "Setting production environment"
+      #         echo DJANGO_ENV=production >> .env
+      #         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+      #         echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+      #         echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
+      #         echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+      #         echo DB_USER=${{ secrets.DB_USER }} >> .env
+      #         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+      #     elif [ "${{ github.ref_name }}" = "staging" ]; then
+      #         echo DJANGO_ENV=staging >> .env
+      #         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+      #         echo DB_PORT=${{ secrets.DB_STAGING_PORT }} >> .env
+      #         echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
+      #         echo DB_NAME=${{ secrets.DB_STAGING_NAME }} >> .env
+      #         echo DB_USER=${{ secrets.DB_USER }} >> .env
+      #         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+      #     fi
 
       - name: Build and push Docker images
         run: |
