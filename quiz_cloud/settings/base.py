@@ -126,7 +126,7 @@ DATABASES = {
         'USER': 'quizstaging',
         'PASSWORD': 'myquizcloudstaging',
         'HOST': 'db-staging',
-        'PORT': '3307',
+        'PORT': '3306',
     }
 }
 
