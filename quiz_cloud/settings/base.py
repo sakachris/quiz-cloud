@@ -46,8 +46,11 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = [
     'https://pointsystem.tech',
     'https://www.pointsystem.tech',
+    'https://staging.pointsystem.tech',
     'http://127.0.0.1'
 ]
+
+CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
 
 CSRF_COOKIE_SECURE = True
 
