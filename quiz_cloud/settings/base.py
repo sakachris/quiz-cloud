@@ -122,28 +122,28 @@ WSGI_APPLICATION = 'quiz_cloud.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME_STAGING'),
-        'USER': os.getenv('DB_USER_STAGING'),
-        'PASSWORD': os.getenv('DB_PASSWORD_STAGING'),
-        'HOST': os.getenv('DB_HOST_STAGING'),
-        'PORT': os.getenv('DB_PORT_STAGING'),
-    }
-}
-
-ALLOWED_HOSTS = ['staging.pointsystem.tech']
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'quizcloudstaging',
-#         'USER': 'quizstaging',
-#         'PASSWORD': 'myquizcloudstaging',
-#         'HOST': 'db-staging',
-#         'PORT': '3306',
+#         'NAME': os.getenv('DB_NAME_STAGING'),
+#         'USER': os.getenv('DB_USER_STAGING'),
+#         'PASSWORD': os.getenv('DB_PASSWORD_STAGING'),
+#         'HOST': os.getenv('DB_HOST_STAGING'),
+#         'PORT': os.getenv('DB_PORT_STAGING'),
 #     }
 # }
+
+ALLOWED_HOSTS = ['staging.pointsystem.tech']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'quizcloudstaging',
+        'USER': 'quizstaging',
+        'PASSWORD': 'myquizcloudstaging',
+        'HOST': 'db-staging',
+        'PORT': '3306',
+    }
+}
 
 # Load specific environment settings based on the DJANGO_ENV environment variable
 # DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
