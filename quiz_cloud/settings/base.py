@@ -122,28 +122,28 @@ WSGI_APPLICATION = 'quiz_cloud.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-#     }
-# }
-
-ALLOWED_HOSTS = ['staging.pointsystem.tech']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'quizcloudstaging',
-        'USER': 'quizstaging',
-        'PASSWORD': 'myquizcloudstaging',
-        'HOST': 'db-staging',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME_STAGING'),
+        'USER': os.getenv('DB_USER_STAGING'),
+        'PASSWORD': os.getenv('DB_PASSWORD_STAGING'),
+        'HOST': os.getenv('DB_HOST_STAGING'),
+        'PORT': os.getenv('DB_PORT_STAGING'),
     }
 }
+
+ALLOWED_HOSTS = ['staging.pointsystem.tech']
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'quizcloudstaging',
+#         'USER': 'quizstaging',
+#         'PASSWORD': 'myquizcloudstaging',
+#         'HOST': 'db-staging',
+#         'PORT': '3306',
+#     }
+# }
 
 # Load specific environment settings based on the DJANGO_ENV environment variable
 # DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
@@ -239,19 +239,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     'django.contrib.auth.backends.ModelBackend',
 ]'''
 
-# EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-# EMAIL_HOST = os.getenv('EMAIL_HOST')
-# EMAIL_PORT = os.getenv('EMAIL_PORT')
-# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'quizcloudapp@gmail.com'
-EMAIL_HOST_PASSWORD = 'wpsosviuiocilcbq'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'quizcloudapp@gmail.com'
+# EMAIL_HOST_PASSWORD = 'wpsosviuiocilcbq'
 
 PASSWORD_RESET_TIMEOUT = 14400
 SESSION_COOKIE_AGE = 60 * 60 * 8
