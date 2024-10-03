@@ -34,14 +34,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('SECRET_KEY')
-SECRET_KEY = '0+50tw*!%r8&%86pp81=q1pjz14z1t(&0a!p#9kf^83__6_hrc'
+SECRET_KEY = os.getenv('SECRET_KEY')
+# SECRET_KEY = '0+50tw*!%r8&%86pp81=q1pjz14z1t(&0a!p#9kf^83__6_hrc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'staging.pointsystem.tech']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'staging.pointsystem.tech', '165.232.191.52']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsystem.tech', 'www.pointsystem.tech', 'pointsystem.tech']
 
 # CSRF_TRUSTED_ORIGINS = [
@@ -63,8 +63,8 @@ CSRF_TRUSTED_ORIGINS = [
 # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
 CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
 
-# CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = False
 
 
 # Application definition

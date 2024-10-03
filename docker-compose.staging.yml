@@ -3,15 +3,15 @@ services:
     image: mysql:8.0
     container_name: mysqldb_staging
     restart: always
-    # environment:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME_STAGING}
+      MYSQL_USER: ${DB_USER_STAGING}
+      MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
       # MYSQL_ROOT_PASSWORD: Revelation@21!
       # MYSQL_DATABASE: quizcloudstaging
       # MYSQL_USER: quizstaging
       # MYSQL_PASSWORD: myquizcloudstaging
-      # MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      # MYSQL_DATABASE: ${DB_NAME_STAGING}
-      # MYSQL_USER: ${DB_USER_STAGING}
-      # MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
     ports:
       - "3306:3306"
     volumes:
