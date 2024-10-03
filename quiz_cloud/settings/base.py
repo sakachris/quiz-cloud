@@ -41,8 +41,8 @@ SECRET_KEY = '0+50tw*!%r8&%86pp81=q1pjz14z1t(&0a!p#9kf^83__6_hrc'
 DEBUG = True
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsystem.tech', 'www.pointsystem.tech', 'pointsystem.tech']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'staging.pointsystem.tech']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsystem.tech', 'www.pointsystem.tech', 'pointsystem.tech']
 
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://pointsystem.tech',
@@ -53,8 +53,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsyste
 # ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://pointsystem.tech',
-    'https://www.pointsystem.tech',
+    # 'https://pointsystem.tech',
+    # 'https://www.pointsystem.tech',
     'https://staging.pointsystem.tech',
     'http://staging.pointsystem.tech',
     'http://127.0.0.1'
