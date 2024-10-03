@@ -4,14 +4,14 @@ services:
     container_name: mysqldb_staging
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME_STAGING}
-      MYSQL_USER: ${DB_USER_STAGING}
-      MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
-      # MYSQL_ROOT_PASSWORD: Revelation@21!
-      # MYSQL_DATABASE: quizcloudstaging
-      # MYSQL_USER: quizstaging
-      # MYSQL_PASSWORD: myquizcloudstaging
+      # MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      # MYSQL_DATABASE: ${DB_NAME_STAGING}
+      # MYSQL_USER: ${DB_USER_STAGING}
+      # MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
+      MYSQL_ROOT_PASSWORD: Revelation@21!
+      MYSQL_DATABASE: quizcloudstaging
+      MYSQL_USER: quizstaging
+      MYSQL_PASSWORD: myquizcloudstaging
     ports:
       - "3306:3306"
     volumes:
@@ -40,8 +40,8 @@ services:
       - media_volume_staging:/app/media  # Media files mapping if needed
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     depends_on:
       db-staging:
         condition: service_healthy
