@@ -44,13 +44,13 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'staging.pointsystem.tech', '165.232.191.52']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsystem.tech', 'www.pointsystem.tech', 'pointsystem.tech']
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://pointsystem.tech',
-#     'https://www.pointsystem.tech',
-#     'https://staging.pointsystem.tech/',
-#     'http://staging.pointsystem.tech/',
-#     'http://127.0.0.1'
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://pointsystem.tech',
+    'https://www.pointsystem.tech',
+    'https://staging.pointsystem.tech/',
+    'http://staging.pointsystem.tech/',
+    'http://127.0.0.1'
+]
 
 CSRF_TRUSTED_ORIGINS = [
     # 'https://pointsystem.tech',
@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
-# CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
+CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
 
 CSRF_COOKIE_SECURE = True
 #CSRF_COOKIE_SECURE = False
