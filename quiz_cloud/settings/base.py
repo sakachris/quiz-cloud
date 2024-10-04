@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
-CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
+# CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
 
 CSRF_COOKIE_SECURE = True
 #CSRF_COOKIE_SECURE = False
@@ -133,7 +133,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['staging.pointsystem.tech']
+# ALLOWED_HOSTS = ['staging.pointsystem.tech']
 
 # Load specific environment settings based on the DJANGO_ENV environment variable
 # DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
@@ -236,12 +236,7 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolea
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'quizcloudapp@gmail.com'
-# EMAIL_HOST_PASSWORD = 'wpsosviuiocilcbq'
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PASSWORD_RESET_TIMEOUT = 14400
 SESSION_COOKIE_AGE = 60 * 60 * 8
