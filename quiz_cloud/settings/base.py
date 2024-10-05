@@ -53,7 +53,7 @@ CSRF_TRUSTED_ORIGINS = [
 # CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
 
 # CSRF_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
 
 
 # Application definition
