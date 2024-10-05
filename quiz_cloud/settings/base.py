@@ -17,25 +17,14 @@ import os
 load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # This is where collectstatic will collect files
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'quiz', 'static'),
-# ]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-# SECRET_KEY = '0+50tw*!%r8&%86pp81=q1pjz14z1t(&0a!p#9kf^83__6_hrc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -44,26 +33,26 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'staging.pointsystem.tech', '165.232.191.52']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', '165.232.191.52', 'staging.pointsystem.tech', 'www.pointsystem.tech', 'pointsystem.tech']
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://pointsystem.tech',
-    'https://www.pointsystem.tech',
-    'https://staging.pointsystem.tech/',
-    'http://staging.pointsystem.tech/',
-    'http://127.0.0.1'
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://pointsystem.tech',
+#     'https://www.pointsystem.tech',
+#     'https://staging.pointsystem.tech/',
+#     'http://staging.pointsystem.tech/',
+#     'http://127.0.0.1'
+# ]
 
-CSRF_TRUSTED_ORIGINS = [
-    # 'https://pointsystem.tech',
-    # 'https://www.pointsystem.tech',
-    'https://staging.pointsystem.tech',
-    'http://staging.pointsystem.tech',
-    'http://127.0.0.1'
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     # 'https://pointsystem.tech',
+#     # 'https://www.pointsystem.tech',
+#     'https://staging.pointsystem.tech',
+#     'http://staging.pointsystem.tech',
+#     'http://127.0.0.1'
+# ]
 
-# CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
-CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
+# # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
+# CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
 
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 #CSRF_COOKIE_SECURE = False
 
 
