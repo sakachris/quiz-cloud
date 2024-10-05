@@ -28,7 +28,7 @@ services:
     # environment:
     #   - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.staging
     container_name: backend_staging
-    command: gunicorn --workers 3 --bind 0.0.0.0:8000 quiz_cloud.wsgi:application
+    command: gunicorn --workers 3 --bind 0.0.0.0:8000 --timeout 120 quiz_cloud.wsgi:application
     restart: always
     volumes:
       - .:/app
