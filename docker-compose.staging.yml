@@ -5,9 +5,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME_STAGING}
+      MYSQL_USER: ${DB_USER_STAGING}
+      MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
     ports:
       - "3306:3306"
     volumes:
@@ -25,8 +25,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: sakachris/quiz_cloud_staging:latest
-    # environment:
-    #   - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.staging
+    environment:
+      - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.staging
     container_name: backend_staging
     command: gunicorn --workers 3 --bind 0.0.0.0:8000 --timeout 120 quiz_cloud.wsgi:application
     restart: always
