@@ -11,6 +11,6 @@ DATABASES = {
         'USER': os.getenv('DB_USER_STAGING'),
         'PASSWORD': os.getenv('DB_PASSWORD_STAGING'),
         'HOST': os.getenv('DB_HOST_STAGING'),
-        'PORT': os.getenv('DB_PORT'),
+        'PORT': os.getenv('DB_PORT_STAGING'),
     }
 }
