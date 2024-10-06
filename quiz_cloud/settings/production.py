@@ -2,14 +2,15 @@
 from .base import *
 
 # DEBUG = False
-# ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'quizcloudproduction',
-#         'USER': 'quizproduction',
-#         'PASSWORD': 'myquizcloudproduction',
-#         'HOST': 'db-production',
-#         'PORT': '3306',
-#     }
-# }
+ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME_PRODUCTION'),
+        'USER': os.getenv('DB_USER_PRODUCTION'),
+        'PASSWORD': os.getenv('DB_PASSWORD_PRODUCTION'),
+        'HOST': os.getenv('DB_HOST_PRODUCTION'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
