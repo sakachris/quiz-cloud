@@ -95,10 +95,10 @@ jobs:
               git pull origin ${{ github.ref_name }}
 
               docker-compose -f docker-compose.staging.yml down
-              docker-compose -f docker-compose.nginx.yml down
+              # docker-compose -f docker-compose.nginx.yml down
               docker-compose -f docker-compose.staging.yml pull
               docker-compose -f docker-compose.staging.yml run web-staging python manage.py migrate
-              docker-compose -f docker-compose.nginx.yml up -d --no-build
+              # docker-compose -f docker-compose.nginx.yml up -d --no-build
               docker-compose -f docker-compose.staging.yml up -d --no-build
               docker-compose -f docker-compose.staging.yml exec web-staging python manage.py collectstatic --noinput
               docker-compose -f docker-compose.staging.yml restart
