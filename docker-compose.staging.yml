@@ -1,0 +1,71 @@
+services:
+  db-staging:
+    image: mysql:8.0
+    container_name: mysqldb_staging
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME_STAGING}
+      MYSQL_USER: ${DB_USER_STAGING}
+      MYSQL_PASSWORD: ${DB_PASSWORD_STAGING}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_staging:/var/lib/mysql
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+    # networks:
+    #   - app-network 
+
+  web-staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sakachris/quiz_cloud_staging:latest
+    environment:
+      - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.staging
+    container_name: backend_staging
+    command: gunicorn --workers 3 --bind 0.0.0.0:8000 --timeout 120 quiz_cloud.wsgi:application
+    restart: always
+    volumes:
+      - .:/app
+      - static_volume_staging:/app/staticfiles  # Ensure this maps the collected static files
+      - media_volume_staging:/app/media  # Media files mapping if needed
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db-staging:
+        condition: service_healthy
+    # networks:
+    #   - app-network 
+
+  nginx-staging:
+    image: nginx:latest
+    container_name: nginx_staging
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/stag.conf:/etc/nginx/conf.d/default.conf
+      - static_volume_staging:/vol/staticfiles
+      - media_volume_staging:/vol/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web-staging
+    # networks:
+    #   - app-network 
+
+volumes:
+  mysql_data_staging:
+  static_volume_staging:
+  media_volume_staging:
+
+# networks:
+#   app-network:                         # Define a shared network for services
+#     driver: bridge

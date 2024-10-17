@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
     branches:
       - main
+      - staging
 
 jobs:
   build:
@@ -28,15 +30,34 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-          echo DB_USER=${{ secrets.DB_USER }} >> .env
-          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+          if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "Setting production environment"
+              echo DB_HOST=${{ secrets.DB_HOST_PRODUCTION }} >> .env
+              echo DB_PORT=${{ secrets.DB_PORT_PRODUCTION }} >> .env
+              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
+              echo DB_NAME=${{ secrets.DB_NAME_PRODUCTION }} >> .env
+              echo DB_USER=${{ secrets.DB_USER_PRODUCTION }} >> .env
+              echo DB_PASSWORD=${{ secrets.DB_PASSWORD_PRODUCTION }} >> .env
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+              echo DB_HOST_STAGING=${{ secrets.DB_HOST_STAGING }} >> .env
+              echo DB_PORT=${{ secrets.DB_PORT_STAGING }} >> .env
+              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
+              echo DB_NAME_STAGING=${{ secrets.DB_NAME_STAGING }} >> .env
+              echo DB_USER_STAGING=${{ secrets.DB_USER_STAGING }} >> .env
+              echo DB_PASSWORD_STAGING=${{ secrets.DB_PASSWORD_STAGING }} >> .env
+          fi
 
       - name: Build and push Docker images
         run: |
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml push
+          if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "Building and Pushing Docker Images"
+              docker-compose -f docker-compose.production.yml build
+              docker-compose -f docker-compose.production.yml push
+          elif [ "${{ github.ref_name }}" = "staging" ]; then
+              echo "Building and Pushing Docker Images"
+              docker-compose -f docker-compose.staging.yml build
+              docker-compose -f docker-compose.staging.yml push
+          fi
 
       - name: Check Docker Compose version
         run: docker-compose --version
@@ -56,22 +77,37 @@ jobs:
           script: |
             cd /home/saka/quiz-cloud
 
-            git pull origin main
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "Actions for Production"
+              git checkout ${{ github.ref_name }}
+              git pull origin ${{ github.ref_name }}
 
-            # Stop the running containers
-            docker-compose down
+              docker-compose -f docker-compose.production.yml down
+              docker stop $(docker ps -aq)
+              docker rm $(docker ps -aq)
+              docker volume prune -f 
+              docker image prune -a -f
+              docker container prune -f
+              docker-compose -f docker-compose.production.yml pull
+              docker-compose -f docker-compose.production.yml run web python manage.py migrate
+              docker-compose -f docker-compose.production.yml up -d --no-build
+              docker-compose -f docker-compose.production.yml exec web python manage.py collectstatic --noinput
+              docker-compose -f docker-compose.production.yml restart
 
-            # Pull the latest image
-            docker-compose pull
+            elif [ "${{ github.ref_name }}" = "staging" ]; then
+              echo "Actions for Staging"
+              git checkout ${{ github.ref_name }}
+              git pull origin ${{ github.ref_name }}
 
-            # Run migration
-            docker-compose run web python manage.py migrate
-
-            # Start the Docker containers
-            docker-compose -f docker-compose.yml up -d --no-build
-
-            # Collect static files
-            docker-compose exec web python manage.py collectstatic --noinput
-            
-            # Restart the containers if needed
-            docker-compose -f docker-compose.yml restart
+              docker-compose -f docker-compose.staging.yml down
+              docker stop $(docker ps -aq)
+              docker rm $(docker ps -aq)
+              docker volume prune -f 
+              docker image prune -a -f
+              docker container prune -f
+              docker-compose -f docker-compose.staging.yml pull
+              docker-compose -f docker-compose.staging.yml run web-staging python manage.py migrate
+              docker-compose -f docker-compose.staging.yml up -d --no-build
+              docker-compose -f docker-compose.staging.yml exec web-staging python manage.py collectstatic --noinput
+              docker-compose -f docker-compose.staging.yml restart
+            fi

@@ -1,0 +1,71 @@
+services:
+  db-production:
+    image: mysql:8.0
+    container_name: mysqldb_production
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME_PRODUCTION}
+      MYSQL_USER: ${DB_USER_PRODUCTION}
+      MYSQL_PASSWORD: ${DB_PASSWORD_PRODUCTION}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_production:/var/lib/mysql
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+    # networks:
+    #   - app-network 
+
+  web-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sakachris/quiz_cloud_production:latest
+    environment:
+      - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.production
+    container_name: backend_production
+    command: gunicorn --workers 3 --bind 0.0.0.0:8000 --timeout 120 quiz_cloud.wsgi:application
+    restart: always
+    volumes:
+      - .:/app
+      - static_volume_production:/app/staticfiles  # Ensure this maps the collected static files
+      - media_volume_production:/app/media  # Media files mapping
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db-production:
+        condition: service_healthy
+    # networks:
+    #   - app-network 
+
+  nginx-production:
+    image: nginx:latest
+    container_name: nginx_production
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf
+      - static_volume_production:/vol/staticfiles
+      - media_volume_production:/vol/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web-production
+    # networks:
+    #   - app-network 
+
+volumes:
+  mysql_data_production:
+  static_volume_production:
+  media_volume_production:
+
+# networks:
+#   app-network:                         # Define a shared network for services
+#     driver: bridge

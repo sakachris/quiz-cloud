@@ -17,18 +17,8 @@ import os
 load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # This is where collectstatic will collect files
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'quiz', 'static'),
-# ]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -40,15 +30,21 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://pointsystem.tech',
     'https://www.pointsystem.tech',
+    'https://staging.pointsystem.tech',
+    'http://staging.pointsystem.tech',
     'http://127.0.0.1'
 ]
 
-CSRF_COOKIE_SECURE = True
+# # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
+# CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
+
+# CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = False
 
 
 # Application definition
@@ -116,6 +112,33 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+
+# ALLOWED_HOSTS = ['staging.pointsystem.tech']
+
+# Load specific environment settings based on the DJANGO_ENV environment variable
+# DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
+
+# if DJANGO_ENV == 'production':
+#     # Production-specific settings
+#     DEBUG = False
+#     ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+
+    # DATABASES['default'].update({
+    #     'NAME': os.getenv('DB_PRODUCTION_NAME'),
+    #     'HOST': os.getenv('DB_PRODUCTION_HOST'),
+    #     'PORT': os.getenv('DB_PRODUCTION_PORT')
+    # })
+
+# elif DJANGO_ENV == 'staging':
+#     # Staging-specific settings
+#     DEBUG = True  # Optionally enable debug in staging
+#     ALLOWED_HOSTS = ['staging.pointsystem.tech']
+
+#     DATABASES['default'].update({
+#         'NAME': os.getenv('DB_STAGING_NAME'),
+#         # 'HOST': os.getenv('DB_STAGING_HOST'),
+#         'PORT': os.getenv('DB_STAGING_PORT')
+#     })
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -192,6 +215,8 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'  # Convert string to boolean
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PASSWORD_RESET_TIMEOUT = 14400
 SESSION_COOKIE_AGE = 60 * 60 * 8

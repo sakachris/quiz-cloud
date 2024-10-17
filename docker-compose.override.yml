@@ -1,6 +1,0 @@
-services:
-  nginx:
-    volumes:
-      - ./nginx.dev.conf:/etc/nginx/conf.d/default.conf  # Mounting the development Nginx config
-    # environment:
-    #   - DEBUG=True  # Set environment variables for development (not working)
