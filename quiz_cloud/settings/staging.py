@@ -2,7 +2,8 @@
 from .base import *
 
 # DEBUG = True
-ALLOWED_HOSTS = ['staging.pointsystem.tech']
+# ALLOWED_HOSTS = ['staging.pointsystem.tech']
+ALLOWED_HOSTS = ['staging.quizcloud.co.ke']
 
 DATABASES = {
     'default': {

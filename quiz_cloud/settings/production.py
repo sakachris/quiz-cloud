@@ -1,8 +1,9 @@
 # settings/production.py
 from .base import *
 
-# DEBUG = False
-ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+DEBUG = False
+# ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
+ALLOWED_HOSTS = ['quizcloud.co.ke', 'www.quizcloud.co.ke']
 
 DATABASES = {
     'default': {

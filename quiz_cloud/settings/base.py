@@ -33,6 +33,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://quizcloud.co.ke',
+    'https://www.quizcloud.co.ke',
+    'https://staging.quizcloud.co.ke',
     'https://pointsystem.tech',
     'https://www.pointsystem.tech',
     'https://staging.pointsystem.tech',

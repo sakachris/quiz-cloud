@@ -70,9 +70,9 @@ jobs:
       - name: Deploy, Migrate, and Restart Application
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST_QUIZ }}
+          username: ${{ secrets.SERVER_USER_QUIZ }}
+          key: ${{ secrets.SERVER_SSH_KEY_QUIZ }}
           port: 22
           script: |
             cd /home/saka/quiz-cloud
