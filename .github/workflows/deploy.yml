@@ -32,12 +32,12 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
               echo "Setting production environment"
-              echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-              echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+              echo DB_HOST=${{ secrets.DB_HOST_PRODUCTION }} >> .env
+              echo DB_PORT=${{ secrets.DB_PORT_PRODUCTION }} >> .env
               echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-              echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-              echo DB_USER=${{ secrets.DB_USER }} >> .env
-              echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+              echo DB_NAME=${{ secrets.DB_NAME_PRODUCTION }} >> .env
+              echo DB_USER=${{ secrets.DB_USER_PRODUCTION }} >> .env
+              echo DB_PASSWORD=${{ secrets.DB_PASSWORD_PRODUCTION }} >> .env
           elif [ "${{ github.ref_name }}" = "staging" ]; then
               echo DB_HOST_STAGING=${{ secrets.DB_HOST_STAGING }} >> .env
               echo DB_PORT=${{ secrets.DB_PORT_STAGING }} >> .env
@@ -83,6 +83,11 @@ jobs:
               git pull origin ${{ github.ref_name }}
 
               docker-compose -f docker-compose.production.yml down
+              docker stop $(docker ps -aq)
+              docker rm $(docker ps -aq)
+              docker volume prune -f 
+              docker image prune -a -f
+              docker container prune -f
               docker-compose -f docker-compose.production.yml pull
               docker-compose -f docker-compose.production.yml run web python manage.py migrate
               docker-compose -f docker-compose.production.yml up -d --no-build
@@ -95,6 +100,11 @@ jobs:
               git pull origin ${{ github.ref_name }}
 
               docker-compose -f docker-compose.staging.yml down
+              docker stop $(docker ps -aq)
+              docker rm $(docker ps -aq)
+              docker volume prune -f 
+              docker image prune -a -f
+              docker container prune -f
               docker-compose -f docker-compose.staging.yml pull
               docker-compose -f docker-compose.staging.yml run web-staging python manage.py migrate
               docker-compose -f docker-compose.staging.yml up -d --no-build

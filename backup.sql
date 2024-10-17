@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
--- Host: localhost    Database: quizcloud
+-- Host: localhost    Database: quizcloudstaging
 -- ------------------------------------------------------
 -- Server version	8.0.39-0ubuntu0.22.04.1
 

@@ -1,17 +1,17 @@
 services:
-  db-production:
+  db-dev:
     image: mysql:8.0
-    container_name: mysqldb_production
+    container_name: mysqldb_dev
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME_PRODUCTION}
-      MYSQL_USER: ${DB_USER_PRODUCTION}
-      MYSQL_PASSWORD: ${DB_PASSWORD_PRODUCTION}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data_production:/var/lib/mysql
+      - mysql_data_dev:/var/lib/mysql
       - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
     healthcheck:
       test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}", "-e", "SELECT 1"]
@@ -20,51 +20,51 @@ services:
     # networks:
     #   - app-network 
 
-  web-production:
+  web-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    image: sakachris/quiz_cloud_production:latest
-    environment:
-      - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.production
-    container_name: backend_production
+    image: sakachris/quiz_cloud_dev:latest
+    # environment:
+    #   - DJANGO_SETTINGS_MODULE=quiz_cloud.settings.dev
+    container_name: backend_dev
     command: gunicorn --workers 3 --bind 0.0.0.0:8000 --timeout 120 quiz_cloud.wsgi:application
     restart: always
     volumes:
       - .:/app
-      - static_volume_production:/app/staticfiles  # Ensure this maps the collected static files
-      - media_volume_production:/app/media  # Media files mapping
+      - static_volume_dev:/app/staticfiles  # Ensure this maps the collected static files
+      - media_volume_dev:/app/media  # Media files mapping if needed
     ports:
       - "8000:8000"
     env_file:
       - .env
     depends_on:
-      db-production:
+      db-dev:
         condition: service_healthy
     # networks:
     #   - app-network 
 
-  nginx-production:
+  nginx-dev:
     image: nginx:latest
-    container_name: nginx_production
+    container_name: nginx_dev
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf
-      - static_volume_production:/vol/staticfiles
-      - media_volume_production:/vol/media
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf
+      - static_volume_dev:/vol/staticfiles
+      - media_volume_dev:/vol/media
       - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
-      - web-production
+      - web-dev
     # networks:
     #   - app-network 
 
 volumes:
-  mysql_data_production:
-  static_volume_production:
-  media_volume_production:
+  mysql_data_dev:
+  static_volume_dev:
+  media_volume_dev:
 
 # networks:
 #   app-network:                         # Define a shared network for services

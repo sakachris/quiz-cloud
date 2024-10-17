@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Load environment variables from .env file
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+else
+    echo ".env file not found!"
+    exit 1
+fi
+
+# MySQL credentials from .env file
+MYSQL_USER=$DB_USER
+MYSQL_PASSWORD=$DB_PASSWORD
+MYSQL_HOST=$DB_HOST
+MYSQL_DB=$DB_NAME
+BACKUP_FILE="./backup.sql"
+
+# Step 1: Create a MySQL Backup
+echo "Creating a new MySQL backup..."
+mysqldump -u$MYSQL_USER -p$MYSQL_PASSWORD -h$MYSQL_HOST $MYSQL_DB > $BACKUP_FILE
+
+if [ $? -eq 0 ]; then
+    echo "Backup created successfully."
+else
+    echo "Error creating MySQL backup."
+    exit 1
+fi
+
+# Stop and remove all running containers
+echo "Stopping and removing all containers..."
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+# Remove all unused volumes
+echo "Removing unused volumes..."
+docker volume prune -f
+
+# Step 3: Remove existing volumes (optional)
+docker volume rm quiz-cloud_mysql_data_dev
+
+# Remove all unused images
+echo "Removing unused images..."
+docker image prune -a -f
+
+# Remove any dangling/unused containers
+echo "Removing unused containers..."
+docker container prune -f
+
+# Build and run the containers using the specified docker-compose file
+echo "Building and running containers..."
+docker-compose -f docker-compose.dev.yml up --build -d
+
+echo "Done!"
