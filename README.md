@@ -21,7 +21,7 @@ QuizCloud is a web-based platform designed to revolutionize the way students lea
 - MySQL
 - Git
 
-**Deployed Site:** [QuizCloud](https://www.quizcloud.co.ke/)
+**Deployed Site:** [QuizCloud](https://qc.sakachris.com/)
 
 ### Installation Steps
 1. Clone the repository
@@ -39,6 +39,11 @@ source venv/bin/activate
 3. Install dependencies
 ```bash
 pip install -r requirements.txt
+```
+If encountering errors install
+```bash
+sudo apt update
+sudo apt install python3-dev default-libmysqlclient-dev build-essential
 ```
 
 4. Configure your database in settings.py.

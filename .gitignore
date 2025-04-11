@@ -1,6 +1,7 @@
 .quiz/
 __pycache__/
 .vscode/
-.env
+.env*
 quiz_cloud/static
 quiz_cloud/staticfiles
+staticfiles/

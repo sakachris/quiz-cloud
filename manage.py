@@ -7,10 +7,6 @@ from quiz_cloud.settings import base
 
 def main():
     """Run administrative tasks."""
-    # if base.DEBUG:
-    #     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_cloud.settings.local')
-    # else:
-    #     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_cloud.settings.production')
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quiz_cloud.settings.base')
     try:
         from django.core.management import execute_from_command_line

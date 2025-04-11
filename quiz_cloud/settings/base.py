@@ -14,11 +14,19 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # Load environment variables from .env file
+# load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Load environment variables from the correct .env file
+DJANGO_ENV = os.getenv("DJANGO_ENV", "development")
+if DJANGO_ENV == "development":
+    load_dotenv(".env.development")
+elif DJANGO_ENV == "production":
+    load_dotenv(".env.production")
+
+print(f"DJANGO_ENV is set to: {os.getenv('DJANGO_ENV')}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -26,31 +34,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-#DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [url.strip() for url in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if url.strip()]
+CORS_ALLOWED_ORIGINS = [url.strip() for url in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if url.strip()]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://quizcloud.co.ke',
-    'https://www.quizcloud.co.ke',
-    'https://staging.quizcloud.co.ke',
-    'https://pointsystem.tech',
-    'https://www.pointsystem.tech',
-    'https://staging.pointsystem.tech',
-    'http://staging.pointsystem.tech',
-    'http://127.0.0.1'
-]
-
-# # CSRF_COOKIE_DOMAIN = '.pointsystem.tech'
-# CSRF_COOKIE_DOMAIN = 'staging.pointsystem.tech'  # For staging
+CORS_ALLOW_CREDENTIALS = True
 
 # CSRF_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = False
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -115,33 +107,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
-
-# ALLOWED_HOSTS = ['staging.pointsystem.tech']
-
-# Load specific environment settings based on the DJANGO_ENV environment variable
-# DJANGO_ENV = os.getenv('DJANGO_ENV', 'production')
-
-# if DJANGO_ENV == 'production':
-#     # Production-specific settings
-#     DEBUG = False
-#     ALLOWED_HOSTS = ['pointsystem.tech', 'www.pointsystem.tech']
-
-    # DATABASES['default'].update({
-    #     'NAME': os.getenv('DB_PRODUCTION_NAME'),
-    #     'HOST': os.getenv('DB_PRODUCTION_HOST'),
-    #     'PORT': os.getenv('DB_PRODUCTION_PORT')
-    # })
-
-# elif DJANGO_ENV == 'staging':
-#     # Staging-specific settings
-#     DEBUG = True  # Optionally enable debug in staging
-#     ALLOWED_HOSTS = ['staging.pointsystem.tech']
-
-#     DATABASES['default'].update({
-#         'NAME': os.getenv('DB_STAGING_NAME'),
-#         # 'HOST': os.getenv('DB_STAGING_HOST'),
-#         'PORT': os.getenv('DB_STAGING_PORT')
-#     })
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

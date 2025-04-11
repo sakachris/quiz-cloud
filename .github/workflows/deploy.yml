@@ -4,21 +4,30 @@ on:
   push:
     branches:
       - main
-      - staging
   pull_request:
     branches:
       - main
-      - staging
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Environment Tag
+        id: set-tag
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "TAG=production" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/kubs" ]]; then
+            echo "TAG=kubs" >> $GITHUB_ENV
+          else
+            echo "TAG=staging" >> $GITHUB_ENV
+          fi
+
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Install Docker Compose
         run: |
@@ -28,86 +37,13 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Set environment variables
+      - name: Show Working Directory Contents
+        run: ls -R
+
+      - name: Build & Push Backend Image
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-              echo "Setting production environment"
-              echo DB_HOST=${{ secrets.DB_HOST_PRODUCTION }} >> .env
-              echo DB_PORT=${{ secrets.DB_PORT_PRODUCTION }} >> .env
-              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-              echo DB_NAME=${{ secrets.DB_NAME_PRODUCTION }} >> .env
-              echo DB_USER=${{ secrets.DB_USER_PRODUCTION }} >> .env
-              echo DB_PASSWORD=${{ secrets.DB_PASSWORD_PRODUCTION }} >> .env
-          elif [ "${{ github.ref_name }}" = "staging" ]; then
-              echo DB_HOST_STAGING=${{ secrets.DB_HOST_STAGING }} >> .env
-              echo DB_PORT=${{ secrets.DB_PORT_STAGING }} >> .env
-              echo DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }} >> .env
-              echo DB_NAME_STAGING=${{ secrets.DB_NAME_STAGING }} >> .env
-              echo DB_USER_STAGING=${{ secrets.DB_USER_STAGING }} >> .env
-              echo DB_PASSWORD_STAGING=${{ secrets.DB_PASSWORD_STAGING }} >> .env
-          fi
-
-      - name: Build and push Docker images
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-              echo "Building and Pushing Docker Images"
-              docker-compose -f docker-compose.production.yml build
-              docker-compose -f docker-compose.production.yml push
-          elif [ "${{ github.ref_name }}" = "staging" ]; then
-              echo "Building and Pushing Docker Images"
-              docker-compose -f docker-compose.staging.yml build
-              docker-compose -f docker-compose.staging.yml push
-          fi
-
-      - name: Check Docker Compose version
-        run: docker-compose --version
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      # Deploy to server using SSH
-      - name: Deploy, Migrate, and Restart Application
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST_QUIZ }}
-          username: ${{ secrets.SERVER_USER_QUIZ }}
-          key: ${{ secrets.SERVER_SSH_KEY_QUIZ }}
-          port: 22
-          script: |
-            cd /home/saka/quiz-cloud
-
-            if [ "${{ github.ref_name }}" = "main" ]; then
-              echo "Actions for Production"
-              git checkout ${{ github.ref_name }}
-              git pull origin ${{ github.ref_name }}
-
-              docker-compose -f docker-compose.production.yml down
-              docker stop $(docker ps -aq)
-              docker rm $(docker ps -aq)
-              docker volume prune -f 
-              docker image prune -a -f
-              docker container prune -f
-              docker-compose -f docker-compose.production.yml pull
-              docker-compose -f docker-compose.production.yml run web python manage.py migrate
-              docker-compose -f docker-compose.production.yml up -d --no-build
-              docker-compose -f docker-compose.production.yml exec web python manage.py collectstatic --noinput
-              docker-compose -f docker-compose.production.yml restart
-
-            elif [ "${{ github.ref_name }}" = "staging" ]; then
-              echo "Actions for Staging"
-              git checkout ${{ github.ref_name }}
-              git pull origin ${{ github.ref_name }}
-
-              docker-compose -f docker-compose.staging.yml down
-              docker stop $(docker ps -aq)
-              docker rm $(docker ps -aq)
-              docker volume prune -f 
-              docker image prune -a -f
-              docker container prune -f
-              docker-compose -f docker-compose.staging.yml pull
-              docker-compose -f docker-compose.staging.yml run web-staging python manage.py migrate
-              docker-compose -f docker-compose.staging.yml up -d --no-build
-              docker-compose -f docker-compose.staging.yml exec web-staging python manage.py collectstatic --noinput
-              docker-compose -f docker-compose.staging.yml restart
-            fi
+          docker build \
+            --build-arg DJANGO_ENV=${{ env.TAG }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/quizcloud:${{ env.TAG }} \
+            -f Dockerfile.${{ env.TAG }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/quizcloud:${{ env.TAG }}

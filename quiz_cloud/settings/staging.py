@@ -1,17 +1,19 @@
 # settings/staging.py
 from .base import *
 
-# DEBUG = True
-# ALLOWED_HOSTS = ['staging.pointsystem.tech']
-ALLOWED_HOSTS = ['staging.quizcloud.co.ke']
+DEBUG = False
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME_STAGING'),
-        'USER': os.getenv('DB_USER_STAGING'),
-        'PASSWORD': os.getenv('DB_PASSWORD_STAGING'),
-        'HOST': os.getenv('DB_HOST_STAGING'),
-        'PORT': os.getenv('DB_PORT_STAGING'),
-    }
-}
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+
+# Security settings
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Session & CSRF cookies
+SESSION_COOKIE_DOMAIN = os.getenv("SESSION_COOKIE_DOMAIN")
+CSRF_COOKIE_DOMAIN = os.getenv("CSRF_COOKIE_DOMAIN")
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_NAME = "sessionid"  # Ensure unique session cookie name
